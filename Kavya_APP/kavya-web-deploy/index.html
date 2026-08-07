@@ -1,0 +1,4071 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kavya VIP - Neon Experience</title>
+
+  <!-- PWA Meta -->
+  <meta name="theme-color" content="#07080c">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/jpeg" href="assets/person.jpeg">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&family=Space+Grotesk:wght@500;700&display=swap"
+    rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    :root {
+      --bg-dark: #07080c;
+      --bg-card: rgba(18, 20, 29, 0.7);
+      --bg-glass: rgba(255, 255, 255, 0.04);
+      --border-glass: rgba(255, 255, 255, 0.08);
+
+      --neon-green: #00ff88;
+      --neon-green-glow: rgba(0, 255, 136, 0.4);
+      --neon-red: #ff0055;
+      --neon-red-glow: rgba(255, 0, 85, 0.45);
+      --neon-cyan: #00f0ff;
+      --neon-cyan-glow: rgba(0, 240, 255, 0.35);
+      --neon-gray: #8b9bb4;
+      --neon-gray-glow: rgba(139, 155, 180, 0.2);
+
+      --text-main: #f0f4f8;
+      --text-muted: #8e9bb0;
+
+      --radius-lg: 20px;
+      --radius-md: 12px;
+      --transition-fast: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Ambient Canvas */
+    #ambient-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.6;
+    }
+
+    /* Top Navigation Header */
+    header.main-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 70px;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(7, 8, 12, 0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-glass);
+      z-index: 100;
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .menu-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-glass);
+      color: var(--text-main);
+      font-size: 1.2rem;
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition-fast);
+    }
+
+    .menu-btn:hover {
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 12px var(--neon-cyan-glow);
+      color: var(--neon-cyan);
+    }
+
+    /* Logo Clickable to Home */
+    .logo-brand {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      background: linear-gradient(135deg, #ffffff 0%, var(--neon-cyan) 50%, var(--neon-red) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: var(--transition-fast);
+    }
+
+    .logo-brand:hover {
+      opacity: 0.9;
+      transform: scale(1.02);
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .credits-badge {
+      background: rgba(0, 255, 136, 0.08);
+      border: 1px solid var(--neon-green-glow);
+      padding: 8px 16px;
+      border-radius: 30px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--neon-green);
+      cursor: pointer;
+      transition: var(--transition-fast);
+    }
+
+    .credits-badge:hover {
+      background: rgba(0, 255, 136, 0.18);
+      box-shadow: 0 0 16px var(--neon-green-glow);
+      transform: translateY(-1px);
+    }
+
+    .profile-avatar-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 2px solid var(--neon-red);
+      overflow: hidden;
+      cursor: pointer;
+      box-shadow: 0 0 12px var(--neon-red-glow);
+      transition: var(--transition-fast);
+    }
+
+    .profile-avatar-btn:hover {
+      transform: scale(1.08);
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 18px var(--neon-cyan-glow);
+    }
+
+    .profile-avatar-btn img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Sidebar Overlay & Drawer */
+    .sidebar-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(8px);
+      z-index: 200;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .sidebar-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .sidebar-drawer {
+      position: fixed;
+      top: 0;
+      left: -300px;
+      width: 290px;
+      height: 100%;
+      background: rgba(12, 14, 22, 0.96);
+      border-right: 1px solid var(--border-glass);
+      backdrop-filter: blur(20px);
+      z-index: 201;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 24px 16px;
+      transition: left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .sidebar-overlay.active .sidebar-drawer {
+      left: 0;
+    }
+
+    .drawer-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border-glass);
+      margin-bottom: 20px;
+    }
+
+    .drawer-close-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.3rem;
+      cursor: pointer;
+    }
+
+    .drawer-close-btn:hover {
+      color: var(--neon-red);
+    }
+
+    .nav-links-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 18px;
+      border-radius: 12px;
+      color: var(--text-muted);
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition-fast);
+    }
+
+    .nav-item:hover,
+    .nav-item.active {
+      background: rgba(0, 240, 255, 0.08);
+      color: var(--neon-cyan);
+      border-left: 3px solid var(--neon-cyan);
+    }
+
+    .nav-item i {
+      font-size: 1.2rem;
+      width: 24px;
+    }
+
+    .drawer-footer {
+      border-top: 1px solid var(--border-glass);
+      padding-top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .drawer-profile-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px;
+      border-radius: 12px;
+      background: var(--bg-card);
+      cursor: pointer;
+      transition: var(--transition-fast);
+    }
+
+    .btn-signout-drawer {
+      width: 100%;
+      background: rgba(255, 0, 85, 0.1);
+      border: 1px solid var(--neon-red);
+      color: var(--neon-red);
+      padding: 12px;
+      border-radius: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: var(--transition-fast);
+    }
+
+    .btn-signout-drawer:hover {
+      background: var(--neon-red);
+      color: #fff;
+      box-shadow: 0 0 15px var(--neon-red-glow);
+    }
+
+    /* Sign Out Button for Profile Page - Romantic Neon Glow on Hover */
+    .btn-signout-profile {
+      width: 100%;
+      background: rgba(255, 0, 85, 0.1);
+      border: 2px solid var(--neon-red);
+      color: var(--neon-red);
+      padding: 14px;
+      border-radius: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: var(--transition-fast);
+      position: relative;
+      overflow: hidden;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: 1.05rem;
+    }
+
+    .btn-signout-profile::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: 0.5s;
+    }
+
+    .btn-signout-profile:hover::before {
+      left: 100%;
+    }
+
+    .btn-signout-profile:hover {
+      background: linear-gradient(135deg, var(--neon-red), #ff2d78);
+      color: #fff;
+      box-shadow: 0 0 25px var(--neon-red-glow),
+        0 0 35px var(--neon-red-glow),
+        inset 0 0 20px rgba(255, 0, 85, 0.6);
+      transform: translateY(-2px) scale(1.02);
+      border-color: var(--neon-cyan);
+      text-shadow: 0 0 8px rgba(255, 255, 255, 0.7);
+    }
+
+    .btn-signout-profile i {
+      font-size: 1.2rem;
+    }
+
+    /* Offer Banner - Thin, Vibrating, Romantic Vibrant Banner */
+    .offer-banner-top {
+      position: relative;
+      z-index: 90;
+      background: linear-gradient(90deg,
+          rgba(0, 0, 0, 0.95) 0%,
+          rgba(75, 0, 130, 0.9) 25%,
+          rgba(138, 43, 226, 0.9) 50%,
+          rgba(75, 0, 130, 0.95) 75%,
+          rgba(0, 0, 0, 0.95) 100%);
+      border: 1px solid #8a2be2;
+      border-radius: 12px;
+      padding: 8px 16px;
+      margin: 0 auto 10px;
+      max-width: 1100px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 0 20px rgba(138, 43, 226, 0.6),
+        0 0 30px rgba(75, 0, 130, 0.5),
+        0 0 40px rgba(138, 43, 226, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 20px rgba(138, 43, 226, 0.6),
+        0 0 30px rgba(75, 0, 130, 0.5),
+        0 0 40px rgba(138, 43, 226, 0.7);
+      animation: vibrate 0.18s ease-in-out 4;
+      overflow: hidden;
+    }
+
+    .offer-banner-top::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+      transition: 0.5s;
+    }
+
+    .offer-banner-top:hover {
+      box-shadow: 0 0 30px rgba(138, 43, 226, 0.9),
+        0 0 45px rgba(75, 0, 130, 0.8),
+        0 0 60px rgba(138, 43, 226, 1);
+      transform: translateY(-1px);
+      animation: vibrate 0.15s ease-in-out infinite;
+    }
+
+    .offer-banner-top:hover::before {
+      left: 100%;
+    }
+
+    .offer-banner-top-text {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #fff;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-shadow: 0 0 8px rgba(0, 0, 0, 0.7);
+    }
+
+    .limited-time-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--neon-cyan);
+      background: rgba(0, 240, 255, 0.08);
+      border: 1px solid var(--neon-cyan);
+      border-radius: 10px;
+      padding: 4px 8px;
+      margin-top: 5px;
+      animation: none;
+      text-shadow: 0 0 5px rgba(0, 240, 255, 0.5);
+      box-shadow: 0 0 10px var(--neon-cyan-glow);
+      /* Added glow */
+    }
+
+    .vibrating-bell {
+      animation: bell-shake 0.5s cubic-bezier(.36, .07, .19, .97) infinite alternate;
+      transform-origin: top center;
+      display: inline-block;
+      color: var(--neon-red);
+      font-size: 1.2rem;
+      /* Make the bell icon bigger */
+    }
+
+    @keyframes bell-shake {
+      0% {
+        transform: rotate(0);
+      }
+
+      15% {
+        transform: rotate(5deg);
+      }
+
+      30% {
+        transform: rotate(-5deg);
+      }
+
+      45% {
+        transform: rotate(5deg);
+      }
+
+      60% {
+        transform: rotate(-5deg);
+      }
+
+      75% {
+        transform: rotate(5deg);
+      }
+
+      100% {
+        transform: rotate(0);
+      }
+    }
+
+    .offer-banner-top .offer-tag {
+      background: #1a1a1a;
+      color: #bf7fff;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    .offer-banner-top .offer-icon {
+      color: #fff;
+      font-size: 1rem;
+      animation: spin 3s linear infinite;
+    }
+
+    @keyframes vibrate {
+
+      0%,
+      100% {
+        transform: translateX(0) rotate(-2deg);
+      }
+
+      20% {
+        transform: translateX(-2px) rotate(-1deg);
+      }
+
+      40% {
+        transform: translateX(2px) rotate(1deg);
+      }
+
+      60% {
+        transform: translateX(-2px) rotate(-1deg);
+      }
+
+      80% {
+        transform: translateX(2px) rotate(1deg);
+      }
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.8;
+        transform: scale(1.05);
+      }
+    }
+
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Offer Popup Banner - Romantic Vibrant Design */
+    .offer-popup-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      z-index: 300;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
+    }
+
+    .offer-popup-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .offer-popup {
+      position: relative;
+      background: linear-gradient(135deg,
+          rgba(0, 0, 0, 0.98) 0%,
+          rgba(75, 0, 130, 0.95) 30%,
+          rgba(138, 43, 226, 0.9) 50%,
+          rgba(75, 0, 130, 0.95) 70%,
+          rgba(0, 0, 0, 0.98) 100%);
+      border: 2px solid #8a2be2;
+      border-radius: 28px;
+      padding: 40px 36px;
+      max-width: 480px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 0 30px rgba(138, 43, 226, 0.8),
+        0 0 50px rgba(75, 0, 130, 0.6),
+        0 0 70px rgba(138, 43, 226, 0.9);
+      animation: popupPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 1;
+      backdrop-filter: blur(10px);
+    }
+
+    @keyframes popupPop {
+      0% {
+        opacity: 0;
+        transform: scale(0.3) rotate(-5deg);
+      }
+
+      70% {
+        transform: scale(1.05) rotate(1deg);
+      }
+
+      100% {
+        opacity: 1;
+        transform: scale(1) rotate(0);
+      }
+    }
+
+    .offer-popup::before {
+      content: '';
+      position: absolute;
+      top: -4px;
+      left: -4px;
+      right: -4px;
+      bottom: -4px;
+      border-radius: 32px;
+      background: linear-gradient(45deg, #1a1a1a, #8a2be2, #1a1a1a, #4b0082);
+      z-index: -1;
+      filter: blur(8px);
+      opacity: 0.7;
+      animation: glowPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes glowPulse {
+
+      0%,
+      100% {
+        opacity: 0.7;
+        filter: blur(8px) scale(1);
+      }
+
+      50% {
+        opacity: 0.9;
+        filter: blur(12px) scale(1.05);
+      }
+    }
+
+    .offer-popup .popup-close-btn {
+      position: absolute;
+      top: -12px;
+      right: -12px;
+      width: 34px;
+      height: 34px;
+      background: #1a1a1a;
+      color: #bf7fff;
+      border: 2px solid #8a2be2;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      cursor: pointer;
+      box-shadow: 0 0 15px var(--neon-red-glow);
+      transition: all 0.2s ease;
+      z-index: 1;
+    }
+
+    .offer-popup .popup-close-btn:hover {
+      background: #8a2be2;
+      color: #fff;
+      transform: scale(1.15);
+      box-shadow: 0 0 20px rgba(138, 43, 226, 0.8),
+        0 0 30px rgba(138, 43, 226, 1);
+      animation: vibrate 0.12s ease-in-out infinite;
+    }
+
+    .offer-popup-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 8px;
+      text-shadow: 0 0 12px rgba(0, 0, 0, 0.7);
+      letter-spacing: 2px;
+    }
+
+    .offer-popup-tag {
+      display: inline-block;
+      background: #fff;
+      color: var(--neon-red);
+      padding: 6px 20px;
+      border-radius: 30px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    .offer-popup-desc {
+      font-size: 1.05rem;
+      color: #fff;
+      margin-bottom: 22px;
+      line-height: 1.6;
+      text-shadow: 0 0 8px rgba(0, 0, 0, 0.6);
+    }
+
+    .offer-popup .btn-neon-green {
+      margin-top: 8px;
+      font-size: 1.1rem;
+      padding: 16px 30px;
+      box-shadow: 0 0 25px var(--neon-green-glow);
+    }
+
+    .offer-popup .btn-neon-green:hover {
+      box-shadow: 0 0 40px var(--neon-green-glow);
+      transform: translateY(-3px) scale(1.03);
+    }
+
+    /* Main View Container */
+    main.view-container {
+      position: relative;
+      z-index: 1;
+      padding-top: 90px;
+      padding-bottom: 40px;
+      min-height: 100vh;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding-left: 20px;
+      padding-right: 20px;
+    }
+
+    .page-section {
+      display: none;
+      animation: fadeIn 0.4s ease forwards;
+    }
+
+    .page-section.active {
+      display: block;
+    }
+
+    .legal-card {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 32px;
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-lg);
+      background: var(--bg-card);
+      line-height: 1.7;
+      color: var(--text-muted);
+    }
+
+    .legal-card h1,
+    .legal-card h2 {
+      color: var(--text-main);
+      margin-bottom: 14px;
+    }
+
+    .legal-card h2 {
+      margin-top: 26px;
+      font-size: 1.15rem;
+    }
+
+    .legal-card p,
+    .legal-card li {
+      margin-bottom: 12px;
+    }
+
+    .legal-card a {
+      color: var(--neon-cyan);
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ---------------------------------------------------- */
+    /* PAGE 1: SIGNUP / SIGNIN WITH SEPARATE 2 BUTTONS      */
+    /* ---------------------------------------------------- */
+    .signup-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 130px);
+      perspective: 1000px;
+    }
+
+    .signup-card-3d {
+      width: 100%;
+      max-width: 480px;
+      background: rgba(14, 16, 26, 0.85);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(0, 240, 255, 0.25);
+      border-radius: 24px;
+      padding: 40px 32px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(0, 240, 255, 0.15);
+      transform-style: preserve-3d;
+      transition: transform 0.1s ease-out, box-shadow 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .person-hero-frame {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 16px;
+      border-radius: 50%;
+      border: 3px solid var(--neon-red);
+      box-shadow: 0 0 25px var(--neon-red-glow);
+      overflow: hidden;
+      transform: translateZ(30px);
+    }
+
+    .person-hero-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .signup-title {
+      text-align: center;
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      background: linear-gradient(135deg, #fff, var(--neon-green));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      transform: translateZ(20px);
+    }
+
+    .signup-subtitle {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 24px;
+      transform: translateZ(15px);
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+      transform: translateZ(15px);
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .form-input {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-glass);
+      border-radius: 12px;
+      padding: 14px 16px;
+      color: #fff;
+      font-size: 1rem;
+      outline: none;
+      transition: var(--transition-fast);
+    }
+
+    .form-input:focus {
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 15px var(--neon-cyan-glow);
+      background: rgba(0, 240, 255, 0.03);
+    }
+
+    .password-wrap {
+      position: relative;
+    }
+
+    .password-wrap .form-input {
+      padding-right: 50px;
+    }
+
+    .password-toggle-btn {
+      position: absolute;
+      top: 50%;
+      right: 8px;
+      transform: translateY(-50%);
+      width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      cursor: pointer;
+      border-radius: 10px;
+      transition: var(--transition-fast);
+    }
+
+    .password-toggle-btn:hover {
+      color: var(--neon-cyan);
+      text-shadow: 0 0 8px var(--neon-cyan-glow);
+    }
+
+    .captcha-box {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px dashed rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      cursor: pointer;
+      transform: translateZ(15px);
+    }
+
+    .captcha-checkbox {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--neon-green);
+      cursor: pointer;
+    }
+
+    /* Requirement 1: Separate SIGN IN and SIGN UP buttons */
+    .dual-auth-buttons {
+      display: flex;
+      gap: 14px;
+      transform: translateZ(25px);
+    }
+
+    .btn-auth-signin {
+      flex: 1;
+      padding: 16px;
+      background: linear-gradient(135deg, var(--neon-green), #00b359);
+      border: none;
+      border-radius: 14px;
+      color: #000;
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      box-shadow: 0 0 20px var(--neon-green-glow);
+      transition: var(--transition-fast);
+    }
+
+    .btn-auth-signin:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 30px var(--neon-green-glow);
+    }
+
+    .btn-auth-signup {
+      flex: 1;
+      padding: 16px;
+      background: linear-gradient(135deg, var(--neon-red), #d60047);
+      border: none;
+      border-radius: 14px;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      box-shadow: 0 0 20px var(--neon-red-glow);
+      transition: var(--transition-fast);
+    }
+
+    .btn-auth-signup:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 30px var(--neon-red-glow);
+    }
+
+    .auth-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 16px 0 12px;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+      transform: translateZ(25px);
+    }
+
+    .auth-divider::before,
+    .auth-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border-glass);
+    }
+
+    .btn-auth-google {
+      width: 100%;
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-glass);
+      border-radius: 14px;
+      color: var(--text-main);
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: var(--transition-fast);
+      transform: translateZ(25px);
+    }
+
+    .btn-auth-google:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: var(--neon-cyan);
+      transform: translateY(-2px);
+    }
+
+    .btn-auth-google:disabled,
+    .btn-auth-signin:disabled,
+    .btn-auth-signup:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* ---------------------------------------------------- */
+    /* DASHBOARD & HERO SECTION                            */
+    /* ---------------------------------------------------- */
+    .dashboard-hero {
+      position: relative;
+      border-radius: 28px;
+      background: linear-gradient(135deg, rgba(16, 18, 28, 0.9), rgba(10, 11, 17, 0.95));
+      border: 1px solid var(--border-glass);
+      z-index: 100;
+      overflow: hidden;
+      padding: 40px 30px;
+      margin-bottom: 36px;
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 30px;
+      align-items: center;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+    }
+
+    @media (max-width: 900px) {
+      .dashboard-hero {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .hero-content-left h1 {
+      font-size: 2.5rem;
+      font-weight: 900;
+      line-height: 1.2;
+      margin-bottom: 14px;
+      background: linear-gradient(135deg, #ffffff, var(--neon-cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-content-left p {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      margin-bottom: 30px;
+      z-index: -14;
+      max-width: 540px;
+      line-height: 1.6;
+    }
+
+    .main-action-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .btn-neon-green {
+      flex: 1;
+      min-width: 220px;
+      background: rgba(0, 255, 136, 0.08);
+      border: 2px solid var(--neon-green);
+      color: var(--neon-green);
+      padding: 18px 24px;
+      border-radius: 16px;
+      font-size: 1.15rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      box-shadow: 0 0 20px var(--neon-green-glow);
+      transition: var(--transition-fast);
+      text-transform: uppercase;
+    }
+
+    .btn-neon-green:hover {
+      background: var(--neon-green);
+      color: #000;
+      box-shadow: 0 0 35px var(--neon-green-glow);
+      transform: translateY(-3px);
+    }
+
+    .btn-neon-red {
+      flex: 1;
+      min-width: 220px;
+      background: rgba(255, 0, 85, 0.08);
+      border: 2px solid var(--neon-red);
+      color: var(--neon-red);
+      padding: 18px 24px;
+      border-radius: 16px;
+      font-size: 1.15rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      box-shadow: 0 0 20px var(--neon-red-glow);
+      transition: var(--transition-fast);
+      text-transform: uppercase;
+    }
+
+    .btn-neon-red:hover {
+      background: var(--neon-red);
+      color: #fff;
+      box-shadow: 0 0 35px var(--neon-red-glow);
+      transform: translateY(-3px);
+    }
+
+    .hero-person-preview {
+      position: relative;
+      height: 320px;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 2px solid var(--neon-cyan-glow);
+      box-shadow: 0 0 30px rgba(0, 240, 255, 0.2);
+    }
+
+    .hero-person-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .hero-person-preview .badge-tag {
+      position: absolute;
+      bottom: 14px;
+      left: 14px;
+      right: 14px;
+      background: rgba(10, 12, 20, 0.85);
+      backdrop-filter: blur(10px);
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      border: 1px solid var(--border-glass);
+      color: var(--neon-green);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Section Headers */
+    .section-title-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .section-title-bar h2 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .media-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 24px;
+    }
+
+    .media-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-glass);
+      border-radius: 20px;
+      overflow: hidden;
+      transition: var(--transition-fast);
+      position: relative;
+    }
+
+    .media-card:hover {
+      border-color: var(--neon-red-glow);
+      box-shadow: 0 10px 30px rgba(255, 0, 85, 0.2);
+      transform: translateY(-4px);
+    }
+
+    .media-thumb {
+      height: 320px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .media-thumb img,
+    .media-thumb video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+
+    .media-card:hover .media-thumb img {
+      transform: scale(1.06);
+    }
+
+    .media-overlay-lock {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(10, 12, 18, 0.6);
+      backdrop-filter: blur(12px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      opacity: 1;
+      transition: var(--transition-fast);
+    }
+
+    .media-card.unlocked .media-overlay-lock {
+      display: none;
+    }
+
+    .lock-icon-neon {
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      background: rgba(255, 0, 85, 0.15);
+      border: 2px solid var(--neon-red);
+      color: var(--neon-red);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      box-shadow: 0 0 20px var(--neon-red-glow);
+    }
+
+    .unlock-btn {
+      background: var(--neon-red);
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      box-shadow: 0 0 15px var(--neon-red-glow);
+      transition: var(--transition-fast);
+    }
+
+    .unlock-btn:hover {
+      transform: scale(1.05);
+    }
+
+    .media-info {
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .media-title {
+      font-weight: 600;
+      font-size: 1.05rem;
+    }
+
+    .media-cost {
+      color: var(--neon-green);
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    /* Interactive Chat */
+    .chat-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border-glass);
+      border-radius: 24px;
+      height: 600px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .chat-header {
+      padding: 16px 24px;
+      background: rgba(255, 255, 255, 0.02);
+      border-bottom: 1px solid var(--border-glass);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .chat-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 2px solid var(--neon-green);
+      object-fit: cover;
+    }
+
+    .chat-messages-area {
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .msg-bubble {
+      max-width: 70%;
+      padding: 14px 18px;
+      border-radius: 18px;
+      font-size: 0.98rem;
+      line-height: 1.5;
+    }
+
+    .msg-bubble.bot {
+      background: rgba(0, 240, 255, 0.08);
+      border: 1px solid rgba(0, 240, 255, 0.2);
+      color: #fff;
+      align-self: flex-start;
+      border-top-left-radius: 4px;
+    }
+
+    .msg-bubble.user {
+      background: linear-gradient(135deg, var(--neon-red), #b5003c);
+      color: #fff;
+      align-self: flex-end;
+      border-top-right-radius: 4px;
+      box-shadow: 0 4px 15px var(--neon-red-glow);
+    }
+
+    .chat-input-bar {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border-glass);
+      display: flex;
+      gap: 12px;
+      background: rgba(10, 12, 18, 0.8);
+    }
+
+    .chat-input-field {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-glass);
+      border-radius: 14px;
+      padding: 12px 18px;
+      color: #fff;
+      outline: none;
+    }
+
+    /* Chat unread notification dot */
+    .chat-notif-wrap {
+      position: relative !important;
+    }
+
+    .chat-notif-dot {
+      display: none;
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      width: 14px;
+      height: 14px;
+      background: #ff4da6;
+      border-radius: 50%;
+      border: 2px solid var(--bg-main, #0a0a0f);
+      box-shadow: 0 0 10px #ff4da6, 0 0 20px rgba(255, 77, 166, 0.6);
+      pointer-events: none;
+      z-index: 10;
+      animation: notif-pulse 1.4s ease-in-out infinite;
+    }
+
+    @keyframes notif-pulse {
+
+      0%,
+      100% {
+        transform: scale(1);
+        box-shadow: 0 0 10px #ff4da6, 0 0 20px rgba(255, 77, 166, 0.6);
+      }
+
+      50% {
+        transform: scale(1.25);
+        box-shadow: 0 0 16px #ff4da6, 0 0 32px rgba(255, 77, 166, 0.8);
+      }
+    }
+
+    .chat-notif-dot.visible {
+      display: block;
+    }
+
+    .chat-send-btn {
+      background: var(--neon-green);
+      color: #000;
+      border: none;
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      box-shadow: 0 0 15px var(--neon-green-glow);
+    }
+
+    /* PROFILE PAGE WITH DEFAULT "Normal User" TIER STATUS */
+    .profile-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-glass);
+      border-radius: 28px;
+      padding: 40px;
+      max-width: 680px;
+      margin: 0 auto;
+      text-align: center;
+      position: relative;
+    }
+
+    .profile-dp-container {
+      position: relative;
+      width: 140px;
+      height: 140px;
+      margin: 0 auto 24px;
+    }
+
+    .profile-dp-img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--neon-red);
+      box-shadow: 0 0 25px var(--neon-red-glow);
+    }
+
+    .edit-dp-badge {
+      position: absolute;
+      bottom: 4px;
+      right: 4px;
+      width: 40px;
+      height: 40px;
+      background: var(--neon-cyan);
+      color: #000;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 0 12px var(--neon-cyan-glow);
+    }
+
+    .profile-username-input {
+      font-size: 1.6rem;
+      font-weight: 700;
+      background: transparent;
+      border: none;
+      border-bottom: 2px dashed rgba(255, 255, 255, 0.2);
+      color: #fff;
+      text-align: center;
+      outline: none;
+      padding: 6px;
+      margin-bottom: 12px;
+      width: 260px;
+    }
+
+    .credits-stat-box {
+      background: rgba(0, 255, 136, 0.06);
+      border: 1px solid var(--neon-green-glow);
+      border-radius: 20px;
+      padding: 20px 30px;
+      margin: 24px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+    }
+
+    .stat-item h3 {
+      font-size: 1.8rem;
+      color: var(--neon-green);
+      font-weight: 900;
+    }
+
+    .stat-item p {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    /* SUBSCRIPTION TIERS FROM SPEC */
+    .sub-title-area {
+      text-align: center;
+      margin-bottom: 44px;
+    }
+
+    .sub-title-area h1 {
+      font-size: 2.8rem;
+      font-weight: 900;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, #fff, var(--neon-cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .sub-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+    }
+
+    .sub-card.tier-free {
+      background: rgba(139, 155, 180, 0.08);
+      border: 2px solid var(--neon-gray-glow);
+      border-radius: 24px;
+      padding: 36px 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .btn-neon-gray {
+      background: rgba(139, 155, 180, 0.15);
+      color: var(--neon-gray);
+      border: 1px solid var(--neon-gray);
+      padding: 14px;
+      border-radius: 14px;
+      font-size: 1.2rem;
+      font-weight: 800;
+      width: 100%;
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .sub-card.tier-green {
+      background: rgba(0, 255, 136, 0.08);
+      border: 2px solid var(--neon-green);
+      border-radius: 24px;
+      padding: 36px 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 0 20px var(--neon-green-glow);
+    }
+
+    .price-display-green {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .price-old {
+      text-decoration: line-through;
+      color: var(--text-muted);
+      font-size: 1.4rem;
+    }
+
+    .price-new-green {
+      color: var(--neon-green);
+      font-size: 2.2rem;
+      font-weight: 900;
+    }
+
+    .sub-card.tier-red {
+      background: rgba(255, 0, 85, 0.08);
+      border: 2px solid var(--neon-red);
+      border-radius: 24px;
+      padding: 36px 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 0 20px var(--neon-red-glow);
+    }
+
+    .price-display-red {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .bullet-points-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-top: 20px;
+    }
+
+    .bullet-points-list li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-main);
+    }
+
+    .tier-action-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      margin-top: 28px;
+      transition: var(--transition-fast);
+    }
+
+    .btn-green-sub {
+      background: var(--neon-green);
+      color: #000;
+      box-shadow: 0 0 15px var(--neon-green-glow);
+    }
+
+    .btn-red-sub {
+      background: var(--neon-red);
+      color: #fff;
+      box-shadow: 0 0 15px var(--neon-red-glow);
+    }
+
+    /* Lightbox Modal */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(14px);
+      z-index: 300;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-backdrop.active {
+      display: flex;
+    }
+
+    .modal-content-box {
+      max-width: 600px;
+      width: 100%;
+      background: var(--bg-card);
+      border: 1px solid var(--neon-cyan);
+      border-radius: 24px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 0 40px var(--neon-cyan-glow);
+    }
+
+    .modal-img {
+      width: 100%;
+      max-height: 500px;
+      object-fit: contain;
+    }
+
+    .modal-close-icon {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.6);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    /* Toast */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 400;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .toast-msg {
+      background: rgba(12, 14, 22, 0.95);
+      border: 1px solid var(--neon-cyan);
+      color: #fff;
+      padding: 14px 20px;
+      border-radius: 14px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      animation: slideInRight 0.3s ease forwards;
+    }
+
+    /* SPLIT LAYOUT */
+    .home-split-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 20px;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .home-split-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .live-video-section {
+        order: -1;
+      }
+    }
+
+    .trending-left-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .trending-left-panel .media-grid {
+      max-height: 580px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .trending-left-panel .media-grid::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .trending-left-panel .media-grid::-webkit-scrollbar-thumb {
+      background: var(--neon-cyan);
+      border-radius: 10px;
+    }
+
+    /* LIVE VIDEO SECTION */
+    .live-video-section {
+      position: relative;
+      height: 640px;
+      width: 100%;
+      isolation: isolate;
+      z-index: 100;
+      margin-top: -100px;
+    }
+
+    .live-bg-container {
+      position: absolute;
+      inset: 0;
+      z-index: 50;
+    }
+
+    .live-bg-container img.bg-image {
+      width: 100%;
+      height: 150%;
+      object-fit: cover;
+      object-position: bottom center;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    .live-video-player {
+      position: relative;
+      left: 29% !important;
+      top: 0%;
+      bottom: 0%;
+      width: 284px !important;
+      height: 374px !important;
+      z-index: 500;
+      border-radius: 8px;
+      overflow: hidden;
+      background: rgba(0, 0, 0, 0.9);
+      box-shadow: 0 0 92px rgba(0, 0, 0, 0.75), inset 0 0 14px rgba(0, 0, 0, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      transform: translateY(105px);
+    }
+
+    .live-video-player video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .live-actions-sidebar {
+      position: absolute;
+      right: 14px;
+      top: 80%;
+      transform: translateY(-50%);
+      z-index: 700;
+      /* Higher than comments panel */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .live-action-btn {
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 1.3rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .live-action-btn:hover {
+      background: rgba(0, 0, 0, 0.7);
+      border-color: var(--neon-cyan);
+      color: var(--neon-cyan);
+      transform: scale(1.1);
+    }
+
+    .live-action-btn.liked {
+      color: var(--neon-red);
+      border-color: var(--neon-red);
+      box-shadow: 0 0 14px var(--neon-red-glow);
+      animation: heartPop 0.4s ease;
+    }
+
+    @keyframes heartPop {
+      0% {
+        transform: scale(1)
+      }
+
+      50% {
+        transform: scale(1.35)
+      }
+
+      100% {
+        transform: scale(1)
+      }
+    }
+
+    .live-action-count {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #fff;
+      margin-top: 4px;
+      text-align: center;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+    }
+
+    .live-top-bar {
+      position: relative;
+      top: -280px;
+      /* Adjust 90-115px */
+      left: 18px;
+      right: 18px;
+      z-index: 300;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      /*background: linear-gradient(to bottom, rgba(0, 0, 0, 0.6) 0%, transparent 100%);*/
+      pointer-events: none;
+    }
+
+    .live-top-bar>* {
+      pointer-events: all;
+    }
+
+    .live-live-badge {
+      background: var(--neon-red);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 6px;
+      letter-spacing: 1px;
+      box-shadow: 0 0 12px var(--neon-red-glow);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .live-live-badge::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      background: #fff;
+      border-radius: 50%;
+      animation: pulse 1.2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1)
+      }
+
+      50% {
+        opacity: 0.5;
+        transform: scale(0.7)
+      }
+    }
+
+    .live-viewers {
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(6px);
+      border-radius: 20px;
+      padding: 5px 12px;
+      font-size: 0.8rem;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .live-comments-display-area {
+      position: absolute;
+      bottom: calc(40px + env(safe-area-inset-bottom, 0));
+      /* Position above the bottom menu bar, further below the video */
+      left: 0;
+      right: 0;
+      z-index: 600;
+      /* Higher than video player (500), lower than sidebar buttons (700) */
+      padding: 12px 14px 16px;
+      padding-bottom: calc(16px + env(safe-area-inset-bottom, 0));
+      pointer-events: none;
+      transform: translateY(100%);
+      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      max-height: calc(80% - 40px);
+      /* Limit height to prevent overlap with video */
+      /* Limit height to prevent overlap with video */
+      box-sizing: border-box;
+      /* Include padding in height calculation */
+    }
+
+    .live-comments-display-area.active {
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .live-comments-list {
+      max-height: 150px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--neon-cyan) transparent;
+      flex-grow: 1;
+    }
+
+    .live-comments-list::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .live-comments-list::-webkit-scrollbar-thumb {
+      background: var(--neon-cyan);
+      border-radius: 10px;
+    }
+
+    .live-comment-item {
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(4px);
+      border-radius: 14px;
+      padding: 7px 12px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      word-wrap: break-word;
+      animation: slideInLeft 0.3s ease-out;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .live-comment-item.user-comment {
+      background: rgba(255, 0, 85, 0.3);
+      border-color: rgba(255, 0, 85, 0.5);
+    }
+
+    .live-comment-username {
+      color: var(--neon-green);
+      font-weight: 700;
+      margin-right: 6px;
+      font-size: 0.82rem;
+    }
+
+    .live-comment-input-bar {
+      margin-top: 20px;
+      display: flex;
+      gap: 8px;
+      pointer-events: all;
+      flex-shrink: 0;
+    }
+
+    .live-comment-input-field {
+      flex: 1;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 24px;
+      padding: 10px 16px;
+      color: var(--text-main);
+      outline: none;
+      font-size: 0.9rem;
+      transition: border-color 0.2s;
+    }
+
+    .live-comment-input-field:focus {
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 10px var(--neon-cyan-glow);
+    }
+
+    .live-send-btn {
+      background: linear-gradient(135deg, var(--neon-red), #d60047);
+      color: #fff;
+      border: none;
+      border-radius: 24px;
+      padding: 10px 18px;
+      cursor: pointer;
+      font-size: 0.88rem;
+      font-weight: 700;
+      transition: all 0.2s ease;
+      box-shadow: 0 0 12px var(--neon-red-glow);
+    }
+
+    .live-send-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px var(--neon-red-glow);
+    }
+
+    .flying-emojis-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 800;
+    }
+
+    .flying-emoji {
+      position: absolute;
+      font-size: 2.2rem;
+      pointer-events: none;
+      opacity: 0;
+      will-change: transform, opacity;
+      filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.6));
+    }
+
+    .hover-comment {
+      position: absolute;
+      bottom: -200px;
+      left: 16px;
+      max-width: 72%;
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.9);
+      text-shadow: 0 0 10px rgba(0, 240, 255, 0.5), 0 2px 4px rgba(0, 0, 0, 0.8);
+      pointer-events: none;
+      opacity: 0;
+      z-index: 800;
+      background: rgba(0, 0, 0, 0.48);
+      backdrop-filter: blur(4px);
+      padding: 7px 13px;
+      border-radius: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      white-space: nowrap;
+      /*overflow: hidden;*/
+      text-overflow: ellipsis;
+      will-change: transform, opacity;
+    }
+  </style>
+  <style>
+    .tier-action-btn {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .anim-lips {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 40px;
+      height: 20px;
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 50"><path d="M10 25 Q 25 0, 50 25 T 90 25" fill="none" stroke="%23ff0055" stroke-width="5"/><path d="M10 25 Q 25 50, 50 25 T 90 25" fill="%23ff0055"/></svg>');
+      background-size: contain;
+      background-repeat: no-repeat;
+      opacity: 0;
+      animation: lip-bite 1s ease-in-out forwards;
+    }
+
+    @keyframes lip-bite {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.5);
+      }
+
+      50% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.2);
+      }
+
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -150%) scale(0.5);
+      }
+    }
+
+    .anim-drip {
+      position: absolute;
+      top: -30px;
+      left: 50%;
+      width: 4px;
+      height: 40px;
+      background: white;
+      border-radius: 2px;
+      animation: drip 1.2s ease-out forwards;
+      opacity: 0;
+    }
+
+    @keyframes drip {
+      0% {
+        top: -30px;
+        opacity: 1;
+      }
+
+      100% {
+        top: 100%;
+        opacity: 0;
+      }
+    }
+  </style>
+  <style>
+    /* Inlined from animations.css */
+    /* Lip Biting Animation */
+    .price-new-green {
+      position: relative;
+      display: inline-block;
+    }
+
+    .lips-container {
+      position: absolute;
+      left: 60%;
+      top: -10px;
+      width: 50px;
+      height: 25px;
+      transform-origin: center;
+      opacity: 0;
+      animation: peek-and-bite 4.5s ease-in-out infinite 1s;
+    }
+
+    .lips-svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    #lower-lip {
+      transform-origin: center;
+      animation: lip-bite-action 4.5s ease-in-out infinite 1s;
+    }
+
+    @keyframes peek-and-bite {
+
+      0%,
+      20%,
+      90%,
+      100% {
+        transform: translateX(25px) scale(0.7);
+        opacity: 0;
+      }
+
+      30%,
+      80% {
+        transform: translateX(0) scale(1);
+        opacity: 1;
+      }
+    }
+
+    @keyframes lip-bite-action {
+
+      0%,
+      50%,
+      65%,
+      100% {
+        transform: scaleY(1);
+      }
+
+      58% {
+        transform: scaleY(0.3);
+      }
+    }
+
+    /* Dripping Liquid Animation */
+    .price-new-red,
+    .tier-action-btn {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .drip-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+  </style>
+  <style>
+    /* Likes / Comments / Share */
+    .media-actions {
+      display: flex;
+      gap: 10px;
+      padding: 10px 14px;
+    }
+
+    .media-action-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-glass);
+      color: var(--text-muted);
+      padding: 8px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: var(--transition-fast);
+    }
+
+    .media-action-btn:hover {
+      color: var(--neon-cyan);
+      border-color: var(--neon-cyan);
+    }
+
+    .media-action-btn.liked {
+      color: var(--neon-red);
+      border-color: var(--neon-red);
+      background: rgba(255, 0, 85, 0.12);
+    }
+
+    .media-comments-box {
+      display: none;
+      padding: 0 14px 14px;
+    }
+
+    .comments-list {
+      max-height: 160px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .comments-empty {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    .comment-item {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-glass);
+      border-radius: 12px;
+      padding: 8px 12px;
+    }
+
+    .comment-author {
+      color: var(--neon-cyan);
+      font-weight: 700;
+      font-size: 0.8rem;
+    }
+
+    .comment-text {
+      color: var(--text-main);
+      font-size: 0.9rem;
+      margin: 4px 0;
+      word-break: break-word;
+    }
+
+    .comment-like-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.8rem;
+      padding: 2px 6px;
+      border-radius: 10px;
+    }
+
+    .comment-like-btn.liked {
+      color: var(--neon-red);
+    }
+
+    .comment-input-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .comment-input {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-glass);
+      border-radius: 20px;
+      padding: 10px 14px;
+      color: #fff;
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    .comment-input:focus {
+      border-color: var(--neon-cyan);
+    }
+
+    .comment-submit-btn {
+      background: linear-gradient(135deg, var(--neon-red), #d60047);
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      padding: 0 18px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .kiss-float {
+      position: fixed;
+      z-index: 9999;
+      pointer-events: none;
+      font-size: 1.6rem;
+      animation: kissUp 1.4s ease-out forwards;
+    }
+
+    @keyframes kissUp {
+      0% {
+        opacity: 1;
+        transform: translateY(0) scale(0.6);
+      }
+
+      100% {
+        opacity: 0;
+        transform: translateY(-130px) scale(1.4) rotate(15deg);
+      }
+    }
+
+    .media-date {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      margin-top: 4px;
+    }
+
+    .trending-empty {
+      grid-column: 1 / -1;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 1rem;
+      padding: 40px 20px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px dashed var(--border-glass);
+      border-radius: 18px;
+    }
+
+    .shared-highlight {
+      box-shadow: 0 0 0 3px var(--neon-cyan), 0 0 30px var(--neon-cyan-glow);
+    }
+  </style>
+  <style>
+    /* Home Page Horizontal Menu Bar */
+    .home-menu-bar {
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      margin: 18px auto 4px;
+      max-width: 1100px;
+      background: rgba(12, 14, 22, 0.9);
+      border: 1px solid var(--border-glass);
+      border-radius: 18px;
+      backdrop-filter: blur(12px);
+      overflow-x: auto;
+      overflow-y: hidden;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      cursor: grab;
+      user-select: none;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-x;
+    }
+
+    .home-menu-bar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .home-menu-bar.dragging {
+      cursor: grabbing;
+      scroll-behavior: auto;
+    }
+
+    .menu-bar-item {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 14px;
+      border-radius: 12px;
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: var(--transition-fast);
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    .menu-bar-item i {
+      font-size: 1rem;
+      width: 20px;
+      text-align: center;
+    }
+
+    .menu-bar-item:hover,
+    .menu-bar-item.active {
+      background: rgba(0, 240, 255, 0.1);
+      color: var(--neon-cyan);
+      box-shadow: 0 0 10px var(--neon-cyan-glow);
+    }
+
+    @media (max-width: 768px) {
+      .home-menu-bar {
+        gap: 6px;
+        padding: 10px 10px;
+        border-radius: 14px;
+      }
+
+      .menu-bar-item {
+        font-size: 0.82rem;
+        padding: 8px 10px;
+      }
+
+      /* ── Fix 1: Offer banner — allow text to wrap so gift icon + "only!" are visible ── */
+      .offer-banner-top {
+        padding: 8px 10px;
+      }
+
+      .offer-banner-top-text {
+        white-space: normal !important;
+        flex-wrap: wrap;
+        justify-content: center;
+        text-align: center;
+        font-size: 0.75rem;
+        gap: 4px;
+        line-height: 1.4;
+      }
+
+      .offer-banner-top .offer-icon {
+        flex-shrink: 0;
+      }
+
+      /* ── Fix 2: Live section on top, Trending below (mobile only) ── */
+      .home-split-layout {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        padding: 0;
+        align-items: stretch;
+      }
+
+      .live-video-section {
+        order: 0;
+        z-index: 150;
+        margin-top: -150px !important;
+        overflow: hidden;
+        height: auto;
+        aspect-ratio: 0.66;
+      }
+
+      .trending-left-panel {
+        order: 1;
+        position: relative;
+        z-index: 5;
+        background: var(--bg-main, #0a0a0f);
+        padding-bottom: 16px;
+      }
+
+      /* ── Fix 3: bg-image contained, top-aligned (no bleed into trending) ── */
+      .live-bg-container img.bg-image {
+        height: 100% !important;
+        object-position: top center;
+      }
+
+      /* ── Fix 4: Live video is positioned by JS exactly over the whiteboard;
+             cancel the desktop translate offset so the JS position is exact ── */
+      .live-video-player {
+        transform: none !important;
+      }
+
+      /* ── Fix 5: LIVE badge + viewers pinned to the eye level of the person ── */
+      .live-top-bar {
+        position: absolute !important;
+        top: 88px !important;
+        left: 18px !important;
+        right: 18px !important;
+      }
+
+      /* ── Fix 6: Live action buttons (like/comments/emoji) beside the video ── */
+      .live-actions-sidebar {
+        top: 60% !important;
+        right: 10px !important;
+      }
+
+      /* ── Fix 7: Comments + input bar pinned to the bottom of the live panel,
+             on the lower (now visible) part of the image. Input bar always
+             visible; the comment list only appears when toggled ── */
+      .live-comments-display-area {
+        bottom: 0 !important;
+        transform: none !important;
+        pointer-events: auto !important;
+        max-height: none;
+        padding: 6px 12px 10px !important;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.18) 60%, transparent 100%);
+      }
+
+      .live-comments-display-area .live-comments-list {
+        display: none;
+      }
+
+      .live-comments-display-area.active .live-comments-list {
+        display: flex;
+        max-height: 120px;
+      }
+
+      .live-comments-display-area .live-comment-input-bar {
+        margin-top: 0;
+      }
+
+      /* ── Fix 8: Hovering comments smaller so they don't cover the screen ── */
+      .hover-comment {
+        font-size: 0.72rem !important;
+        max-width: 52% !important;
+        padding: 4px 9px !important;
+        border-radius: 12px !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <canvas id="ambient-canvas"></canvas>
+
+  <!-- Top Main Header -->
+  <header class="main-header" id="main-header">
+    <div class="nav-left">
+      <!-- Clickable Logo Navigates to Home -->
+      <div class="logo-brand" id="logo-brand-btn" onclick="navigateToSection('home-section')">
+        <i class="fa-solid fa-bolt" style="color: var(--neon-green);"></i> KAVYA <span
+          style="font-size: 0.75rem; color: var(--neon-red); padding: 2px 6px; border: 1px solid var(--neon-red); border-radius: 6px; margin-left: 4px;">VIP</span>
+      </div>
+    </div>
+    <div class="nav-right">
+      <div class="credits-badge" id="nav-credits-btn">
+        <i class="fa-solid fa-coins"></i> <span id="credits-amount-display">21</span> Credits
+      </div>
+      <div class="profile-avatar-btn" id="nav-profile-btn" title="View Profile">
+        <img id="nav-avatar-img" src="assets/person.jpeg" alt="User Profile">
+      </div>
+    </div>
+  </header>
+
+  <!-- Main View Container -->
+  <main class="view-container">
+
+    <!-- PAGE 1: SIGNUP / SIGNIN WITH SEPARATE BUTTONS & CREDENTIAL VALIDATION -->
+    <section id="signup-section" class="page-section active">
+      <div class="signup-wrapper">
+        <div class="signup-card-3d" id="signup-card-3d">
+          <div class="person-hero-frame">
+            <img src="assets/person.jpeg" alt="Kavya Rachana Neon Background">
+          </div>
+          <h2 class="signup-title">Welcome to Kavya VIP</h2>
+          <p class="signup-subtitle">Sign in or create account to unlock neon content</p>
+
+          <form id="signup-form" onsubmit="event.preventDefault()">
+            <div class="form-group">
+              <label class="form-label">Email Address</label>
+              <input type="email" id="signup-email" class="form-input" placeholder="user@example.com" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Password</label>
+              <div class="password-wrap">
+                <input type="password" id="signup-pass" class="form-input" placeholder="••••••••" required>
+                <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility()"
+                  aria-label="Show password">
+                  <i class="fa-solid fa-eye" id="password-toggle-icon"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="captcha-box" onclick="toggleCaptcha()">
+              <input type="checkbox" id="captcha-check" class="captcha-checkbox">
+              <span style="font-size: 0.9rem; color: var(--text-main);">Verify you are human <i
+                  class="fa-solid fa-shield-halved" style="color: var(--neon-cyan); margin-left: 6px;"></i></span>
+            </div>
+
+            <!-- Requirement 1: Two Separate Buttons for SIGN IN and SIGN UP -->
+            <div class="dual-auth-buttons">
+              <button type="button" class="btn-auth-signin" onclick="handleUserSignIn()">
+                SIGN IN <i class="fa-solid fa-right-to-bracket" style="margin-left: 6px;"></i>
+              </button>
+              <button type="button" class="btn-auth-signup" onclick="handleUserSignUp()">
+                SIGN UP <i class="fa-solid fa-user-plus" style="margin-left: 6px;"></i>
+              </button>
+            </div>
+
+            <div class="auth-divider"><span>OR</span></div>
+            <button type="button" class="btn-auth-google" onclick="handleGoogleSignIn()">
+              <svg class="google-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                <path fill="#4285F4"
+                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                <path fill="#34A853"
+                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                <path fill="#FBBC05"
+                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                <path fill="#EA4335"
+                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+              </svg>
+              Continue with Google
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 2: MAIN DASHBOARD -->
+    <section id="home-section" class="page-section">
+
+      <!-- Vibrating Offer Banner Above Menu Bar -->
+      <div class="offer-banner-top" onclick="navigateToSection('upgrade-section')">
+        <i class="fa-solid fa-gift offer-icon"></i>
+        <span class="offer-banner-top-text">
+          <span class="offer-tag">LIMITED OFFER</span>
+          50% off for FIRST TIME PURCHASE offer for 10 days only!
+        </span>
+      </div>
+
+      <nav class="home-menu-bar" aria-label="Main menu">
+        <span class="menu-bar-item" data-target="home-section" onclick="navigateToSection('home-section')"><i
+            class="fa-solid fa-house"></i> Home</span>
+        <span class="menu-bar-item chat-notif-wrap" data-target="chat-section"
+          onclick="navigateToSection('chat-section')"><i class="fa-solid fa-comments"></i> Chat<span
+            class="chat-notif-dot"></span></span>
+        <span class="menu-bar-item" data-target="images-section" onclick="navigateToSection('images-section')"><i
+            class="fa-solid fa-images"></i> Images</span>
+        <span class="menu-bar-item" data-target="videos-section" onclick="navigateToSection('videos-section')"><i
+            class="fa-solid fa-video"></i> Videos</span>
+        <span class="menu-bar-item" data-target="upgrade-section" onclick="navigateToSection('upgrade-section')"><i
+            class="fa-solid fa-rocket"></i> Upgrade</span>
+        <span class="menu-bar-item" data-target="about-section" onclick="navigateToSection('about-section')"><i
+            class="fa-solid fa-circle-info"></i> About Us</span>
+        <span class="menu-bar-item" data-target="contact-section" onclick="navigateToSection('contact-section')"><i
+            class="fa-solid fa-envelope"></i> Contact Us</span>
+        <span class="menu-bar-item" data-target="privacy-section" onclick="navigateToSection('privacy-section')"><i
+            class="fa-solid fa-shield-halved"></i> Privacy Policy</span>
+        <span class="menu-bar-item" data-target="terms-section" onclick="navigateToSection('terms-section')"><i
+            class="fa-solid fa-file-contract"></i> Terms &amp; Conditions</span>
+      </nav>
+      <div class="dashboard-hero">
+        <div class="hero-content-left">
+          <h1>EXCLUSIVE NEON WORLD</h1>
+          <p>Connect with interactive AI messages, unlock exclusive hot pics, daily melons, and wet rain shower reels.
+          </p>
+
+          <div class="main-action-buttons">
+            <button class="btn-neon-green chat-notif-wrap" onclick="navigateToSection('chat-section')">
+              <i class="fa-solid fa-message"></i> Chat with msg box<span class="chat-notif-dot"></span>
+            </button>
+            <button class="btn-neon-green" onclick="navigateToSection('images-section')">
+              💋 Pics
+            </button>
+            <button class="btn-neon-red" onclick="navigateToSection('videos-section')">
+              💦 Video
+            </button>
+          </div>
+        </div>
+
+        <div class="hero-person-preview">
+          <img src="assets/person.jpeg" alt="Kavya VIP Person">
+          <div class="badge-tag">
+            <span><i class="fa-solid fa-circle"
+                style="color: var(--neon-green); font-size: 0.6rem; margin-right: 6px;"></i> LIVE NOW</span>
+            <!-- Requirement 4: Name updated to Kavya Rachana -->
+            <span style="font-weight: 700;">KAVYA RACHANA</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SPLIT LAYOUT: Trending Left | Live Video Right -->
+      <div class="home-split-layout">
+        <!-- LEFT: Trending Media -->
+        <div class="trending-left-panel">
+          <div class="section-title-bar">
+            <h2><i class="fa-solid fa-fire" style="color: var(--neon-red);"></i> Trending Media</h2>
+            <span style="color: var(--neon-cyan); cursor: pointer;" onclick="navigateToSection('images-section')">View
+              All <i class="fa-solid fa-chevron-right"></i></span>
+          </div>
+          <div class="media-grid" id="home-media-grid"></div>
+        </div>
+
+        <!-- RIGHT: Live Video Section -->
+        <div class="live-video-section" id="live-video-section">
+          <div class="live-bg-container">
+            <img src="Bg 3.png" alt="Live Background" class="bg-image">
+          </div>
+          <div class="live-video-player">
+            <video id="live-stream-video" autoplay loop muted playsinline controls controlsList="nodownload"
+              oncontextmenu="return false;"></video>
+          </div>
+          <div class="live-top-bar">
+            <div class="live-live-badge">LIVE</div>
+            <div class="live-viewers"><i class="fa-solid fa-eye"></i> <span id="live-viewers-count">1.2K</span></div>
+          </div>
+          <div class="live-actions-sidebar">
+            <button class="live-action-btn" id="live-like-btn" onclick="toggleLiveLike(this)" title="Like"><i
+                class="fa-solid fa-heart"></i></button>
+            <div class="live-action-count" id="live-likes-count">0</div>
+            <button class="live-action-btn" onclick="toggleLiveComments()" title="Comments"><i
+                class="fa-solid fa-comment"></i></button>
+            <div class="live-action-count" id="live-comments-count">0</div>
+            <button class="live-action-btn" onclick="sendFlyingEmoji()" title="Send Emoji"><i
+                class="fa-solid fa-face-laugh-squint"></i></button>
+          </div>
+          <div class="live-comments-display-area" id="live-comments-display">
+            <div class="live-comments-list" id="comment-list"></div>
+            <div class="live-comment-input-bar">
+              <input type="text" id="live-comment-input-field" class="live-comment-input-field"
+                placeholder="Say something nice... 💋" onkeydown="if(event.key==='Enter')sendLiveComment()">
+              <button class="live-send-btn" onclick="sendLiveComment()">Send</button>
+            </div>
+          </div>
+          <div class="flying-emojis-container" id="flying-emojis-container"></div>
+        </div>
+      </div>
+
+      <nav class="home-menu-bar" aria-label="Main menu">
+        <span class="menu-bar-item" data-target="home-section" onclick="navigateToSection('home-section')"><i
+            class="fa-solid fa-house"></i> Home</span>
+        <span class="menu-bar-item chat-notif-wrap" data-target="chat-section"
+          onclick="navigateToSection('chat-section')"><i class="fa-solid fa-comments"></i> Chat<span
+            class="chat-notif-dot"></span></span>
+        <span class="menu-bar-item" data-target="images-section" onclick="navigateToSection('images-section')"><i
+            class="fa-solid fa-images"></i> Images</span>
+        <span class="menu-bar-item" data-target="videos-section" onclick="navigateToSection('videos-section')"><i
+            class="fa-solid fa-video"></i> Videos</span>
+        <span class="menu-bar-item" data-target="upgrade-section" onclick="navigateToSection('upgrade-section')"><i
+            class="fa-solid fa-rocket"></i> Upgrade</span>
+        <span class="menu-bar-item" data-target="about-section" onclick="navigateToSection('about-section')"><i
+            class="fa-solid fa-circle-info"></i> About Us</span>
+        <span class="menu-bar-item" data-target="contact-section" onclick="navigateToSection('contact-section')"><i
+            class="fa-solid fa-envelope"></i> Contact Us</span>
+        <span class="menu-bar-item" data-target="privacy-section" onclick="navigateToSection('privacy-section')"><i
+            class="fa-solid fa-shield-halved"></i> Privacy Policy</span>
+        <span class="menu-bar-item" data-target="terms-section" onclick="navigateToSection('terms-section')"><i
+            class="fa-solid fa-file-contract"></i> Terms &amp; Conditions</span>
+      </nav>
+    </section>
+
+    <!-- SECTION: CHAT WITH MSG BOX -->
+    <section id="chat-section" class="page-section">
+      <div class="section-title-bar">
+        <h2><i class="fa-solid fa-comments" style="color: var(--neon-green);"></i> Chat with Msg Box</h2>
+        <div style="font-size: 0.9rem; color: var(--neon-green);">⚡ 1 Credit per response</div>
+      </div>
+
+      <div class="chat-container">
+        <div class="chat-header">
+          <img src="assets/person.jpeg" class="chat-avatar" alt="Kavya">
+          <div>
+            <!-- Requirement 4: Name updated to Kavya Rachana -->
+            <div style="font-weight: 700;">Kavya Rachana</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px;">
+              <span
+                style="width: 8px; height: 8px; background: var(--neon-green); border-radius: 50%; display: inline-block;"></span>
+              Online & Active
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-messages-area" id="chat-messages">
+          <div class="msg-bubble bot">
+            Hey there! Welcome to my private chat room 💋 What are you thinking about today?
+          </div>
+        </div>
+
+        <div class="chat-input-bar">
+          <input type="text" id="chat-input-msg" class="chat-input-field" placeholder="Type your message..."
+            onkeypress="if(event.key==='Enter') sendChatMessage()">
+          <button class="chat-send-btn" onclick="sendChatMessage()">
+            <i class="fa-solid fa-paper-plane"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION: PICS GALLERY -->
+    <section id="images-section" class="page-section">
+      <div class="section-title-bar">
+        <h2><i class="fa-solid fa-images" style="color: var(--neon-red);"></i> Exclusive Pics & Melons</h2>
+      </div>
+      <div class="media-grid" id="images-media-grid"></div>
+    </section>
+
+    <!-- SECTION: VIDEOS SHOWCASE -->
+    <section id="videos-section" class="page-section">
+      <div class="section-title-bar">
+        <h2><i class="fa-solid fa-video" style="color: var(--neon-cyan);"></i> Under Shower Videos</h2>
+      </div>
+      <div class="media-grid" id="videos-media-grid"></div>
+    </section>
+
+    <!-- PAGE 3: PROFILE PAGE WITH DEFAULT "Normal User" TIER STATUS -->
+    <section id="profile-section" class="page-section">
+      <div class="profile-card">
+        <div class="profile-dp-container">
+          <img id="profile-dp-main" src="assets/person.jpeg" class="profile-dp-img" alt="Profile Picture">
+          <label class="edit-dp-badge" title="Change DP">
+            <i class="fa-solid fa-camera"></i>
+            <input type="file" accept="image/*" style="display: none;" onchange="updateProfileDP(event)">
+          </label>
+        </div>
+
+        <div>
+          <input type="text" id="profile-username" class="profile-username-input" value="Kavya VIP User"
+            onchange="saveProfileName(this.value)">
+        </div>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Registered User Account</p>
+
+        <div class="credits-stat-box">
+          <div class="stat-item">
+            <h3 id="profile-credits-num">21</h3>
+            <p>Credits Remaining</p>
+          </div>
+          <div class="stat-item">
+            <h3 id="profile-tier-status" style="font-size: 1.3rem;">Normal User</h3>
+            <p>Tier Status</p>
+          </div>
+        </div>
+
+        <button class="btn-neon-green" style="width: 100%;" onclick="navigateToSection('upgrade-section')">
+          <i class="fa-solid fa-bolt"></i> GET MORE CREDITS / UPGRADE
+        </button>
+
+        <!-- Sign Out Button moved to Profile Section above Delete Account with hover glow -->
+        <button class="btn-signout-profile" onclick="handleSignOut()" id="profile-signout-btn">
+          <i class="fa-solid fa-right-from-bracket"></i> SIGN OUT
+        </button>
+
+        <button class="btn-neon-red" style="width: 100%; margin-top: 16px;" onclick="handleDeleteAccount()"
+          id="delete-account-btn">
+          <i class="fa-solid fa-trash-can"></i> DELETE ACCOUNT
+        </button>
+      </div>
+    </section>
+
+    <!-- PAGE 4: SUBSCRIPTION & UPGRADE PAGE -->
+    <section id="upgrade-section" class="page-section">
+      <div class="sub-title-area">
+        <h1>CHOOSE YOUR SUBSCRIPTION</h1>
+        <p style="color: var(--text-muted); font-size: 1.1rem;">Unlock unlimited neon vibes, hot pics, and shower reels
+        </p>
+      </div>
+
+      <div class="sub-cards-grid">
+        <!-- TIER 1: FREE -->
+        <div class="sub-card tier-free">
+          <div>
+            <div class="btn-neon-gray">FREE</div>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Starter Tier</p>
+            <ul class="bullet-points-list">
+              <li><i class="fa-solid fa-check"></i> Chatting</li>
+              <li><i class="fa-solid fa-check"></i> Explore</li>
+            </ul>
+          </div>
+          <button class="tier-action-btn"
+            style="background: var(--bg-card); color: var(--text-muted); border: 1px solid var(--border-glass);"
+            disabled>
+            CURRENT PLAN
+          </button>
+        </div>
+
+        <!-- TIER 2: UPDATED TO 99 -->
+        <div class="sub-card tier-green">
+          <div>
+            <div class="price-display-green">
+              <span class="price-old">₹200</span>
+              <span class="price-new-green">₹99<span class="lips-container">
+                  <svg class="lips-svg" viewBox="0 0 100 50" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10 20 C 25 8, 40 14, 50 22 C 60 14, 75 8, 90 20" fill="#ff2d78" stroke="#ff0055"
+                      stroke-width="2" />
+                    <path id="lower-lip" d="M10 20 C 25 34, 40 30, 50 26 C 60 30, 75 34, 90 20" fill="#ff2d78"
+                      stroke="#ff0055" stroke-width="2" />
+                  </svg>
+                </span></span>
+            </div>
+            <p style="color: var(--neon-green); font-weight: 700; font-size: 0.9rem;">POPULAR PACK (+100 CREDITS)</p>
+            <div class="limited-time-badge"><i class="fa-solid fa-bell vibrating-bell"></i> Limited time 💦</div>
+            <ul class="bullet-points-list">
+              <li><i class="fa-solid fa-fire" style="color: var(--neon-green);"></i> Hot pics</li>
+              <li><i class="fa-solid fa-lemon" style="color: var(--neon-green);"></i> Daily melons</li>
+              <li><i class="fa-solid fa-droplet" style="color: var(--neon-green);"></i> Wet pics</li>
+            </ul>
+          </div>
+          <div style="margin-top: 12px;">
+            <input type="text" id="phone-input" placeholder="Enter 10‑digit mobile number"
+              style="padding: 14px; border-radius: 12px; border: 1px solid var(--neon-green); background: rgba(0, 255, 136, 0.05); color: #fff; width: 100%; text-align: center; font-size: 1rem; margin-bottom: 12px; box-shadow: 0 0 15px var(--neon-green-glow);" />
+          </div>
+          <button class="tier-action-btn btn-green-sub" onclick="buySubscription('pro_99')">
+            <span class="btn-text">CLAIM FOR ₹99</span>
+            <span class="anim-lips"></span>
+            <canvas class="drip-canvas"></canvas>
+          </button>
+        </div>
+
+        <!-- TIER 3: UPDATED TO 179 -->
+        <div class="sub-card tier-red">
+          <div>
+            <div class="price-display-red">
+              <span class="price-old">₹379</span>
+              <span class="price-new-green">₹179</span>
+            </div>
+            <p style="color: var(--neon-red); font-weight: 700; font-size: 0.9rem;">VIP ULTIMATE (+180 CREDITS)</p>
+            <ul class="bullet-points-list">
+              <li><i class="fa-solid fa-heart" style="color: var(--neon-red);"></i> Romantic expressions</li>
+              <li><i class="fa-solid fa-wand-magic-sparkles" style="color: var(--neon-red);"></i> Remove things</li>
+              <li><i class="fa-solid fa-shower" style="color: var(--neon-red);"></i> Under shower</li>
+            </ul>
+          </div>
+          <div style="margin-top: 12px;">
+            <input type="text" id="phone-input-vip" placeholder="Enter 10‑digit mobile number"
+              style="padding: 14px; border-radius: 12px; border: 1px solid var(--neon-red); background: rgba(255, 0, 85, 0.05); color: #fff; width: 100%; text-align: center; font-size: 1rem; margin-bottom: 12px; box-shadow: 0 0 15px var(--neon-red-glow);" />
+          </div>
+          <button class="tier-action-btn btn-red-sub" onclick="buySubscription('vip_179')">
+            <span class="btn-text">CLAIM FOR ₹179</span>
+            <span class="anim-drip"></span>
+            <canvas class="drip-canvas"></canvas>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Menu-only business and legal information pages. Review with a qualified adviser before launch. -->
+    <section id="about-section" class="page-section">
+      <article class="legal-card">
+        <h1>About Us</h1>
+        <p>Kavya VIP is a digital-content platform where registered users can explore content and purchase optional
+          credit packs.</p>
+        <h2>Our service</h2>
+        <p>We provide a web-based member experience, account access, and digital credit packs. Content and feature
+          availability may change over time.</p>
+        <h2>Our commitment</h2>
+        <p>We aim to provide clear pricing, account controls, and responsive support for our users.</p>
+      </article>
+    </section>
+
+    <section id="contact-section" class="page-section">
+      <article class="legal-card">
+        <h1>Contact Us</h1>
+        <p>For account, billing, or technical support, contact us at <a
+            href="mailto:REPLACE-WITH-YOUR-SUPPORT-EMAIL">REPLACE-WITH-YOUR-SUPPORT-EMAIL</a>.</p>
+        <p>Please include the email address associated with your account and a short description of your request. Do not
+          send passwords or payment-card details by email.</p>
+      </article>
+    </section>
+
+    <section id="privacy-section" class="page-section">
+      <article class="legal-card">
+        <h1>Privacy Policy</h1>
+        <p><strong>Last updated:</strong> July 28, 2026</p>
+        <p>We collect account details such as email address, display name, account activity, and information needed to
+          provide purchased credits. We use this information to operate the service, prevent misuse, and respond to
+          support requests.</p>
+        <p>Authentication and account data are processed through Supabase. Payment information is processed by the
+          selected payment provider; we do not store full payment-card details in this website.</p>
+        <p>We retain information only as needed to operate the service, meet legal obligations, resolve disputes, and
+          enforce our agreements. To request access, correction, or deletion where applicable, contact the support
+          address listed on the Contact Us page.</p>
+      </article>
+    </section>
+
+    <section id="terms-section" class="page-section">
+      <article class="legal-card">
+        <h1>Terms &amp; Conditions</h1>
+        <p>By using Kavya VIP, you agree to use the service lawfully and to keep your account credentials confidential.
+          You must provide accurate account information and must not attempt to bypass access controls or interfere with
+          the service.</p>
+        <p>Credit packs provide access to digital features and are not cash, transferable currency, or an investment.
+          Prices and available features may change before purchase.</p>
+        <h2>Refunds and cancellations</h2>
+        <p>Because credits are digital and may be used immediately, refund eligibility depends on applicable law and the
+          circumstances of the purchase. Contact support promptly if you believe a payment was made in error.</p>
+        <h2>Changes</h2>
+        <p>We may update these terms when necessary. Continued use after an update means you accept the revised terms.
+        </p>
+      </article>
+    </section>
+
+  </main>
+
+  <!-- Offer Popup Overlay -->
+  <div class="offer-popup-overlay" id="offer-popup-overlay">
+    <div class="offer-popup">
+      <div class="popup-close-btn" onclick="closeOfferPopup()"><i class="fa-solid fa-xmark"></i></div>
+      <div class="offer-popup-title" style="color: #e0b3ff;">✨ EXCLUSIVE OFFER ✨</div>
+      <div class="offer-popup-tag" style="background: #2d1f5e; color: #e0b3ff;">50% OFF</div>
+      <div class="offer-popup-desc" style="color: #d4b8ff;">
+        <strong style="color: #e0b3ff;">Limited Time Offer!</strong><br>
+        50% off for FIRST TIME PURCHASE!<br>Offer valid for 10 days only.<br>
+        Unlock premium content with our romantic cyberpunk deals!
+      </div>
+      <button class="btn-neon-green" onclick="navigateToSection('upgrade-section'); closeOfferPopup();">
+        <i class="fa-solid fa-rocket"></i> CLAIM YOUR 50% DISCOUNT NOW
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal Lightbox -->
+  <div class="modal-backdrop" id="media-modal" onclick="closeModal()">
+    <div class="modal-content-box" onclick="event.stopPropagation()">
+      <div class="modal-close-icon" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></div>
+      <div id="modal-media-content"></div>
+      <div style="padding: 16px 20px; font-weight: 700; font-size: 1.1rem;" id="modal-title-element">Unlocked Media
+        Preview</div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- JavaScript Engine -->
+  <script>
+    let mediaDatabase = JSON.parse(localStorage.getItem('kavya_cloud_media')) || [
+      { id: 'item-1', title: 'Rain Shower Special', type: 'image', url: 'assets/person.jpeg', cost: 5 },
+      { id: 'item-2', title: 'Hot Pics & Melons', type: 'image', url: 'assets/gallery_1.jpg', cost: 5 },
+      { id: 'item-3', title: 'Romantic Expression', type: 'image', url: 'assets/gallery_2.jpg', cost: 10 },
+      { id: 'item-4', title: 'Under Shower Reel 💋', type: 'video', url: 'assets/person.jpeg', cost: 15 }
+    ];
+
+    let state = {
+      currentUser: JSON.parse(localStorage.getItem('kavya_session_user')) || null,
+      unlockedCards: JSON.parse(localStorage.getItem('kavya_unlocked')) || []
+    };
+
+    function saveDatabases() {
+      localStorage.setItem('kavya_cloud_media', JSON.stringify(mediaDatabase));
+      localStorage.setItem('kavya_session_user', JSON.stringify(state.currentUser));
+      localStorage.setItem('kavya_unlocked', JSON.stringify(state.unlockedCards));
+    }
+
+    /* Real-Time Central Sync Listener (Syncs Admin Uploads across APK & Web Tabs) */
+    window.addEventListener('storage', () => {
+      mediaDatabase = JSON.parse(localStorage.getItem('kavya_cloud_media')) || mediaDatabase;
+      renderMediaGalleries();
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initAmbientCanvas();
+      renderMediaGalleries();
+
+      // Listen for Browser Back / Forward Button Navigation
+      window.addEventListener('popstate', (e) => {
+        if (e.state && e.state.section) {
+          navigateToSection(e.state.section, false);
+        } else {
+          if (state.currentUser) {
+            navigateToSection('home-section', false);
+          } else {
+            navigateToSection('signup-section', false);
+          }
+        }
+      });
+
+      if (state.currentUser) {
+        applyUserSessionUI();
+        const initialSection = location.hash ? location.hash.replace('#', '') : 'home-section';
+        navigateToSection(initialSection, false);
+      } else {
+        document.getElementById('main-header').style.display = 'none';
+        const initialPublicSection = location.hash ? location.hash.replace('#', '') : 'signup-section';
+        navigateToSection(['about-section', 'contact-section', 'privacy-section', 'terms-section'].includes(initialPublicSection) ? initialPublicSection : 'signup-section', false);
+      }
+
+      // 3D Parallax Effect
+      const card3D = document.getElementById('signup-card-3d');
+      if (card3D) {
+        document.addEventListener('mousemove', (e) => {
+          if (!document.getElementById('signup-section').classList.contains('active')) return;
+          const xAxis = (window.innerWidth / 2 - e.pageX) / 25;
+          const yAxis = (window.innerHeight / 2 - e.pageY) / 25;
+          card3D.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+        });
+      }
+    });
+
+    function toggleCaptcha() {
+      const check = document.getElementById('captcha-check');
+      check.checked = !check.checked;
+    }
+
+    function applyUserSessionUI() {
+      if (!state.currentUser) return;
+
+      document.getElementById('main-header').style.display = 'flex';
+      const user = state.currentUser;
+
+      document.getElementById('credits-amount-display').innerText = user.credits;
+      const drawerCreditsEl = document.getElementById('drawer-credits-display');
+      if (drawerCreditsEl) drawerCreditsEl.innerText = `⚡ ${user.credits} Credits`;
+      document.getElementById('profile-credits-num').innerText = user.credits;
+
+      document.getElementById('profile-username').value = user.username;
+      const drawerUserEl = document.getElementById('drawer-username-display');
+      if (drawerUserEl) drawerUserEl.innerText = user.username;
+      document.getElementById('profile-tier-status').innerText = user.tierStatus || 'Normal User';
+
+      if (user.dp) {
+        document.getElementById('nav-avatar-img').src = user.dp;
+        document.getElementById('profile-dp-main').src = user.dp;
+        const drawerAvatarEl = document.getElementById('drawer-avatar-img');
+        if (drawerAvatarEl) drawerAvatarEl.src = user.dp;
+      }
+    }
+
+    /* Navigation & Browser Back Button History */
+    const navItems = document.querySelectorAll('.nav-item');
+    navItems.forEach(item => {
+      item.addEventListener('click', () => {
+        const target = item.getAttribute('data-target');
+        navigateToSection(target);
+        closeSidebar();
+      });
+    });
+
+    function navigateToSection(sectionId, pushHistory = true) {
+      const publicSections = ['signup-section', 'about-section', 'contact-section', 'privacy-section', 'terms-section'];
+      if (!state.currentUser && !publicSections.includes(sectionId)) {
+        showToast('Please sign in to access content.', 'error');
+        sectionId = 'signup-section';
+      }
+
+      // Clear chat unread dot when user opens chat
+      if (sectionId === 'chat-section') {
+        document.querySelectorAll('.chat-notif-dot').forEach(d => d.classList.remove('visible'));
+      }
+
+      document.querySelectorAll('.page-section').forEach(sec => sec.classList.remove('active'));
+      document.querySelectorAll('.nav-item, .menu-bar-item').forEach(item => item.classList.remove('active'));
+
+      const targetSec = document.getElementById(sectionId);
+      if (targetSec) targetSec.classList.add('active');
+
+      if (sectionId === 'home-section' && typeof positionLiveVideoOverWhiteboard === 'function') {
+        requestAnimationFrame(function () {
+          positionLiveVideoOverWhiteboard();
+        });
+      }
+
+      document.querySelectorAll(`.nav-item[data-target="${sectionId}"], .menu-bar-item[data-target="${sectionId}"]`).forEach(item => item.classList.add('active'));
+
+      if (pushHistory) {
+        history.pushState({ section: sectionId }, '', '#' + sectionId);
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function closeSidebar() {
+      const overlay = document.getElementById('sidebar-overlay');
+      if (overlay) overlay.classList.remove('active');
+    }
+
+    document.getElementById('nav-profile-btn').addEventListener('click', () => navigateToSection('profile-section'));
+    document.getElementById('nav-credits-btn').addEventListener('click', () => navigateToSection('upgrade-section'));
+
+    // Horizontal drag-to-scroll for menu bars
+    document.querySelectorAll('.home-menu-bar').forEach(bar => {
+      let isDown = false, startX = 0, scrollLeft = 0, moved = false;
+      bar.addEventListener('mousedown', (e) => {
+        if (e.target.closest('a, button')) return;
+        isDown = true;
+        moved = false;
+        bar.classList.add('dragging');
+        startX = e.pageX - bar.offsetLeft;
+        scrollLeft = bar.scrollLeft;
+      });
+      bar.addEventListener('mouseleave', () => { isDown = false; bar.classList.remove('dragging'); });
+      bar.addEventListener('mouseup', () => { isDown = false; bar.classList.remove('dragging'); });
+      bar.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        const x = e.pageX - bar.offsetLeft;
+        if (Math.abs(x - startX) > 5) moved = true;
+        bar.scrollLeft = scrollLeft - (x - startX);
+      });
+      bar.addEventListener('click', (e) => {
+        if (moved) { e.preventDefault(); e.stopPropagation(); }
+      }, true);
+    });
+
+    /* Render Dynamic Media Galleries */
+    function renderMediaGalleries() {
+      const homeGrid = document.getElementById('home-media-grid');
+      const imgGrid = document.getElementById('images-media-grid');
+      const vidGrid = document.getElementById('videos-media-grid');
+
+      if (!homeGrid || !imgGrid || !vidGrid) return;
+
+      homeGrid.innerHTML = '';
+      imgGrid.innerHTML = '';
+      vidGrid.innerHTML = '';
+
+      mediaDatabase.forEach(item => {
+        const isUnlocked = state.unlockedCards.includes(item.id);
+        const cardHTML = `
+          <div class="media-card ${isUnlocked ? 'unlocked' : ''}" id="${item.id}" data-media-id="${item.id}">
+            <div class="media-thumb" onclick="${isUnlocked ? `openModal('${item.url}', '${item.title}', '${item.type}')` : `unlockMedia('${item.id}', ${item.cost})`}">
+              ${item.type === 'video'
+            ? `<video src="${item.url}" preload="metadata" muted playsinline></video>`
+            : `<img src="${item.url}" alt="${item.title}">`}
+              <div class="media-overlay-lock">
+                <div class="lock-icon-neon"><i class="fa-solid ${item.type === 'video' ? 'fa-play' : 'fa-lock'}"></i></div>
+                <button class="unlock-btn">Unlock (${item.cost} Credits)</button>
+              </div>
+            </div>
+            <div class="media-info">
+              <div class="media-title">${item.title}</div>
+              <div class="media-cost">⚡ ${item.cost} Credits</div>
+              <div class="media-date">📅 ${formatUploadDate(item.createdAt)}</div>
+            </div>
+            <div class="media-actions">
+              <button type="button" class="media-action-btn like-btn${myLikedMediaIds.has(item.id) ? ' liked' : ''}" data-media-id="${item.id}" onclick="toggleMediaLike(this)">
+                <i class="fa-solid fa-heart"></i> <span class="like-count">${mediaLikeCounts[item.id] || 0}</span>
+              </button>
+              <button type="button" class="media-action-btn comment-btn" data-media-id="${item.id}" onclick="toggleComments(this)">
+                <i class="fa-solid fa-comment"></i> <span class="comment-count">${mediaCommentCounts[item.id] || 0}</span>
+              </button>
+              <button type="button" class="media-action-btn share-btn" data-media-id="${item.id}" onclick="shareMedia(this)">
+                <i class="fa-solid fa-share-nodes"></i>
+              </button>
+            </div>
+            <div class="media-comments-box">
+              <div class="comments-list"></div>
+              <div class="comment-input-row">
+                <input type="text" class="comment-input" data-media-id="${item.id}" placeholder="Write a lovely comment... 💋" />
+                <button type="button" class="comment-submit-btn" data-media-id="${item.id}" onclick="addComment(this)">Post</button>
+              </div>
+            </div>
+          </div>
+        `;
+
+        const trendingLikeCount = mediaLikeCounts[item.id] || 0;
+        const TEN_DAYS_MS = 10 * 24 * 60 * 60 * 1000;
+        const isNew = item.createdAt ? (Date.now() - new Date(item.createdAt).getTime()) < TEN_DAYS_MS : false;
+        if (trendingLikeCount >= 3 || isNew) {
+          homeGrid.insertAdjacentHTML('beforeend', cardHTML);
+        }
+        if (item.type === 'image') {
+          imgGrid.insertAdjacentHTML('beforeend', cardHTML);
+        } else {
+          vidGrid.insertAdjacentHTML('beforeend', cardHTML);
+        }
+      });
+      if (!homeGrid.innerHTML.trim()) {
+        homeGrid.innerHTML = '<div class="trending-empty">No trending media right now. New uploads appear here for 10 days, and anything with 3+ likes stays!</div>';
+      }
+    }
+
+    async function unlockMedia(cardId, cost) {
+      if (!state.currentUser) return showToast('Please sign in to unlock media.', 'error');
+
+      try {
+        const { data, error } = await supabaseClient.rpc('unlock_media_for_current_user', { p_media_id: cardId });
+
+        if (error) throw new Error(error.message);
+        if (data.status === 'error') throw new Error(data.message);
+
+        if (data.status === 'unlocked' || data.status === 'already_unlocked') {
+          // Update local state and UI
+          state.currentUser.credits = data.credits_balance;
+          if (!state.unlockedCards.includes(cardId)) {
+            state.unlockedCards.push(cardId);
+          }
+          saveDatabases();
+          applyUserSessionUI();
+          renderMediaGalleries();
+
+          if (data.status === 'unlocked') {
+            showToast(`Unlocked! Deducted ${cost} credits.`);
+          }
+
+          const item = mediaDatabase.find(i => i.id === cardId);
+          if (item) openModal(item.url, item.title, item.type);
+
+        } else if (data.status === 'INSUFFICIENT_CREDITS') {
+          showToast('Not enough credits! Please Upgrade.', 'error');
+          navigateToSection('upgrade-section');
+        } else {
+          throw new Error('An unknown error occurred.');
+        }
+      } catch (err) {
+        console.error('Unlock media error:', err);
+        showToast(err.message || 'Could not unlock media. Please try again.', 'error');
+      }
+    }
+
+    async function buySubscription(planId) {
+      if (!state.currentUser) return showToast('Please sign in before purchasing credits.', 'error');
+
+      if (planId !== 'pro_99' && planId !== 'vip_179') {
+        return showToast('This credit pack is unavailable.', 'error');
+      }
+
+      const phoneInputId = planId === 'pro_99' ? 'phone-input' : 'phone-input-vip';
+      const phoneInput = document.getElementById(phoneInputId);
+      if (!phoneInput) return showToast('Phone input not found.', 'error');
+
+      const phone = phoneInput.value.trim();
+      if (!phone) return showToast('Please enter your mobile number.', 'error');
+      const customerPhone = phone.replace(/\D/g, '');
+      if (!/^\d{10}$/.test(customerPhone)) return showToast('Enter a valid 10‑digit mobile number.', 'error');
+
+      try {
+        const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
+        if (sessionError || !session?.access_token) {
+          throw new Error('Your sign-in session has expired. Please sign out and sign in again.');
+        }
+
+        const { data, error } = await supabaseClient.functions.invoke('cashfree-create-order', {
+          body: { planId, customerPhone },
+          headers: { Authorization: `Bearer ${session.access_token}` }
+        });
+
+        if (error) throw error;
+        if (!data?.paymentSessionId || !data?.environment) throw new Error('Payment session could not be created.');
+        if (typeof Cashfree !== 'function') throw new Error('Cashfree checkout could not be loaded.');
+
+        const cashfree = Cashfree({ mode: data.environment });
+        const result = await cashfree.checkout({ paymentSessionId: data.paymentSessionId, redirectTarget: '_modal' });
+        if (result?.error) throw new Error(result.error.message || 'Cashfree checkout could not open.');
+        showToast('Payment submitted. Credits are added when Cashfree confirms it.');
+      } catch (error) {
+        console.error('Cashfree checkout error:', error);
+        let message = error.message || 'Could not start payment. Please try again.';
+        try {
+          const body = await error.context?.text();
+          if (body) {
+            const parsed = JSON.parse(body);
+            if (parsed?.error) message = parsed.error;
+          }
+        } catch (_) { }
+        showToast(message, 'error');
+      }
+    }
+
+    function updateProfileDP(e) {
+      const file = e.target.files[0];
+      if (file && state.currentUser) {
+        const reader = new FileReader();
+        reader.onload = function (evt) {
+          state.currentUser.dp = evt.target.result;
+          saveDatabases();
+          applyUserSessionUI();
+          showToast('Profile picture updated successfully!');
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function saveProfileName(val) {
+      if (state.currentUser) {
+        state.currentUser.username = val;
+        saveDatabases();
+        applyUserSessionUI();
+        showToast('Username updated!');
+      }
+    }
+
+    function openModal(url, title, type) {
+      const contentEl = document.getElementById('modal-media-content');
+      if (type === 'video') {
+        contentEl.innerHTML = `<video src="${url}" class="modal-img" controls controlsList="nodownload noplaybackrate" disablePictureInPicture autoplay draggable="false"></video>`;
+      } else {
+        contentEl.innerHTML = `<img src="${url}" class="modal-img" alt="${title}" draggable="false">`;
+      }
+      document.getElementById('modal-title-element').innerText = title;
+      document.getElementById('media-modal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('media-modal').classList.remove('active');
+    }
+
+    // Offer Popup Functions
+    function showOfferPopup() {
+      const popup = document.getElementById('offer-popup-overlay');
+      if (popup) {
+        popup.classList.add('active');
+      }
+    }
+
+    function closeOfferPopup() {
+      const popup = document.getElementById('offer-popup-overlay');
+      if (popup) {
+        popup.classList.remove('active');
+      }
+    }
+
+    // Show popup every time user signs in or signs up
+    function maybeShowOfferPopup() {
+      // Show popup after a slight delay for dramatic effect
+      setTimeout(() => showOfferPopup(), 800);
+    }
+
+    async function sendChatMessage() {
+      const input = document.getElementById('chat-input-msg');
+      const text = input.value.trim();
+      if (!text || !state.currentUser) return;
+
+      const msgsArea = document.getElementById('chat-messages');
+      const userBubble = document.createElement('div');
+      userBubble.className = 'msg-bubble user';
+      userBubble.innerText = text;
+      msgsArea.appendChild(userBubble);
+      msgsArea.scrollTop = msgsArea.scrollHeight;
+      input.value = '';
+
+      // Visually update credits immediately
+      state.currentUser.credits -= 1;
+      applyUserSessionUI();
+      saveDatabases();
+
+      try {
+        // Get session for auth
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session) {
+          showToast('Please sign in to chat.', 'error');
+          return;
+        }
+
+        // Get chat history for context
+        const chatHistory = Array.from(msgsArea.children).map(el => ({
+          role: el.classList.contains('user') ? 'user' : 'bot',
+          content: el.innerText
+        }));
+
+        // Call the AI Edge Function
+        const { data: aiResponse, error: aiError } = await supabaseClient.functions.invoke('kavya-ai-chat', {
+          body: JSON.stringify({ message: text, history: chatHistory }),
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` }
+        });
+
+        if (aiError) {
+          console.error('AI Chat Error:', aiError);
+          let errorMessage = 'Unknown AI error.';
+          if (aiError.context && aiError.context.body instanceof ReadableStream) {
+            const reader = aiError.context.body.getReader();
+            const decoder = new TextDecoder();
+            let chunks = '';
+            reader.read().then(function processText({ done, value }) {
+              if (done) {
+                try {
+                  const errorBody = JSON.parse(chunks);
+                  if (errorBody.error) {
+                    errorMessage = errorBody.error;
+                  }
+                } catch (e) {
+                  errorMessage = chunks; // Fallback if not JSON
+                }
+                showToast(`AI Error: ${errorMessage}`, 'error');
+                return;
+              }
+              chunks += decoder.decode(value, { stream: true });
+              return reader.read().then(processText);
+            });
+          } else if (aiError.message) {
+            errorMessage = aiError.message;
+            showToast(`AI Error: ${errorMessage}`, 'error');
+          } else {
+            showToast(`AI Error: ${errorMessage}`, 'error');
+          }
+
+          // Fallback to bot responses if AI fails
+          setTimeout(() => {
+            const fallbackResponses = [
+              "Mmm, I love that! Tells me more... 💋",
+              "You're making my heart beat faster! Want to unlock my shower reel?",
+              "That's so sweet of you! Check out my new hot pics in the gallery 💖",
+              "I'm all yours today! What should we explore next?"
+            ];
+            const randomResp = fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)];
+            const botBubble = document.createElement('div');
+            botBubble.className = 'msg-bubble bot';
+            botBubble.innerText = randomResp;
+            msgsArea.appendChild(botBubble);
+            msgsArea.scrollTop = msgsArea.scrollHeight;
+          }, 1000);
+        } else {
+          const botBubble = document.createElement('div');
+          botBubble.className = 'msg-bubble bot';
+          botBubble.innerText = aiResponse?.response || 'Hmm... I am here. Tell me more. 💋';
+          msgsArea.appendChild(botBubble);
+          msgsArea.scrollTop = msgsArea.scrollHeight;
+          // Show pink dot if user navigated away from chat
+          const chatSec = document.getElementById('chat-section');
+          if (!chatSec || !chatSec.classList.contains('active')) {
+            document.querySelectorAll('.chat-notif-dot').forEach(d => d.classList.add('visible'));
+          }
+        }
+
+      } catch (err) {
+        console.error('Chat error:', err);
+        showToast(err.message || 'Could not send message.', 'error');
+      }
+    }
+
+    function showMediaViewer(itemId) {
+      const item = mediaDatabase.find(i => i.id === itemId);
+      if (!item) return;
+
+      const viewer = document.getElementById('media-viewer');
+      const content = document.getElementById('media-viewer-content');
+
+      let mediaHTML = '';
+      if (item.type === 'video') {
+        // For video, create a video element with controls
+        mediaHTML = `
+          <video controls autoplay style="max-width: 90vw; max-height: 80vh; border-radius: 12px;">
+            <source src="${item.url}" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+        `;
+      } else {
+        // For image, create an img element
+        mediaHTML = `<img src="${item.url}" style="max-width: 90vw; max-height: 80vh; border-radius: 12px;" alt="${item.title}">`;
+      }
+
+      content.innerHTML = `
+        <h2 style="font-size: 1.6rem; margin-bottom: 20px; color: var(--neon-cyan);">${item.title}</h2>
+        ${mediaHTML}
+        <button class="viewer-close-btn" onclick="closeMediaViewer()"><i class="fa-solid fa-times"></i></button>
+      `;
+
+      viewer.classList.add('active');
+    }
+
+    function showToast(msg, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'toast-msg';
+      toast.style.borderColor = type === 'error' ? 'var(--neon-red)' : 'var(--neon-green)';
+      toast.innerHTML = `<i class="fa-solid ${type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-check'}" style="color: ${type === 'error' ? 'var(--neon-red)' : 'var(--neon-green)'}"></i> ${msg}`;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    function initAmbientCanvas() {
+      const canvas = document.getElementById('ambient-canvas');
+      const ctx = canvas.getContext('2d');
+      function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+      resize(); window.addEventListener('resize', resize);
+      const drops = [];
+      for (let i = 0; i < 60; i++) {
+        drops.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, length: Math.random() * 20 + 10, speed: Math.random() * 8 + 4, color: Math.random() > 0.5 ? 'rgba(0, 240, 255, 0.4)' : 'rgba(255, 0, 85, 0.4)' });
+      }
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drops.forEach(d => {
+          ctx.beginPath(); ctx.moveTo(d.x, d.y); ctx.lineTo(d.x, d.y + d.length); ctx.strokeStyle = d.color; ctx.lineWidth = 1.5; ctx.stroke();
+          d.y += d.speed; if (d.y > canvas.height) { d.y = -d.length; d.x = Math.random() * canvas.width; }
+        });
+        requestAnimationFrame(draw);
+      }
+      draw();
+    }
+
+    // Disable browser media context menus and drag actions.
+    document.addEventListener('contextmenu', function (e) {
+      if (e.target.closest('.media-thumb, #modal-media-content, #media-modal')) {
+        e.preventDefault();
+      }
+    });
+
+    document.addEventListener('dragstart', function (e) {
+      if (e.target.closest('.media-thumb, #modal-media-content, #media-modal')) {
+        e.preventDefault();
+      }
+    });
+  </script>
+  <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // This key is intentionally public; database and Storage policies in supabase/schema.sql enforce access.
+    const supabaseClient = window.supabase.createClient(
+      'https://lvxhfhsizlpvvwwjpsmb.supabase.co',
+      'sb_publishable_9D55Dak0M5bGUOH0jPVmQQ_gbRAWmSi'
+    );
+
+    function cloudMedia(row) {
+      return {
+        id: row.id, title: row.title, type: row.media_type, cost: row.credit_cost,
+        createdAt: row.created_at,
+        url: supabaseClient.storage.from('media').getPublicUrl(row.storage_path).data.publicUrl
+      };
+    }
+
+    async function loadCloudMedia() {
+      const { data, error } = await supabaseClient.from('media').select('*').order('created_at', { ascending: false });
+      if (error) { console.error(error); showToast('Could not load cloud media.', 'error'); return; }
+      mediaDatabase = data.map(cloudMedia);
+      renderMediaGalleries();
+    }
+
+    async function loadCloudProfile(user) {
+      const { data: profileData, error: profileError } = await supabaseClient.from('profiles').select('*').eq('id', user.id).single();
+      if (profileError) throw profileError;
+
+      const { data: unlockData, error: unlockError } = await supabaseClient.from('user_media_unlocks').select('media_id').eq('user_id', user.id);
+      if (unlockError) throw unlockError;
+
+      state.currentUser = {
+        id: profileData.id, email: profileData.email, username: profileData.username, credits: profileData.credits,
+        tierStatus: profileData.tier_status, dp: profileData.avatar_url || 'assets/person.jpeg'
+      };
+      state.unlockedCards = unlockData.map(u => u.media_id);
+
+      localStorage.setItem('kavya_session_user', JSON.stringify(state.currentUser));
+      localStorage.setItem('kavya_unlocked', JSON.stringify(state.unlockedCards));
+    }
+
+    let mediaLikeCounts = {};
+    let mediaCommentCounts = {};
+    let mediaComments = {};
+    let commentLikeCounts = {};
+    let myLikedMediaIds = new Set();
+    let myLikedCommentIds = new Set();
+
+    function formatUploadDate(iso) {
+      if (!iso) return 'Date unknown';
+      const d = new Date(iso);
+      if (isNaN(d.getTime())) return 'Date unknown';
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const pad = n => String(n).padStart(2, '0');
+      return pad(d.getDate()) + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
+    }
+
+    function escapeHtml(str) {
+      return String(str == null ? '' : str)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    async function loadMediaInteractions() {
+      try {
+        const [likesRes, commentsRes, commentLikesRes, myLikes, myCommentLikes] = await Promise.all([
+          supabaseClient.from('media_likes').select('media_id'),
+          supabaseClient.from('kavya_media_comments').select('*').order('created_at', { ascending: true }),
+          supabaseClient.from('comment_likes').select('comment_id'),
+          state.currentUser ? supabaseClient.from('media_likes').select('media_id').eq('user_id', state.currentUser.id) : Promise.resolve({ data: [] }),
+          state.currentUser ? supabaseClient.from('comment_likes').select('comment_id').eq('user_id', state.currentUser.id) : Promise.resolve({ data: [] })
+        ]);
+        if (likesRes.error) throw likesRes.error;
+        if (commentsRes.error) throw commentsRes.error;
+        if (commentLikesRes.error) throw commentLikesRes.error;
+        mediaLikeCounts = {};
+        (likesRes.data || []).forEach(r => { mediaLikeCounts[r.media_id] = (mediaLikeCounts[r.media_id] || 0) + 1; });
+        mediaComments = {};
+        mediaCommentCounts = {};
+        (commentsRes.data || []).forEach(c => {
+          if (!mediaComments[c.media_id]) mediaComments[c.media_id] = [];
+          mediaComments[c.media_id].push(c);
+          mediaCommentCounts[c.media_id] = (mediaCommentCounts[c.media_id] || 0) + 1;
+        });
+        commentLikeCounts = {};
+        (commentLikesRes.data || []).forEach(r => { commentLikeCounts[r.comment_id] = (commentLikeCounts[r.comment_id] || 0) + 1; });
+        myLikedMediaIds = new Set((myLikes.data || []).map(r => r.media_id));
+        myLikedCommentIds = new Set((myCommentLikes.data || []).map(r => r.comment_id));
+        renderMediaGalleries();
+      } catch (e) {
+        console.error('loadMediaInteractions error:', e);
+      }
+    }
+
+    function updateLikeButtons(mediaId) {
+      document.querySelectorAll('.like-btn[data-media-id="' + mediaId + '"]').forEach(b => {
+        const span = b.querySelector('.like-count');
+        if (span) span.textContent = mediaLikeCounts[mediaId] || 0;
+        b.classList.toggle('liked', myLikedMediaIds.has(mediaId));
+      });
+      document.querySelectorAll('.comment-btn[data-media-id="' + mediaId + '"]').forEach(b => {
+        const span = b.querySelector('.comment-count');
+        if (span) span.textContent = mediaCommentCounts[mediaId] || 0;
+      });
+    }
+
+    function flyKisses(btn) {
+      const rect = btn.getBoundingClientRect();
+      const emojis = ['💋', '💕', '❤️', '😘', '💖'];
+      for (let i = 0; i < 7; i++) {
+        const s = document.createElement('span');
+        s.className = 'kiss-float';
+        s.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        s.style.left = (rect.left + Math.random() * rect.width) + 'px';
+        s.style.top = (rect.top + Math.random() * 10) + 'px';
+        document.body.appendChild(s);
+        setTimeout(() => s.remove(), 1500);
+      }
+    }
+
+    async function toggleMediaLike(btn) {
+      if (!state.currentUser) { showToast('Please sign in to like.', 'error'); navigateToSection('signup-section'); return; }
+      const mediaId = btn.getAttribute('data-media-id');
+      const liked = myLikedMediaIds.has(mediaId);
+      try {
+        if (liked) {
+          const { error } = await supabaseClient.from('media_likes').delete().eq('user_id', state.currentUser.id).eq('media_id', mediaId);
+          if (error) throw error;
+          myLikedMediaIds.delete(mediaId);
+          mediaLikeCounts[mediaId] = Math.max(0, (mediaLikeCounts[mediaId] || 1) - 1);
+        } else {
+          const { error } = await supabaseClient.from('media_likes').insert({ user_id: state.currentUser.id, media_id: mediaId });
+          if (error) throw error;
+          myLikedMediaIds.add(mediaId);
+          mediaLikeCounts[mediaId] = (mediaLikeCounts[mediaId] || 0) + 1;
+          flyKisses(btn);
+        }
+        updateLikeButtons(mediaId);
+      } catch (e) {
+        console.error('toggleMediaLike error:', e);
+        showToast(e.message || 'Could not update like.', 'error');
+      }
+    }
+
+    async function toggleCommentLike(btn) {
+      if (!state.currentUser) { showToast('Please sign in to like comments.', 'error'); navigateToSection('signup-section'); return; }
+      const commentId = btn.getAttribute('data-comment-id');
+      const liked = myLikedCommentIds.has(commentId);
+      try {
+        if (liked) {
+          const { error } = await supabaseClient.from('comment_likes').delete().eq('user_id', state.currentUser.id).eq('comment_id', commentId);
+          if (error) throw error;
+          myLikedCommentIds.delete(commentId);
+          commentLikeCounts[commentId] = Math.max(0, (commentLikeCounts[commentId] || 1) - 1);
+        } else {
+          const { error } = await supabaseClient.from('comment_likes').insert({ user_id: state.currentUser.id, comment_id: commentId });
+          if (error) throw error;
+          myLikedCommentIds.add(commentId);
+          commentLikeCounts[commentId] = (commentLikeCounts[commentId] || 0) + 1;
+          flyKisses(btn);
+        }
+        btn.classList.toggle('liked', myLikedCommentIds.has(commentId));
+        const span = btn.querySelector('.comment-like-count');
+        if (span) span.textContent = commentLikeCounts[commentId] || 0;
+      } catch (e) {
+        console.error('toggleCommentLike error:', e);
+        showToast(e.message || 'Could not update like.', 'error');
+      }
+    }
+
+    function toggleComments(btn) {
+      const card = btn.closest('.media-card');
+      if (!card) return;
+      const box = card.querySelector('.media-comments-box');
+      if (!box) return;
+      const open = box.style.display === 'block';
+      box.style.display = open ? 'none' : 'block';
+      if (!open) renderComments(card, btn.getAttribute('data-media-id'));
+    }
+
+    function renderComments(card, mediaId) {
+      const list = card.querySelector('.comments-list');
+      if (!list) return;
+      const comments = mediaComments[mediaId] || [];
+      if (!comments.length) { list.innerHTML = '<div class="comments-empty">No comments yet. Be the first! 💋</div>'; return; }
+      list.innerHTML = comments.map(c => {
+        const liked = myLikedCommentIds.has(c.id);
+        return '<div class="comment-item">' +
+          '<div class="comment-author">' + escapeHtml(c.author_name) + '</div>' +
+          '<div class="comment-text">' + escapeHtml(c.comment) + '</div>' +
+          '<button type="button" class="comment-like-btn' + (liked ? ' liked' : '') + '" data-comment-id="' + c.id + '" onclick="toggleCommentLike(this)">' +
+          '<i class="fa-solid fa-heart"></i> <span class="comment-like-count">' + (commentLikeCounts[c.id] || 0) + '</span></button>' +
+          '</div>';
+      }).join('');
+    }
+
+    async function addComment(btn) {
+      if (!state.currentUser) { showToast('Please sign in to comment.', 'error'); navigateToSection('signup-section'); return; }
+      const card = btn.closest('.media-card');
+      if (!card) return;
+      const mediaId = btn.getAttribute('data-media-id');
+      const input = card.querySelector('.comment-input');
+      const text = (input.value || '').trim();
+      if (!text) return showToast('Write something first.', 'error');
+      try {
+        const { error } = await supabaseClient.from('kavya_media_comments').insert({
+          media_id: mediaId,
+          user_id: state.currentUser.id,
+          author_name: state.currentUser.username || state.currentUser.email.split('@')[0],
+          comment: text
+        });
+        if (error) throw error;
+        input.value = '';
+        await loadMediaInteractions();
+        renderComments(card, mediaId);
+      } catch (e) {
+        console.error('addComment error:', e);
+        showToast(e.message || 'Could not post comment.', 'error');
+      }
+    }
+
+    async function shareMedia(btn) {
+      const card = btn.closest('.media-card');
+      if (!card) return;
+      const mediaId = card.getAttribute('data-media-id');
+      const url = window.location.origin + window.location.pathname + '?media=' + mediaId;
+      try {
+        await navigator.clipboard.writeText(url);
+        showToast('Link copied! Recipients sign up & unlock to view.');
+      } catch (e) {
+        const ta = document.createElement('textarea');
+        ta.value = url;
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); ta.remove(); showToast('Link copied!'); }
+        catch (_) { ta.remove(); showToast('Copy failed. Link: ' + url, 'error'); }
+      }
+    }
+
+    function handleSharedMediaLink() {
+      const params = new URLSearchParams(window.location.search);
+      const mediaId = params.get('media');
+      if (!mediaId) return;
+      setTimeout(() => {
+        const card = document.querySelector('.media-card[data-media-id="' + mediaId + '"]');
+        if (!card) return;
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        card.classList.add('shared-highlight');
+        setTimeout(() => card.classList.remove('shared-highlight'), 4000);
+        if (!state.currentUser) showToast('Sign in & unlock to view this shared image.');
+      }, 600);
+    }
+
+    let authBusy = false;
+    function setAuthBusy(busy) {
+      authBusy = busy;
+      document.querySelectorAll('.btn-auth-signin, .btn-auth-signup, .btn-auth-google').forEach(btn => { btn.disabled = busy; });
+    }
+
+    async function isEmailRegistered(email) {
+      try {
+        const { data, error } = await supabaseClient.rpc('is_email_registered', { p_email: email });
+        if (error) return null;
+        return !!data;
+      } catch (_) { return null; }
+    }
+
+    async function handleUserSignIn() {
+      if (authBusy) return;
+      const email = document.getElementById('signup-email').value.trim();
+      const password = document.getElementById('signup-pass').value;
+      if (!email || !password) return showToast('Please enter your email and password.', 'error');
+      if (!document.getElementById('captcha-check').checked) return showToast('Please check "Verify you are human"', 'error');
+      setAuthBusy(true);
+      try {
+        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+        if (error) {
+          const msg = (error.message || '').toLowerCase();
+          if (msg.includes('not confirmed')) return showToast('Your email is not confirmed yet. Check your inbox for the confirmation link, then sign in.', 'error');
+          return showToast('Email or password is not correct.', 'error');
+        }
+        try {
+          await loadCloudProfile(data.user); applyUserSessionUI(); await loadCloudMedia(); await loadMediaInteractions();
+          navigateToSection('home-section'); showToast(`Welcome back, ${state.currentUser.username}!`); maybeShowOfferPopup();
+        } catch (err) { showToast('Your profile could not be loaded.', 'error'); }
+      } finally {
+        setAuthBusy(false);
+      }
+    }
+
+    async function handleUserSignUp() {
+      if (authBusy) return;
+      const email = document.getElementById('signup-email').value.trim();
+      const password = document.getElementById('signup-pass').value;
+      if (!email || !password) return showToast('Please enter your email and password.', 'error');
+      if (!document.getElementById('captcha-check').checked) return showToast('Please check "Verify you are human"', 'error');
+      setAuthBusy(true);
+      try {
+        const registered = await isEmailRegistered(email);
+        if (registered === true) return showToast('This email is already registered. Please sign in instead.', 'error');
+        const { data, error } = await supabaseClient.auth.signUp({
+          email, password, options: { data: { username: email.split('@')[0] } }
+        });
+        if (error) {
+          const msg = (error.message || '').toLowerCase();
+          if (msg.includes('already registered')) return showToast('This email is already registered. Please sign in instead.', 'error');
+          return showToast(error.message, 'error');
+        }
+        if (!data.session) return showToast('Account created. Check your email to confirm it, then sign in.');
+        await loadCloudProfile(data.user); applyUserSessionUI(); await loadCloudMedia(); await loadMediaInteractions();
+        navigateToSection('home-section'); showToast('Account created successfully!'); maybeShowOfferPopup();
+      } finally {
+        setAuthBusy(false);
+      }
+    }
+
+    async function handleGoogleSignIn() {
+      if (authBusy) return;
+      setAuthBusy(true);
+      try {
+        const { error } = await supabaseClient.auth.signInWithOAuth({
+          provider: 'google',
+          options: { redirectTo: window.location.origin }
+        });
+        if (error) showToast(error.message || 'Could not start Google sign-in.', 'error');
+      } finally {
+        setAuthBusy(false);
+      }
+    }
+
+    function togglePasswordVisibility() {
+      const input = document.getElementById('signup-pass');
+      const icon = document.getElementById('password-toggle-icon');
+      if (!input || !icon) return;
+      const show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      icon.classList.toggle('fa-eye', !show);
+      icon.classList.toggle('fa-eye-slash', show);
+    }
+
+    async function handleDeleteAccount() {
+      if (!state.currentUser) return showToast('You are not signed in.', 'error');
+      const confirmed = confirm('This will permanently delete your account, credits, and all data. Are you sure?');
+      if (!confirmed) return;
+      const btn = document.getElementById('delete-account-btn');
+      if (btn) { btn.disabled = true; btn.style.opacity = '0.6'; }
+      try {
+        const { error } = await supabaseClient.rpc('delete_own_account');
+        if (error) throw new Error(error.message);
+        await supabaseClient.auth.signOut();
+        state.currentUser = null;
+        localStorage.removeItem('kavya_session_user');
+        localStorage.removeItem('kavya_unlocked');
+        document.getElementById('main-header').style.display = 'none';
+        closeSidebar();
+        showToast('Your account has been deleted.');
+        navigateToSection('signup-section');
+      } catch (err) {
+        console.error('Delete account error:', err);
+        showToast(err.message || 'Could not delete your account. Please try again.', 'error');
+      } finally {
+        if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
+      }
+    }
+
+    async function handleSignOut() {
+      await supabaseClient.auth.signOut();
+      state.currentUser = null; localStorage.removeItem('kavya_session_user');
+      document.getElementById('main-header').style.display = 'none'; closeSidebar(); navigateToSection('signup-section');
+    }
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (session) {
+        try { await loadCloudProfile(session.user); applyUserSessionUI(); navigateToSection('home-section', false); }
+        catch (_) { await supabaseClient.auth.signOut(); }
+      }
+      await loadCloudMedia();
+      await loadMediaInteractions();
+      handleSharedMediaLink();
+      supabaseClient.channel('public-media')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'media' }, loadCloudMedia)
+        .subscribe();
+      supabaseClient.channel('public-interactions')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'media_likes' }, () => loadMediaInteractions())
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'kavya_media_comments' }, () => loadMediaInteractions())
+        .subscribe();
+    });
+
+    function initDripCanvases() {
+      document.querySelectorAll('.drip-canvas').forEach(function (canvas) {
+        var parent = canvas.parentElement;
+        var dpr = window.devicePixelRatio || 1;
+        function resize() {
+          var r = parent.getBoundingClientRect();
+          canvas.width = Math.max(1, Math.round(r.width * dpr));
+          canvas.height = Math.max(1, Math.round(r.height * dpr));
+          canvas.style.width = r.width + 'px';
+          canvas.style.height = r.height + 'px';
+        }
+        resize();
+        window.addEventListener('resize', resize);
+        var ctx = canvas.getContext('2d');
+        var isRed = parent.classList.contains('btn-red-sub');
+        var color = isRed ? '255,0,85' : '0,255,136';
+        var drops = [];
+        function spawn() {
+          drops.push({ x: Math.random(), y: -5, v: 2 + Math.random() * 3, len: 8 + Math.random() * 18, w: 2 + Math.random() * 2 });
+        }
+        spawn(); spawn(); spawn();
+        (function frame() {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          if (Math.random() < 0.3) spawn();
+          for (var i = 0; i < drops.length; i++) {
+            var d = drops[i];
+            d.y += d.v;
+            var a = Math.max(0, 1 - d.y / canvas.height);
+            ctx.beginPath();
+            ctx.strokeStyle = 'rgba(' + color + ',' + a.toFixed(2) + ')';
+            ctx.lineWidth = d.w;
+            ctx.lineCap = 'round';
+            ctx.moveTo(d.x * canvas.width, d.y);
+            ctx.lineTo(d.x * canvas.width, Math.min(d.y + d.len, canvas.height));
+            ctx.stroke();
+          }
+          drops = drops.filter(function (d) { return d.y < canvas.height; });
+          requestAnimationFrame(frame);
+        })();
+      });
+    }
+    initDripCanvases();
+  </script>
+
+  <script src="live_video.js"></script>
+</body>
+
+</html>

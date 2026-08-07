@@ -1,0 +1,23 @@
+{
+  "name": "Kavya VIP Neon",
+  "short_name": "Kavya VIP",
+  "description": "Vibrant Cyberpunk Neon App with Credits, AI Chat, Hot Pics & Shower Reels",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#07080c",
+  "theme_color": "#07080c",
+  "icons": [
+    {
+      "src": "assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

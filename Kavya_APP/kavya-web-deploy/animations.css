@@ -1,0 +1,316 @@
+/* Lip Biting Animation */
+.price-new-green {
+  position: relative;
+  display: inline-block;
+}
+
+.lips-container {
+  position: absolute;
+  left: 60%;
+  top: -10px;
+  width: 50px;
+  height: 25px;
+  transform-origin: center;
+  opacity: 0;
+  animation: peek-and-bite 4.5s ease-in-out infinite 1s;
+}
+
+.lips-svg {
+  width: 100%;
+  height: 100%;
+}
+
+#lower-lip {
+  transform-origin: center;
+  animation: lip-bite-action 4.5s ease-in-out infinite 1s;
+}
+
+@keyframes peek-and-bite {
+  0%, 20%, 90%, 100% { transform: translateX(25px) scale(0.7); opacity: 0; }
+  30%, 80% { transform: translateX(0) scale(1); opacity: 1; }
+}
+
+@keyframes lip-bite-action {
+  0%, 50%, 65%, 100% { transform: scaleY(1); }
+  58% { transform: scaleY(0.3); }
+}
+
+/* Dripping Liquid Animation */
+.price-new-red, .tier-action-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.drip-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.video-overlay-elements {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 4; /* Above the video stream */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 10px;
+}
+
+.live-header-controls {
+  display: flex;
+  justify-content: flex-end; /* Align to top right */
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.live-indicator {
+  background: var(--neon-red);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 0.8em;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.live-indicator i {
+  font-size: 0.6em;
+}
+
+.icon-btn {
+  background: rgba(0, 0, 0, 0.5);
+  border: none;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  color: white;
+  font-size: 1.2em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s ease;
+}
+
+.icon-btn:hover {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.flying-emojis-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* Emojis should not block clicks */
+  overflow: hidden;
+}
+
+.flying-emoji {
+  position: absolute;
+  font-size: 2em;
+  opacity: 0;
+  animation: fly-up 5s forwards;
+  pointer-events: none;
+}
+
+@keyframes fly-up {
+  0% { transform: translate(0, 100vh) scale(0.5); opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { transform: translate(0, -100vh) scale(1.5); opacity: 0; }
+}
+
+.live-comments-display {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%; /* Full width within the video player */
+  max-height: 50%; /* Limit height of comments display */
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(5px);
+  border-radius: 0 0 10px 10px; /* Match video player border */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: transform 0.3s ease-in-out;
+  transform: translateY(100%); /* Hidden by default */
+}
+
+.live-comments-display.active {
+  transform: translateY(0); /* Visible */
+}
+
+.comment-list {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 10px;
+  font-size: 0.9em;
+  color: white;
+}
+
+.comment-item {
+  margin-bottom: 5px;
+}
+
+.comment-item strong {
+  color: var(--neon-cyan);
+}
+
+.comment-input-area {
+  display: flex;
+  padding: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+#live-comment-input {
+  flex-grow: 1;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 20px;
+  padding: 8px 15px;
+  color: white;
+  margin-right: 5px;
+}
+
+#live-comment-input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.emoji-picker-btn {
+  border-radius: 20px; /* Make it a pill shape */
+  width: auto;
+  padding: 0 10px;
+  background: var(--neon-cyan);
+  color: var(--bg-dark);
+}
+
+.emoji-picker-btn:hover {
+  background: var(--neon-cyan-glow);
+}
+
+/* Live Video Section - Refined Positioning */
+#live-video-section .background-container {
+  width: 100%;
+  height: 100vh; /* Adjust as needed, e.g., 80vh to show more of other sections */
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+#live-video-section .live-bg-image {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Cover the container */
+  object-position: center;
+  z-index: 1;
+}
+
+#live-video-section .person-overlay-image {
+  position: absolute;
+  /* Original image is 1536x2752. The whiteboard seems to be roughly centered horizontally,
+     and the person covers the top and bottom sections.
+     Let's scale the person image and position it. */
+  width: 100%; /* Take full width */
+  height: 100%; /* Take full height */
+  object-fit: contain; /* Ensure the whole image is visible if scaled */
+  object-position: center bottom; /* Position the person to cover the bottom more */
+  z-index: 3; /* Above the video player */
+  pointer-events: none; /* Allow interaction with elements behind it */
+}
+
+.live-video-player {
+  position: absolute;
+  z-index: 2; /* Between background and person overlay */
+  /* These values are estimates based on Bg 1.png and trying to fit the whiteboard */
+  width: 42vw; /* Adjusted width */
+  height: 25vw; /* Adjusted height (aspect ratio for 16:9 video roughly 1.77) */
+  top: 30vh; /* Adjusted top position */
+  left: 50%; /* Center horizontally */
+  transform: translate(-50%, -50%) rotate(-5deg); /* Center and rotate */
+  background: black; /* Placeholder background */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.live-video-player video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Hover Comments for Live Video */
+.hover-comment {
+  position: absolute;
+  bottom: 0;
+  left: 10vw; /* Starting slightly from the left */
+  opacity: 0;
+  color: white;
+  font-size: 1.1em;
+  font-weight: 600;
+  padding: 5px 10px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(3px);
+  border-radius: 5px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 5; /* Above video elements */
+  transition: all 0.3s ease-out; /* Smooth initial appearance */
+  animation: hover-and-fade 10s forwards ease-out; /* Main animation */
+}
+
+@keyframes hover-and-fade {
+  0% { transform: translateY(0) scale(1); opacity: 0; }
+  10% { opacity: 1; transform: translateY(-20px) scale(1); } /* Rise slightly and become visible */
+  80% { opacity: 1; transform: translateY(-100px) scale(1.1); } /* Continue rising, slight scale */
+  100% { opacity: 0; transform: translateY(-150px) scale(1.2); } /* Fade out and rise further */
+}
+
+/* Flying Emojis */
+.flying-emojis-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 5; /* Above video elements */
+}
+
+.flying-emoji {
+  position: absolute;
+  font-size: 2em;
+  opacity: 0;
+  animation: fly-up 5s forwards;
+  pointer-events: none;
+  text-shadow: 0 0 5px rgba(0,0,0,0.5); /* Add some shadow for visibility */
+}
+
+@keyframes fly-up {
+  0% { transform: translate(0, 100vh) scale(0.5); opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { transform: translate(0, -100vh) scale(1.5); opacity: 0; }
+}
+
+/* Minor adjustment for .live-comments-display to ensure it's not hidden by other elements */
+.live-comments-display {
+  z-index: 6; /* Ensure comments display is always on top within the video player */
+}
