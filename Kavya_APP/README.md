@@ -42,6 +42,9 @@ A vibrant Cyberpunk Neon application featuring a **Dedicated Admin Portal**, **S
   - **Navigation Drawer Title**: Changed to logo **`KAVYA [VIP]`**.
   - **Model Name**: Updated to **`Kavya Rachana`** across all cards and live views.
   - **Default Tier Status**: Defaulted to **Normal User** until purchasing credit packages.
+  - **NSFW Page**: Pics & videos marked NSFW appear on their own page and never show in Trending.
+  - **Fixed Default Media**: The two admin-set default panels are pinned at the first two spots in Images and Trending.
+  - **Live Counts**: The live menu bar shows a default of 50K likes and 20K comments.
 
 ### 2. Admin Portal (`admin-upload/index.html`)
 - **Web Link**: `https://admin-upload-ten.vercel.app/`
@@ -50,6 +53,9 @@ A vibrant Cyberpunk Neon application featuring a **Dedicated Admin Portal**, **S
   - **WhatsApp / Instagram Style File Picker**: Drag & drop or upload photos (JPG, PNG) and videos (MP4, WEBM) directly from your mobile phone or computer!
   - **Central Cloud Broadcast**: Any media published from `admin.html` is synchronized instantly to all user APK mobile apps and Webpage links worldwide!
   - **TeraBox & Excel Export/Import**: Export users & media to CSV/Excel for safekeeping on TeraBox.
+  - **All Users Details (Excel / CSV)**: One-click export of every account with S.no, Name, Email, Password, signup location, signup date/time, and last login date/time. Password resets appear as attached bottom rows under the same email.
+  - **NSFW Uploads**: Mark any pic or video as NSFW so it appears only on the dedicated NSFW page and never in the Trending panel.
+  - **2 Fixed Default Media Panels**: Set two default media slots that always stay pinned at positions 1 and 2 of the Images gallery and Trending section; every new upload renders beside them.
 
 ---
 

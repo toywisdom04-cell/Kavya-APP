@@ -1,7 +1,9 @@
 // Live video, whiteboard alignment, comments, likes, and floating reactions.
 var liveStreamUrl = '';
-var liveLikes = 0;
-var liveCommentsCount = 0;
+var DEFAULT_LIVE_LIKES = 50000;
+var DEFAULT_LIVE_COMMENTS = 20000;
+var liveLikes = DEFAULT_LIVE_LIKES;
+var liveCommentsCount = DEFAULT_LIVE_COMMENTS;
 var liveHoverInterval = null;
 var panelIsVisible = false;
 var emojis = [];
@@ -260,9 +262,18 @@ function addHoverComment(username, text) {
   }
 }
 
+function formatLiveCount(n) {
+  if (n >= 1000) {
+    var k = Math.floor(n / 1000);
+    var rem = Math.round((n % 1000) / 100);
+    return (rem > 0 ? k + '.' + rem + 'K' : k + 'K');
+  }
+  return String(n);
+}
+
 function updateLiveCommentCount() {
   var countEl = document.getElementById('live-comments-count');
-  if (countEl) countEl.textContent = liveCommentsCount;
+  if (countEl) countEl.textContent = formatLiveCount(liveCommentsCount);
 }
 
 function addCommentToDisplay(username, commentText, fromUser, isFlyingEmoji, emojiCode) {
@@ -348,7 +359,7 @@ function toggleLiveLike(btn) {
   likedOnce = true;
   liveLikes++;
   var countEl = document.getElementById('live-likes-count');
-  if (countEl) countEl.textContent = liveLikes;
+  if (countEl) countEl.textContent = formatLiveCount(liveLikes);
   btn.classList.add('liked');
   for (var i = 0; i < 5; i++) {
     setTimeout(function () {
