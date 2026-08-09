@@ -636,10 +636,13 @@ create table if not exists public.live_comments (
   y_pos numeric     -- Initial Y position for flying emoji
 );
 alter table public.live_comments enable row level security;
+drop policy if exists "Authenticated users can create live comments" on public.live_comments;
 create policy "Authenticated users can create live comments"
   on public.live_comments for insert to authenticated with check (auth.uid() = user_id);
+drop policy if exists "Anyone can read approved live comments" on public.live_comments;
 create policy "Anyone can read approved live comments"
   on public.live_comments for select using (is_approved = true);
+drop policy if exists "Admins can update and delete any live comments" on public.live_comments;
 create policy "Admins can update and delete any live comments"
   on public.live_comments for all to authenticated using (is_admin()) with check (is_admin());
 
@@ -651,8 +654,10 @@ create table if not exists public.live_stream_status (
   last_updated timestamp with time zone default now()
 );
 alter table public.live_stream_status enable row level security;
+drop policy if exists "Anyone can read live stream status" on public.live_stream_status;
 create policy "Anyone can read live stream status"
   on public.live_stream_status for select using (true);
+drop policy if exists "Admins can update live stream status" on public.live_stream_status;
 create policy "Admins can update live stream status"
   on public.live_stream_status for update to authenticated using (is_admin()) with check (is_admin());
 
