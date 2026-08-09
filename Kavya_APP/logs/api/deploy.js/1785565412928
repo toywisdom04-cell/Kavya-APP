@@ -1,0 +1,9 @@
+[api shell.run]
+Microsoft Windows [Version 10.0.26200.8894]
+(c) Microsoft Corporation. All rights reserved.
+
+E:\pinokio\api\Kavya_APP>conda_hook & conda deactivate & conda deactivate & conda deactivate & conda activate base && supabase functions deploy cashfree-webhook --no-verify-jwt
+'supabase' is not recognized as an internal or external command,
+operable program or batch file.
+
+(base) E:\pinokio\api\Kavya_APP>
