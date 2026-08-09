@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kavya VIP - Admin Control Portal</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    :root {
+      --bg-dark: #07080c;
+      --bg-card: rgba(18, 20, 29, 0.85);
+      --bg-glass: rgba(255, 255, 255, 0.04);
+      --border-glass: rgba(255, 255, 255, 0.08);
+
+      --neon-green: #00ff88;
+      --neon-green-glow: rgba(0, 255, 136, 0.4);
+      --neon-red: #ff0055;
+      --neon-red-glow: rgba(255, 0, 85, 0.45);
+      --neon-cyan: #00f0ff;
+      --neon-cyan-glow: rgba(0, 240, 255, 0.35);
+      --neon-purple: #9d00ff;
+      --neon-purple-glow: rgba(157, 0, 255, 0.45);
+
+      --text-main: #f0f4f8;
+      --text-muted: #8e9bb0;
+
+      --radius-lg: 20px;
+      --radius-md: 12px;
+      --transition-fast: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    body { background-color: var(--bg-dark); color: var(--text-main); font-family: 'Outfit', sans-serif; min-height: 100vh; overflow-x: hidden; }
+    #ambient-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; opacity: 0.5; }
+    header.admin-header { position: fixed; top: 0; left: 0; right: 0; height: 70px; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; background: rgba(12, 10, 20, 0.9); backdrop-filter: blur(16px); border-bottom: 1px solid var(--neon-purple-glow); z-index: 100; }
+    .logo-brand { font-family: 'Space Grotesk', sans-serif; font-size: 1.5rem; font-weight: 700; letter-spacing: 1px; background: linear-gradient(135deg, #ffffff 0%, var(--neon-purple) 50%, var(--neon-cyan) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: flex; align-items: center; gap: 8px; }
+    .cloud-sync-status { display: flex; align-items: center; gap: 8px; background: rgba(0, 255, 136, 0.08); border: 1px solid var(--neon-green); color: var(--neon-green); padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; }
+    main.admin-container { position: relative; z-index: 1; padding-top: 100px; padding-bottom: 50px; max-width: 1200px; margin: 0 auto; padding-left: 20px; padding-right: 20px; }
+    .admin-auth-card { max-width: 440px; margin: 60px auto; background: var(--bg-card); border: 2px solid var(--neon-purple); border-radius: 24px; padding: 36px 28px; box-shadow: 0 0 35px var(--neon-purple-glow); text-align: center; }
+    .form-group { margin-bottom: 20px; text-align: left; }
+    .form-label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; }
+    .form-input { width: 100%; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border-glass); border-radius: 12px; padding: 14px 16px; color: #fff; font-size: 1rem; outline: none; }
+    .form-input:focus { border-color: var(--neon-purple); box-shadow: 0 0 15px var(--neon-purple-glow); }
+    .btn-purple { width: 100%; padding: 14px; background: linear-gradient(135deg, var(--neon-purple), #6a00b8); border: none; border-radius: 12px; color: #fff; font-size: 1.05rem; font-weight: 700; cursor: pointer; box-shadow: 0 0 20px var(--neon-purple-glow); transition: var(--transition-fast); }
+    .btn-purple:hover { transform: scale(1.02); box-shadow: 0 0 30px var(--neon-purple-glow); }
+    .admin-dashboard { display: none; }
+
+    .reply-input-container {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .reply-input {
+      flex-grow: 1;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border-glass);
+      border-radius: 8px;
+      padding: 8px 12px;
+      color: #fff;
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    .btn-send-reply {
+      background: var(--neon-cyan);
+      color: var(--bg-dark);
+      border: none;
+      border-radius: 8px;
+      padding: 8px 15px;
+      cursor: pointer;
+    }
+    
+    .btn-reply {
+      background: var(--neon-green);
+      color: var(--bg-dark);
+      border: none;
+      border-radius: 8px;
+      padding: 6px 12px;
+      cursor: pointer;
+      margin-left: 5px;
+      font-size: 0.85rem;
+    }
+    
+    .panel-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 30px; margin-bottom: 40px; }
+    .upload-card { background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 24px; padding: 28px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); }
+    .upload-card h2 { font-size: 1.4rem; color: var(--neon-purple); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+    .media-file-dropzone { border: 2px dashed rgba(157, 0, 255, 0.4); border-radius: 16px; padding: 30px 20px; text-align: center; cursor: pointer; background: rgba(157, 0, 255, 0.03); transition: var(--transition-fast); margin-bottom: 20px; position: relative; }
+    .media-file-dropzone:hover { border-color: var(--neon-cyan); background: rgba(0, 240, 255, 0.05); }
+    .dropzone-icon { font-size: 2.4rem; color: var(--neon-purple); margin-bottom: 10px; }
+    .file-preview-thumb { max-height: 180px; border-radius: 12px; margin-top: 10px; display: none; box-shadow: 0 0 15px rgba(0, 0, 0, 0.6); }
+    .terabox-excel-card { background: rgba(16, 20, 32, 0.9); border: 1px solid var(--neon-cyan-glow); border-radius: 24px; padding: 28px; margin-bottom: 40px; }
+    .terabox-excel-card h2 { color: var(--neon-cyan); margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
+    .actions-flex { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 20px; }
+    .btn-action-cyan { background: rgba(0, 240, 255, 0.1); border: 1px solid var(--neon-cyan); color: var(--neon-cyan); padding: 12px 20px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: var(--transition-fast); }
+    .btn-action-cyan:hover { background: var(--neon-cyan); color: #000; box-shadow: 0 0 20px var(--neon-cyan-glow); }
+    .uploaded-media-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+    .media-item-box { background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 16px; overflow: hidden; position: relative; }
+    .media-item-box img, .media-item-box video { width: 100%; height: 180px; object-fit: cover; }
+    .media-item-details { padding: 12px; }
+    .btn-delete-item { position: absolute; top: 10px; right: 10px; background: var(--neon-red); color: #fff; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; box-shadow: 0 0 10px var(--neon-red-glow); }
+    .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 400; display: flex; flex-direction: column; gap: 10px; }
+    .toast-msg { background: rgba(12, 14, 22, 0.95); border: 1px solid var(--neon-cyan); color: #fff; padding: 14px 20px; border-radius: 14px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6); display: flex; align-items: center; gap: 12px; }
+  
+    .whiteboard-card {
+      background: var(--bg-card);
+      border: 2px solid var(--neon-red);
+      border-radius: 24px;
+      padding: 28px;
+      margin-top: 30px;
+      box-shadow: 0 0 30px rgba(255,0,85,0.15);
+    }
+    .default-media-card {
+      background: var(--bg-card);
+      border: 2px solid var(--neon-purple);
+      border-radius: 24px;
+      padding: 28px;
+      margin-top: 30px;
+      box-shadow: 0 0 30px rgba(157,0,255,0.2);
+    }
+    .default-media-card h2 {
+      font-size: 1.4rem;
+      color: var(--neon-purple);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .default-media-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+    }
+    .default-slot-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border-glass);
+      border-radius: 16px;
+      padding: 16px;
+    }
+    .default-slot-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .default-slot-badge {
+      background: var(--neon-purple);
+      color: #fff;
+      font-weight: 800;
+      font-size: 0.78rem;
+      padding: 4px 12px;
+      border-radius: 10px;
+      letter-spacing: 1px;
+    }
+    .btn-default-remove {
+      background: rgba(255,0,85,0.15);
+      border: 1px solid var(--neon-red);
+      color: var(--neon-red);
+      padding: 6px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+    .btn-default-remove:hover { background: var(--neon-red); color: #fff; }
+    .default-slot-preview {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-bottom: 12px;
+      display: none;
+      background: #000;
+    }
+    .default-slot-preview img, .default-slot-preview video {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+    .whiteboard-card h2 {
+      font-size: 1.4rem;
+      color: var(--neon-red);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .wb-preview { width: 100%; max-height: 200px; border-radius: 12px; margin-bottom: 16px; display: none; background: #000; }
+    .wb-active-label { color: var(--neon-green); font-size: 0.9rem; margin-bottom: 12px; display: none; align-items: center; gap: 8px; }
+    .btn-wb-publish { width: 100%; padding: 14px; background: linear-gradient(135deg, var(--neon-red), #d60047); border: none; border-radius: 12px; color: #fff; font-size: 1rem; font-weight: 700; cursor: pointer; box-shadow: 0 0 20px var(--neon-red-glow); transition: var(--transition-fast); }
+    .btn-wb-publish:hover { transform: scale(1.02); box-shadow: 0 0 30px var(--neon-red-glow); }
+    .btn-wb-remove { width: 100%; padding: 10px; background: transparent; border: 1px solid var(--border-glass); border-radius: 10px; color: var(--text-muted); font-size: 0.85rem; cursor: pointer; margin-top: 12px; transition: var(--transition-fast); }
+    .btn-wb-remove:hover { border-color: var(--neon-red); color: var(--neon-red); }
+    .live-comments-panel { background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 24px; padding: 28px; margin-top: 30px; }
+    .whiteboard-card .live-comments-panel { background: transparent; border: 0; border-top: 1px solid var(--border-glass); border-radius: 0; padding: 22px 0 0; margin-top: 24px; }
+    .live-comments-panel h3 { font-size: 1.3rem; color: var(--neon-cyan); margin-bottom: 18px; display: flex; align-items: center; gap: 10px; }
+    .comment-admin-list { max-height: 400px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+    .admin-comment-item { background: rgba(255,255,255,0.03); border: 1px solid var(--border-glass); border-radius: 14px; padding: 14px; display: flex; align-items: flex-start; gap: 12px; }
+    .admin-comment-item.pending { border-color: rgba(255,150,0,0.4); background: rgba(255,150,0,0.05); }
+    .admin-comment-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--neon-purple), var(--neon-cyan)); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.85rem; color: #fff; flex-shrink: 0; }
+    .admin-comment-body { flex: 1; min-width: 0; }
+    .admin-comment-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap; }
+    .admin-comment-user { font-weight: 700; font-size: 0.82rem; color: var(--neon-green); }
+    .admin-comment-time { font-size: 0.72rem; color: var(--text-muted); }
+    .badge-pending { font-size: 0.68rem; background: rgba(255,150,0,0.2); color: #ff9800; padding: 2px 8px; border-radius: 8px; font-weight: 700; }
+    .badge-approved { font-size: 0.68rem; background: rgba(0,255,136,0.15); color: var(--neon-green); padding: 2px 8px; border-radius: 8px; font-weight: 700; }
+    .badge-emoji { font-size: 0.68rem; background: rgba(157,0,255,0.2); color: #c77dff; padding: 2px 8px; border-radius: 8px; font-weight: 700; }
+    .admin-comment-text { font-size: 0.88rem; color: var(--text-main); word-break: break-word; line-height: 1.4; }
+    .admin-comment-actions { display: flex; gap: 6px; flex-shrink: 0; }
+    .btn-approve { background: rgba(0,255,136,0.15); border: 1px solid var(--neon-green); color: var(--neon-green); padding: 5px 10px; border-radius: 8px; cursor: pointer; font-size: 0.78rem; font-weight: 700; }
+    .btn-approve:hover { background: var(--neon-green); color: #000; }
+    .btn-del-c { background: rgba(255,0,85,0.15); border: 1px solid var(--neon-red); color: var(--neon-red); padding: 5px 10px; border-radius: 8px; cursor: pointer; font-size: 0.78rem; font-weight: 700; }
+    .btn-del-c:hover { background: var(--neon-red); color: #fff; }
+    .comments-empty { text-align: center; padding: 30px; color: var(--text-muted); font-size: 0.9rem; }
+    .comments-empty i { font-size: 1.8rem; margin-bottom: 10px; display: block; color: var(--neon-gray); }
+</style>
+</head>
+<body>
+  <canvas id="ambient-canvas"></canvas>
+  <header class="admin-header">
+    <div class="logo-brand">
+      <i class="fa-solid fa-user-shield" style="color: var(--neon-purple);"></i> KAVYA <span style="font-size: 0.75rem; color: var(--neon-purple); border: 1px solid var(--neon-purple); padding: 2px 6px; border-radius: 6px;">ADMIN PORTAL</span>
+    </div>
+    <div class="cloud-sync-status">
+      <i class="fa-solid fa-cloud-arrow-up"></i> <span id="sync-status-text">Cloud Sync Active</span>
+    </div>
+  </header>
+
+  <main class="admin-container">
+    <div class="admin-auth-card" id="admin-auth-gate">
+      <h2 style="margin-bottom: 8px; color: var(--neon-purple);">Admin Creator Access</h2>
+      <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 24px;">Sign in with the Supabase account that has been granted administrator access</p>
+      <form onsubmit="handleAdminLogin(event)">
+        <div class="form-group">
+          <label class="form-label">Admin Email</label>
+          <input type="email" id="admin-gate-email" class="form-input" required placeholder="admin@example.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Passcode</label>
+          <input type="password" id="admin-gate-pass" class="form-input" required placeholder="Your account password">
+        </div>
+        <button type="submit" class="btn-purple">ENTER ADMIN PORTAL</button>
+      </form>
+    </div>
+
+    <div class="admin-dashboard" id="admin-dashboard">
+      <div class="terabox-excel-card">
+        <h2><i class="fa-solid fa-database"></i> TeraBox & Central Database Sync</h2>
+        <p style="color: var(--text-muted); font-size: 0.95rem;">All content uploaded from this Admin portal is automatically synchronized across all user APK mobile apps and Webpage links worldwide!</p>
+        <div class="actions-flex">
+          <button class="btn-action-cyan" onclick="exportDataToExcel()"><i class="fa-solid fa-file-excel"></i> Export Buyer Purchases & Credit Usage to Excel / CSV</button>
+          <button class="btn-action-cyan" style="border-color: var(--neon-purple); color: var(--neon-purple);" onclick="exportAllUsersDetails()"><i class="fa-solid fa-users"></i> All Users Details (Excel / CSV)</button>
+          <label class="btn-action-cyan" style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer;">
+            <i class="fa-solid fa-file-import"></i> Restore Database from TeraBox / Excel File
+            <input type="file" accept=".csv, .json" style="display: none;" onchange="importDataFromExcel(event)">
+          </label>
+          <button class="btn-action-cyan" style="border-color: var(--neon-green); color: var(--neon-green);" onclick="forceSyncCloud()"><i class="fa-solid fa-rotate"></i> Force Real-time Cloud Sync Now</button>
+        </div>
+      </div>
+
+      <div class="panel-grid">
+        <div class="upload-card">
+          <h2><i class="fa-solid fa-image"></i> Upload New Pic</h2>
+          <form onsubmit="handlePublishMedia(event, 'image')">
+            <div class="form-group">
+              <label class="form-label">Pic Title</label>
+              <input type="text" id="pic-title" class="form-input" placeholder="e.g. Daily Melons" required>
+            </div>
+            <label class="media-file-dropzone" for="pic-file-input">
+              <i class="fa-solid fa-cloud-arrow-up dropzone-icon"></i>
+              <div style="font-weight: 700;">Choose Photo / Drag & Drop</div>
+              <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">Supports JPG, PNG, WEBP from device</div>
+              <input type="file" id="pic-file-input" accept="image/*" style="display: none;" onchange="previewSelectedFile(event, 'pic-preview')">
+              <img id="pic-preview" class="file-preview-thumb" alt="Pic Preview">
+            </label>
+            <div class="form-group">
+              <label class="form-label">Credit Cost to Unlock</label>
+              <input type="number" id="pic-cost" class="form-input" value="5" min="1" required>
+            </div>
+            <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+              <input type="checkbox" id="pic-nsfw" style="width: 18px; height: 18px; accent-color: var(--neon-red);">
+              <label class="form-label" for="pic-nsfw" style="margin: 0;">Mark as NSFW (hidden from Trending)</label>
+            </div>
+            <button type="submit" class="btn-purple">PUBLISH PIC TO ALL USERS 🚀</button>
+          </form>
+        </div>
+
+        <div class="upload-card">
+          <h2><i class="fa-solid fa-video"></i> Upload New Video Reel</h2>
+          <form onsubmit="handlePublishMedia(event, 'video')">
+            <div class="form-group">
+              <label class="form-label">Video Reel Title</label>
+              <input type="text" id="vid-title" class="form-input" placeholder="e.g. Under Shower Reel 💋" required>
+            </div>
+            <label class="media-file-dropzone" for="vid-file-input">
+              <i class="fa-solid fa-film dropzone-icon" style="color: var(--neon-cyan);"></i>
+              <div style="font-weight: 700;">Choose Video / Drag & Drop</div>
+              <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">Supports MP4, WEBM from device</div>
+              <input type="file" id="vid-file-input" accept="video/*" style="display: none;" onchange="previewSelectedFile(event, 'vid-preview')">
+              <img id="vid-preview" class="file-preview-thumb" alt="Video Preview">
+            </label>
+            <div class="form-group">
+              <label class="form-label">Credit Cost to Unlock</label>
+              <input type="number" id="vid-cost" class="form-input" value="15" min="1" required>
+            </div>
+            <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+              <input type="checkbox" id="vid-nsfw" style="width: 18px; height: 18px; accent-color: var(--neon-red);">
+              <label class="form-label" for="vid-nsfw" style="margin: 0;">Mark as NSFW (hidden from Trending)</label>
+            </div>
+            <button type="submit" class="btn-purple" style="background: linear-gradient(135deg, var(--neon-cyan), #0088cc); box-shadow: 0 0 20px var(--neon-cyan-glow);">PUBLISH VIDEO TO ALL USERS 🚀</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Default Media: 2 fixed slots shown first in Images & Trending -->
+      <div class="default-media-card">
+        <h2><i class="fa-solid fa-star"></i> Default Media (Fixed 2 Panels)</h2>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 18px;">These two panels always stay at the
+          first and second places of the Images gallery and Trending section. Any new pic or video you upload will appear
+          beside them, never before them.</p>
+        <div class="default-media-grid">
+          <div class="default-slot-card" id="default-slot-1">
+            <div class="default-slot-head">
+              <span class="default-slot-badge">SLOT 1</span>
+              <button class="btn-default-remove" id="feat-remove-1" style="display:none;" onclick="removeFeaturedMedia(1)"><i class="fa-solid fa-trash"></i></button>
+            </div>
+            <div class="default-slot-preview" id="feat-preview-1"></div>
+            <label class="media-file-dropzone" for="feat-file-1" style="margin-bottom: 12px;">
+              <i class="fa-solid fa-cloud-arrow-up dropzone-icon"></i>
+              <div style="font-weight: 700;">Choose Photo / Video</div>
+              <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">Slot 1 — fixed first position</div>
+              <input type="file" id="feat-file-1" accept="image/*,video/*" style="display:none;" onchange="previewFeaturedFile(1, event)">
+            </label>
+            <div class="form-group">
+              <label class="form-label">Title</label>
+              <input type="text" id="feat-title-1" class="form-input" placeholder="e.g. Featured Pic">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Credit Cost to Unlock</label>
+              <input type="number" id="feat-cost-1" class="form-input" value="0" min="0">
+            </div>
+            <button type="button" class="btn-purple" style="width:100%;" onclick="publishFeaturedMedia(1)">PUBLISH SLOT 1</button>
+          </div>
+
+          <div class="default-slot-card" id="default-slot-2">
+            <div class="default-slot-head">
+              <span class="default-slot-badge" style="background: var(--neon-cyan); color: #000;">SLOT 2</span>
+              <button class="btn-default-remove" id="feat-remove-2" style="display:none;" onclick="removeFeaturedMedia(2)"><i class="fa-solid fa-trash"></i></button>
+            </div>
+            <div class="default-slot-preview" id="feat-preview-2"></div>
+            <label class="media-file-dropzone" for="feat-file-2" style="margin-bottom: 12px;">
+              <i class="fa-solid fa-cloud-arrow-up dropzone-icon" style="color: var(--neon-cyan);"></i>
+              <div style="font-weight: 700;">Choose Photo / Video</div>
+              <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">Slot 2 — fixed second position</div>
+              <input type="file" id="feat-file-2" accept="image/*,video/*" style="display:none;" onchange="previewFeaturedFile(2, event)">
+            </label>
+            <div class="form-group">
+              <label class="form-label">Title</label>
+              <input type="text" id="feat-title-2" class="form-input" placeholder="e.g. Featured Reel">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Credit Cost to Unlock</label>
+              <input type="number" id="feat-cost-2" class="form-input" value="0" min="0">
+            </div>
+            <button type="button" class="btn-purple" style="width:100%;" onclick="publishFeaturedMedia(2)">PUBLISH SLOT 2</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;">
+        <h2 style="font-size: 1.5rem;"><i class="fa-solid fa-layer-group"></i> Manage Live Content</h2>
+        <span style="color: var(--text-muted);" id="content-count-display">0 Items Published</span>
+      </div>
+      <div class="uploaded-media-list" id="admin-media-list"></div>
+
+      <!-- Whiteboard Video Upload -->
+      <div class="whiteboard-card">
+        <h2><i class="fa-solid fa-film"></i> Upload Whiteboard Video</h2>
+        <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:16px;">Upload a video that plays inside the person whiteboard on the homepage. Looks like a live stream!</p>
+        <video id="wb-preview" class="wb-preview" controls muted></video>
+        <div class="wb-active-label" id="wb-active-label"><i class="fa-solid fa-circle" style="color:var(--neon-green);"></i> Video Currently Active</div>
+        <label class="media-file-dropzone" for="wb-file-input" style="margin-bottom:16px;">
+          <i class="fa-solid fa-cloud-arrow-up dropzone-icon" style="color:var(--neon-red);"></i>
+          <div style="font-weight:700;">Choose Video / Drag & Drop</div>
+          <div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;">Supports MP4, WEBM — max 50MB</div>
+          <input type="file" id="wb-file-input" accept="video/*" style="display:none;" onchange="previewWBVideo(event)">
+        </label>
+        <button class="btn-wb-publish" onclick="publishWBVideo()"><i class="fa-solid fa-upload"></i> UPLOAD TO WHITEBOARD</button>
+        <button class="btn-wb-remove" id="wb-remove-btn" style="display:none;" onclick="removeWBVideo()"><i class="fa-solid fa-trash"></i> Remove Video</button>
+        <div class="live-comments-panel">
+          <h3><i class="fa-solid fa-comments"></i> Live Comments Manager</h3>
+          <div class="comment-admin-list" id="live-comment-admin-list">
+            <!-- Live comments will be loaded here -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const supabaseClient = window.supabase.createClient(
+      'https://lvxhfhsizlpvvwwjpsmb.supabase.co',
+      'sb_publishable_9D55Dak0M5bGUOH0jPVmQQ_gbRAWmSi'
+    );
+
+    function showAdminDashboard() {
+      document.getElementById('admin-auth-gate').style.display = 'none';
+      document.getElementById('admin-dashboard').style.display = 'block';
+      loadCentralCloudData(); loadWBVideo(); loadLiveComments(); loadFeaturedMedia();
+    }
+
+    function renderAdminMediaList(mediaDatabase) {
+      const listEl = document.getElementById('admin-media-list');
+      document.getElementById('content-count-display').innerText = `${mediaDatabase.length} Items Live`;
+      listEl.innerHTML = '';
+      mediaDatabase.forEach(item => {
+        const box = document.createElement('div');
+        box.className = 'media-item-box';
+        box.innerHTML = `
+          <button class="btn-delete-item" onclick="deleteMediaItem('${item.id}')"><i class="fa-solid fa-trash"></i></button>
+          ${item.type === 'video'
+            ? `<video src="${item.url}" controls preload="metadata"></video>`
+            : `<img src="${item.url}" alt="${item.title}">`}
+          <div class="media-item-details">
+            <div style="font-weight: 700; font-size: 0.95rem;">${item.title}</div>
+            <div style="font-size: 0.8rem; color: var(--neon-green);">⚡ ${item.cost} Credits (${item.type})</div>
+          </div>
+        `;
+        listEl.appendChild(box);
+      });
+    }
+
+    function previewSelectedFile(e, previewImgId) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const previewEl = document.getElementById(previewImgId);
+        previewEl.src = evt.target.result;
+        previewEl.style.display = 'inline-block';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function showToast(msg, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'toast-msg';
+      toast.style.borderColor = type === 'error' ? 'var(--neon-red)' : 'var(--neon-green)';
+      toast.innerHTML = `<i class="fa-solid ${type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-check'}" style="color: ${type === 'error' ? 'var(--neon-red)' : 'var(--neon-green)'}"></i> ${msg}`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    function initAmbientCanvas() {
+      const canvas = document.getElementById('ambient-canvas');
+      const ctx = canvas.getContext('2d');
+      function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+      resize(); window.addEventListener('resize', resize);
+      const drops = [];
+      for (let i = 0; i < 40; i++) {
+        drops.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, length: Math.random() * 20 + 10, speed: Math.random() * 6 + 3, color: 'rgba(157, 0, 255, 0.4)' });
+      }
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drops.forEach(d => {
+          ctx.beginPath(); ctx.moveTo(d.x, d.y); ctx.lineTo(d.x, d.y + d.length); ctx.strokeStyle = d.color; ctx.lineWidth = 1.5; ctx.stroke();
+          d.y += d.speed; if (d.y > canvas.height) { d.y = -d.length; d.x = Math.random() * canvas.width; }
+        });
+        requestAnimationFrame(draw);
+      }
+      draw();
+    }
+
+    // --- Supabase Logic ---
+
+    function mediaRowToItem(row) {
+      return {
+        id: row.id, title: row.title, type: row.media_type, cost: row.credit_cost,
+        storagePath: row.storage_path,
+        url: supabaseClient.storage.from('media').getPublicUrl(row.storage_path).data.publicUrl
+      };
+    }
+
+    async function requireAdmin() {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session) throw new Error('Please sign in with your administrator account.');
+      const { data: profile, error } = await supabaseClient.from('profiles').select('role').eq('id', session.user.id).single();
+      if (error || profile.role !== 'admin') throw new Error('This account is not an administrator.');
+      return session.user;
+    }
+
+    async function handleAdminLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('admin-gate-email').value.trim();
+      const password = document.getElementById('admin-gate-pass').value;
+      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+      if (error) return showToast('Email or password is not correct.', 'error');
+      try {
+        await requireAdmin();
+        showAdminDashboard();
+        showToast('Admin Portal Authenticated Successfully');
+      } catch (err) {
+        await supabaseClient.auth.signOut();
+        showToast(err.message, 'error');
+      }
+    }
+
+    async function loadCentralCloudData() {
+      document.getElementById('sync-status-text').innerText = 'Syncing Central Cloud...';
+      const { data, error } = await supabaseClient.from('media').select('*').order('created_at', { ascending: false });
+      if (error) {
+        document.getElementById('sync-status-text').innerText = 'Cloud sync failed';
+        showToast(error.message, 'error');
+        return;
+      }
+      const mediaDatabase = data.map(mediaRowToItem);
+      renderAdminMediaList(mediaDatabase);
+      document.getElementById('sync-status-text').innerText = 'Cloud Synced Real-time';
+    }
+
+    async function forceSyncCloud() {
+      await loadCentralCloudData();
+      showToast('Cloud refresh completed. Connected user sites receive live updates.');
+    }
+
+    // --- Default Media (2 fixed slots) ---
+
+    async function loadFeaturedMedia() {
+      const { data, error } = await supabaseClient.from('featured_media').select('*').order('slot', { ascending: true });
+      if (error) { console.error('loadFeaturedMedia error:', error); return; }
+      (data || []).forEach(item => renderFeaturedAdminSlot(item));
+    }
+
+    function renderFeaturedAdminSlot(item) {
+      const slot = item.slot;
+      const url = supabaseClient.storage.from('media').getPublicUrl(item.storage_path).data.publicUrl;
+      const preview = document.getElementById('feat-preview-' + slot);
+      const removeBtn = document.getElementById('feat-remove-' + slot);
+      const titleInput = document.getElementById('feat-title-' + slot);
+      const costInput = document.getElementById('feat-cost-' + slot);
+      if (!preview || !removeBtn) return;
+      if (item.media_type === 'video') {
+        preview.innerHTML = `<video src="${url}" controls preload="metadata"></video>`;
+      } else {
+        preview.innerHTML = `<img src="${url}" alt="${item.title}">`;
+      }
+      preview.style.display = 'block';
+      removeBtn.style.display = 'inline-block';
+      if (titleInput) titleInput.value = item.title || '';
+      if (costInput) costInput.value = item.credit_cost || 0;
+    }
+
+    function previewFeaturedFile(slot, e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const preview = document.getElementById('feat-preview-' + slot);
+      if (!preview) return;
+      const url = URL.createObjectURL(file);
+      if (file.type.startsWith('video/')) {
+        preview.innerHTML = `<video src="${url}" controls preload="metadata"></video>`;
+      } else {
+        preview.innerHTML = `<img src="${url}" alt="Preview">`;
+      }
+      preview.style.display = 'block';
+    }
+
+    async function publishFeaturedMedia(slot) {
+      try {
+        const user = await requireAdmin();
+        const input = document.getElementById('feat-file-' + slot);
+        const title = document.getElementById('feat-title-' + slot).value.trim();
+        const cost = Number(document.getElementById('feat-cost-' + slot).value);
+        const file = input.files[0];
+
+        if (!file) throw new Error('Please choose a photo or video for slot ' + slot + '.');
+        if (file.size > 50 * 1024 * 1024) throw new Error('Files must be 50 MB or smaller.');
+        if (!title) throw new Error('Please enter a title for slot ' + slot + '.');
+
+        const ext = file.name.includes('.') ? file.name.split('.').pop().toLowerCase() : 'bin';
+        const mediaType = file.type.startsWith('video/') ? 'video' : 'image';
+        const storagePath = `featured/${slot}/${crypto.randomUUID()}.${ext}`;
+        document.getElementById('sync-status-text').innerText = 'Uploading default media...';
+
+        const { error: uploadError } = await supabaseClient.storage.from('media').upload(storagePath, file, { contentType: file.type });
+        if (uploadError) throw uploadError;
+
+        const { error: upsertError } = await supabaseClient.from('featured_media').upsert({
+          slot,
+          title,
+          media_type: mediaType,
+          storage_path: storagePath,
+          credit_cost: cost,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'slot' });
+        if (upsertError) {
+          await supabaseClient.storage.from('media').remove([storagePath]);
+          throw upsertError;
+        }
+
+        input.value = '';
+        await loadFeaturedMedia();
+        showToast(`Default media slot ${slot} published!`);
+        document.getElementById('sync-status-text').innerText = 'Cloud Synced Real-time';
+      } catch (err) {
+        showToast(err.message || 'Failed to publish default media.', 'error');
+        document.getElementById('sync-status-text').innerText = 'Upload failed';
+      }
+    }
+
+    async function removeFeaturedMedia(slot) {
+      if (!confirm('Remove the default media from slot ' + slot + '?')) return;
+      try {
+        await requireAdmin();
+        const { data: existing } = await supabaseClient.from('featured_media').select('storage_path').eq('slot', slot).maybeSingle();
+        if (existing && existing.storage_path) {
+          await supabaseClient.storage.from('media').remove([existing.storage_path]);
+        }
+        const { error } = await supabaseClient.from('featured_media').delete().eq('slot', slot);
+        if (error) throw error;
+        const preview = document.getElementById('feat-preview-' + slot);
+        const removeBtn = document.getElementById('feat-remove-' + slot);
+        if (preview) { preview.innerHTML = ''; preview.style.display = 'none'; }
+        if (removeBtn) removeBtn.style.display = 'none';
+        document.getElementById('feat-title-' + slot).value = '';
+        document.getElementById('feat-cost-' + slot).value = 0;
+        showToast('Default media removed.');
+      } catch (err) {
+        showToast(err.message || 'Failed to remove default media.', 'error');
+      }
+    }
+
+    async function handlePublishMedia(e, type) {
+      e.preventDefault();
+      try {
+        const user = await requireAdmin();
+        const isImage = type === 'image';
+        const title = document.getElementById(isImage ? 'pic-title' : 'vid-title').value.trim();
+        const cost = Number(document.getElementById(isImage ? 'pic-cost' : 'vid-cost').value);
+        const isNsfw = !!document.getElementById(isImage ? 'pic-nsfw' : 'vid-nsfw').checked;
+        const input = document.getElementById(isImage ? 'pic-file-input' : 'vid-file-input');
+        const file = input.files[0];
+
+        if (!file) throw new Error(`Please choose a ${type} file.`);
+        if (!file.type.startsWith(type + '/')) throw new Error(`Please select a valid ${type} file.`);
+        if (file.size > 50 * 1024 * 1024) throw new Error('Files must be 50 MB or smaller.');
+
+        const extension = file.name.includes('.') ? file.name.split('.').pop().toLowerCase() : 'bin';
+        const storagePath = `${user.id}/${crypto.randomUUID()}.${extension}`;
+        document.getElementById('sync-status-text').innerText = 'Uploading media...';
+
+        const { error: uploadError } = await supabaseClient.storage.from('media').upload(storagePath, file, { contentType: file.type });
+        if (uploadError) throw uploadError;
+
+        const { error: insertError } = await supabaseClient.from('media').insert({
+          title, media_type: type, storage_path: storagePath, credit_cost: cost, is_nsfw: isNsfw, created_by: user.id
+        });
+        if (insertError) {
+          await supabaseClient.storage.from('media').remove([storagePath]);
+          throw insertError;
+        }
+
+        input.value = '';
+        document.getElementById(isImage ? 'pic-preview' : 'vid-preview').style.display = 'none';
+        await loadCentralCloudData();
+        showToast(`Published "${title}" to the user portal.`);
+      } catch (err) {
+        document.getElementById('sync-status-text').innerText = 'Upload failed';
+        showToast(err.message || 'Upload failed.', 'error');
+      }
+    }
+
+    async function deleteMediaItem(itemId) {
+      if (!confirm('Delete this media item from all users?')) return;
+      try {
+        await requireAdmin();
+        const { data: mediaItems } = await supabaseClient.from('media').select('storage_path').eq('id', itemId);
+        if (mediaItems && mediaItems.length > 0 && mediaItems[0].storage_path) {
+            await supabaseClient.storage.from('media').remove([mediaItems[0].storage_path]);
+        }
+        const { error } = await supabaseClient.from('media').delete().eq('id', itemId);
+        if (error) throw error;
+        await loadCentralCloudData();
+        showToast('Media item deleted.');
+      } catch (err) {
+        showToast(err.message || 'Delete failed.', 'error');
+      }
+    }
+
+    async function exportDataToExcel() {
+      try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session?.access_token) throw new Error('Please sign in with your administrator account.');
+
+        await requireAdmin();
+        document.getElementById('sync-status-text').innerText = 'Preparing buyer report...';
+        const response = await fetch('https://lvxhfhsizlpvvwwjpsmb.supabase.co/functions/v1/export-buyers', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+          },
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({ error: 'Failed to parse error from server.' }));
+          throw new Error(errorData.error || `Export failed with status: ${response.status}`);
+        }
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+
+        const disposition = response.headers.get('content-disposition');
+        const filenameMatch = disposition ? /filename="?([^"]+)"?/.exec(disposition) : null;
+        const filename = filenameMatch ? filenameMatch[1] : `kavya-buyers-${new Date().toISOString().slice(0, 10)}.csv`;
+
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+
+        window.URL.revokeObjectURL(url);
+        a.remove();
+
+        showToast('Buyer report has been downloaded!');
+        document.getElementById('sync-status-text').innerText = 'Cloud Synced Real-time';
+      } catch (err) {
+        showToast(err.message || 'Failed to fetch buyer data.', 'error');
+        document.getElementById('sync-status-text').innerText = 'Export Failed';
+      }
+    }
+
+    async function exportAllUsersDetails() {
+      try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session?.access_token) throw new Error('Please sign in with your administrator account.');
+
+        await requireAdmin();
+        document.getElementById('sync-status-text').innerText = 'Preparing all users report...';
+
+        const response = await fetch('https://lvxhfhsizlpvvwwjpsmb.supabase.co/functions/v1/export-users', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+          },
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({ error: 'Failed to parse error from server.' }));
+          throw new Error(errorData.error || `Export failed with status: ${response.status}`);
+        }
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+
+        const disposition = response.headers.get('content-disposition');
+        const filenameMatch = disposition ? /filename="?([^"]+)"?/.exec(disposition) : null;
+        const filename = filenameMatch ? filenameMatch[1] : `kavya-all-users-${new Date().toISOString().slice(0, 10)}.csv`;
+
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+
+        window.URL.revokeObjectURL(url);
+        a.remove();
+
+        showToast('All users details have been downloaded!');
+        document.getElementById('sync-status-text').innerText = 'Cloud Synced Real-time';
+      } catch (err) {
+        showToast(err.message || 'Failed to fetch user data.', 'error');
+        document.getElementById('sync-status-text').innerText = 'Export Failed';
+      }
+    }
+
+    async function checkSession() {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (session) {
+        try {
+          await requireAdmin();
+          showAdminDashboard();
+        } catch (err) {
+          // Not an admin or error, keep the login form
+        }
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initAmbientCanvas();
+      checkSession();
+      supabaseClient.channel('admin-wb-videos')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'whiteboard_videos' }, () => { loadWBVideo(); })
+        .subscribe();
+      supabaseClient.channel('admin-live-comments')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'live_comments' }, () => { loadLiveComments(); })
+        .subscribe();
+      supabaseClient.channel('admin-featured-media')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'featured_media' }, () => { loadFeaturedMedia(); })
+        .subscribe();
+    });
+  
+    // --- Whiteboard Video ---
+    let currentWBUrl = '';
+
+    async function loadWBVideo() {
+      const { data } = await supabaseClient.from('whiteboard_videos').select('video_url').order('created_at', { ascending: false }).limit(1).single();
+      if (data && data.video_url) {
+        currentWBUrl = data.video_url;
+        const label = document.getElementById('wb-active-label');
+        const delBtn = document.getElementById('wb-remove-btn');
+        const preview = document.getElementById('wb-preview');
+        if (label) label.style.display = 'flex';
+        if (delBtn) delBtn.style.display = 'block';
+        if (preview) { preview.src = data.video_url; preview.style.display = 'block'; }
+      }
+    }
+
+    function previewWBVideo(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const preview = document.getElementById('wb-preview');
+        if (preview) { preview.src = evt.target.result; preview.style.display = 'block'; }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function publishWBVideo() {
+      try {
+        await requireAdmin();
+        const input = document.getElementById('wb-file-input');
+        const file = input.files[0];
+        if (!file) return showToast('Please select a video first.', 'error');
+        if (!file.type.startsWith('video/')) return showToast('Please select a valid video file.', 'error');
+        if (file.size > 50 * 1024 * 1024) return showToast('Video must be 50MB or smaller.', 'error');
+        document.getElementById('sync-status-text').innerText = 'Uploading whiteboard video...';
+        const ext = file.name.includes('.') ? file.name.split('.').pop().toLowerCase() : 'mp4';
+        const storagePath = 'whiteboard/' + crypto.randomUUID() + '.' + ext;
+        const { error: uploadError } = await supabaseClient.storage.from('media').upload(storagePath, file, { contentType: file.type });
+        if (uploadError) throw uploadError;
+        const { data: urlData } = supabaseClient.storage.from('media').getPublicUrl(storagePath);
+        const { error: dbError } = await supabaseClient.from('whiteboard_videos').insert({ video_url: urlData.publicUrl, storage_path: storagePath });
+        if (dbError) throw dbError;
+        input.value = '';
+        document.getElementById('wb-preview').style.display = 'none';
+        await loadWBVideo();
+        showToast('Whiteboard video uploaded! Users will see it immediately.');
+        document.getElementById('sync-status-text').innerText = 'Cloud Synced Real-time';
+      } catch (err) {
+        showToast(err.message || 'Upload failed.', 'error');
+        document.getElementById('sync-status-text').innerText = 'Upload failed';
+      }
+    }
+
+    async function removeWBVideo() {
+      if (!confirm('Remove the whiteboard video?')) return;
+      try {
+        await requireAdmin();
+        if (currentWBUrl) {
+          const m = currentWBUrl.match(/\/media\/([^?]+)/);
+          if (m) await supabaseClient.storage.from('media').remove([m[1]]);
+        }
+        const { error } = await supabaseClient.from('whiteboard_videos').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+        if (error) throw error;
+        currentWBUrl = '';
+        document.getElementById('wb-preview').style.display = 'none';
+        const label = document.getElementById('wb-active-label');
+        const delBtn = document.getElementById('wb-remove-btn');
+        if (label) label.style.display = 'none';
+        if (delBtn) delBtn.style.display = 'none';
+        showToast('Whiteboard video removed.');
+      } catch (err) { showToast(err.message || 'Delete failed.', 'error'); }
+    }
+
+    // --- Live Comments Management ---
+    async function loadLiveComments() {
+      const listEl = document.getElementById('live-comment-admin-list');
+      if (!listEl) return;
+      listEl.innerHTML = '<div class="comments-empty"><i class="fa-solid fa-spinner fa-spin"></i>Loading...</div>';
+      const { data, error } = await supabaseClient.from('live_comments').select('*').or('is_flying_emoji.is.null,is_flying_emoji.eq.false').order('created_at', { ascending: false }).limit(100);
+      if (error) { listEl.innerHTML = '<div class="comments-empty"><i class="fa-solid fa-triangle-exclamation"></i>Failed to load</div>'; return; }
+      if (!data || !data.length) { listEl.innerHTML = '<div class="comments-empty"><i class="fa-solid fa-comments"></i>No comments yet.</div>'; return; }
+      listEl.innerHTML = '';
+      data.forEach(c => renderAdminComment(listEl, c));
+    }
+
+    function renderAdminComment(container, c) {
+      const div = document.createElement('div');
+      const initial = (c.author_name || '?').charAt(0).toUpperCase();
+      const pending = !c.is_approved;
+      const time = c.created_at ? new Date(c.created_at).toLocaleString('en-IN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' }) : 'Just now';
+      const text = c.comment || '';
+
+      div.className = 'admin-comment-item' + (pending ? ' pending' : '');
+      div.dataset.commentId = c.id;
+
+      const avatar = document.createElement('div');
+      avatar.className = 'admin-comment-avatar';
+      avatar.textContent = initial;
+
+      const body = document.createElement('div');
+      body.className = 'admin-comment-body';
+      body.innerHTML =
+        '<div class="admin-comment-meta">' +
+          '<span class="admin-comment-user">' + escapeHtmlWb(c.author_name || 'Unknown') + '</span>' +
+          (pending ? '<span class="badge-pending">PENDING</span>' : '<span class="badge-approved">APPROVED</span>') +
+          '<span class="admin-comment-time">' + time + '</span>' +
+        '</div>' +
+        '<div class="admin-comment-text">' + escapeHtmlWb(text) + '</div>';
+
+      const actions = document.createElement('div');
+      actions.className = 'admin-comment-actions';
+      if (pending) {
+        const approveBtn = document.createElement('button');
+        approveBtn.className = 'btn-approve';
+        approveBtn.type = 'button';
+        approveBtn.textContent = 'Approve';
+        approveBtn.addEventListener('click', () => approveComment(c.id));
+        actions.appendChild(approveBtn);
+      }
+
+      const replyBtn = document.createElement('button');
+      replyBtn.className = 'btn-reply';
+      replyBtn.type = 'button';
+      replyBtn.textContent = 'Reply';
+      replyBtn.addEventListener('click', () => showReplyInput(c.id, c.username || 'User'));
+      actions.appendChild(replyBtn);
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = 'btn-del-c';
+      deleteBtn.type = 'button';
+      deleteBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
+      deleteBtn.addEventListener('click', () => deleteComment(c.id));
+      actions.appendChild(deleteBtn);
+
+      div.appendChild(avatar);
+      div.appendChild(body);
+      div.appendChild(actions);
+      container.appendChild(div);
+    }
+
+    async function approveComment(id) {
+      const { error } = await supabaseClient.from('live_comments').update({ is_approved: true }).eq('id', id);
+      if (error) { showToast('Failed to approve.', 'error'); return; }
+      showToast('Comment approved!');
+      await loadLiveComments();
+    }
+
+    async function deleteComment(id) {
+      if (!confirm('Delete this comment?')) return;
+      const { error } = await supabaseClient.from('live_comments').delete().eq('id', id);
+      if (error) { showToast('Delete failed.', 'error'); return; }
+      showToast('Comment deleted.');
+      await loadLiveComments();
+    }
+
+    function escapeHtmlWb(s) {
+      return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    async function showReplyInput(commentId, username) {
+      const commentDiv = Array.from(document.querySelectorAll('.admin-comment-item')).find(item => item.dataset.commentId === String(commentId));
+      if (!commentDiv) return;
+      const replyRoot = commentDiv.querySelector('.admin-comment-body') || commentDiv;
+      let replyContainer = replyRoot.querySelector('.reply-input-container');
+      if (!replyContainer) {
+        replyContainer = document.createElement('div');
+        replyContainer.className = 'reply-input-container';
+        replyContainer.dataset.commentId = commentId;
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'reply-input';
+        input.placeholder = 'Reply to ' + username + '...';
+
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'btn-send-reply';
+        button.textContent = 'Send';
+        button.onclick = async () => {
+          const replyText = input.value.trim();
+          if (replyText) {
+            await sendReply(commentId, username, replyText);
+            replyContainer.remove();
+          }
+        };
+
+        input.addEventListener('keydown', async (event) => {
+          if (event.key === 'Enter') button.click();
+        });
+
+        replyContainer.appendChild(input);
+        replyContainer.appendChild(button);
+        replyRoot.appendChild(replyContainer);
+        input.focus();
+      } else {
+        replyContainer.remove();
+      }
+    }
+
+    async function sendReply(originalCommentId, targetUsername, replyText) {
+      try {
+        const adminUser = await requireAdmin();
+        const fullReply = '@' + targetUsername + ' ' + replyText;
+        const { error } = await supabaseClient.from('live_comments').insert({
+          comment: fullReply,
+          user_id: adminUser.id,
+          author_name: 'Admin',
+          is_approved: true
+        });
+        if (error) throw error;
+        showToast('Reply sent and approved!');
+        await loadLiveComments();
+      } catch (err) {
+        showToast(err.message || 'Failed to send reply.', 'error');
+      }
+    }
+  </script>
+</body>
+</html>
