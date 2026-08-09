@@ -3342,8 +3342,8 @@
     <section id="about-section" class="page-section">
       <article class="legal-card">
         <h1>About Us</h1>
-        <p>Kavya VIP is a digital-content platform where registered users can explore content and purchase optional
-          credit packs.</p>
+        <p>Kavya VIP is a 18+ digital-content platform where registered users can buy credit pack to unlock EXCLUSIVE
+          CONENT of a person called Kavya Rachana.</p>
         <h2>Our service</h2>
         <p>We provide a web-based member experience, account access, and digital credit packs. Content and feature
           availability may change over time.</p>
@@ -3732,6 +3732,8 @@ if (window.__kavyaSignupConfirm) {
 
     async function unlockMedia(cardId, cost) {
       if (!state.currentUser) return showToast('Please sign in to unlock media.', 'error');
+      const { data: { session: unlockSession } } = await supabaseClient.auth.getSession();
+      if (!unlockSession) return showToast('Please sign in to unlock media.', 'error');
 
       try {
         const { data, error } = await supabaseClient.rpc('unlock_media_for_current_user', { p_media_id: cardId });
@@ -3757,8 +3759,7 @@ if (window.__kavyaSignupConfirm) {
           if (item) openModal(item.url, item.title, item.type);
 
         } else if (data.status === 'INSUFFICIENT_CREDITS') {
-          showToast('Not enough credits! Please Upgrade.', 'error');
-          navigateToSection('upgrade-section');
+          showUnlockCreditPopup();
         } else {
           throw new Error('An unknown error occurred.');
         }
@@ -3770,6 +3771,8 @@ if (window.__kavyaSignupConfirm) {
 
     async function unlockFeaturedMedia(slot, cost, cardId) {
       if (!state.currentUser) return showToast('Please sign in to unlock media.', 'error');
+      const { data: { session: unlockSession } } = await supabaseClient.auth.getSession();
+      if (!unlockSession) return showToast('Please sign in to unlock media.', 'error');
       try {
         const { data, error } = await supabaseClient.rpc('unlock_featured_media_for_current_user', { p_slot: slot });
         if (error) throw new Error(error.message);
@@ -3788,8 +3791,7 @@ if (window.__kavyaSignupConfirm) {
           const item = featuredMediaDatabase.find(i => i.id === cardId);
           if (item) openModal(item.url, item.title, item.type);
         } else if (data.status === 'INSUFFICIENT_CREDITS') {
-          showToast('Not enough credits! Please Upgrade.', 'error');
-          navigateToSection('upgrade-section');
+          showUnlockCreditPopup();
         } else {
           throw new Error('An unknown error occurred.');
         }
@@ -3907,10 +3909,38 @@ if (window.__kavyaSignupConfirm) {
       setTimeout(() => showOfferPopup(), 800);
     }
 
+    // Unlock / Chat credit-out popup functions
+    function showUnlockCreditPopup() {
+      const popup = document.getElementById('unlock-credit-popup');
+      if (popup) popup.classList.add('show');
+    }
+
+    function hideUnlockCreditPopup() {
+      const popup = document.getElementById('unlock-credit-popup');
+      if (popup) popup.classList.remove('show');
+    }
+
+    function showChatCreditPopup() {
+      const popup = document.getElementById('chat-credit-popup');
+      if (popup) popup.classList.add('show');
+    }
+
+    function hideChatCreditPopup() {
+      const popup = document.getElementById('chat-credit-popup');
+      if (popup) popup.classList.remove('show');
+    }
+
     async function sendChatMessage() {
       const input = document.getElementById('chat-input-msg');
       const text = input.value.trim();
       if (!text || !state.currentUser) return;
+
+      // Get session for auth BEFORE showing the bubble or deducting credits
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session) {
+        showToast('Please sign in to chat.', 'error');
+        return;
+      }
 
       const msgsArea = document.getElementById('chat-messages');
       const userBubble = document.createElement('div');
@@ -3926,13 +3956,6 @@ if (window.__kavyaSignupConfirm) {
       saveDatabases();
 
       try {
-        // Get session for auth
-        const { data: { session } } = await supabaseClient.auth.getSession();
-        if (!session) {
-          showToast('Please sign in to chat.', 'error');
-          return;
-        }
-
         // Get chat history for context
         const chatHistory = Array.from(msgsArea.children).map(el => ({
           role: el.classList.contains('user') ? 'user' : 'bot',
@@ -3948,11 +3971,12 @@ if (window.__kavyaSignupConfirm) {
         if (aiError) {
           console.error('AI Chat Error:', aiError);
           let errorMessage = 'Unknown AI error.';
+          let isCreditOut = aiError.context && aiError.context.status === 402;
           if (aiError.context && aiError.context.body instanceof ReadableStream) {
             const reader = aiError.context.body.getReader();
             const decoder = new TextDecoder();
             let chunks = '';
-            reader.read().then(function processText({ done, value }) {
+            await reader.read().then(function processText({ done, value }) {
               if (done) {
                 try {
                   const errorBody = JSON.parse(chunks);
@@ -3962,7 +3986,6 @@ if (window.__kavyaSignupConfirm) {
                 } catch (e) {
                   errorMessage = chunks; // Fallback if not JSON
                 }
-                showToast(`AI Error: ${errorMessage}`, 'error');
                 return;
               }
               chunks += decoder.decode(value, { stream: true });
@@ -3970,10 +3993,18 @@ if (window.__kavyaSignupConfirm) {
             });
           } else if (aiError.message) {
             errorMessage = aiError.message;
-            showToast(`AI Error: ${errorMessage}`, 'error');
-          } else {
-            showToast(`AI Error: ${errorMessage}`, 'error');
           }
+
+          if (isCreditOut || /insufficient/i.test(errorMessage)) {
+            // No credit was actually deducted server-side: restore the optimistic decrement
+            state.currentUser.credits += 1;
+            applyUserSessionUI();
+            saveDatabases();
+            showChatCreditPopup();
+            return;
+          }
+
+          showToast(`AI Error: ${errorMessage}`, 'error');
 
           // Fallback to bot responses if AI fails
           setTimeout(() => {
