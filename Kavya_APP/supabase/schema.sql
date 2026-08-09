@@ -397,6 +397,7 @@ end;
 $$;
 
 revoke all on function public.unlock_media_for_current_user(uuid) from public;
+revoke all on function public.unlock_media_for_current_user(uuid) from anon;
 grant execute on function public.unlock_media_for_current_user(uuid) to authenticated;
 
 create or replace function public.deduct_chat_credit()
@@ -431,6 +432,7 @@ end;
 $$;
 
 revoke all on function public.deduct_chat_credit() from public;
+revoke all on function public.deduct_chat_credit() from anon;
 grant execute on function public.deduct_chat_credit() to authenticated;
 
 -- ------------------------------------------------------------------
@@ -748,4 +750,5 @@ end;
 $$;
 
 revoke all on function public.unlock_featured_media_for_current_user(integer) from public;
+revoke all on function public.unlock_featured_media_for_current_user(integer) from anon;
 grant execute on function public.unlock_featured_media_for_current_user(integer) to authenticated;
