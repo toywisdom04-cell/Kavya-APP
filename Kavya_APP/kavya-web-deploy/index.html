@@ -942,6 +942,26 @@
       cursor: pointer;
     }
 
+    .ack-box {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px dashed rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 20px;
+      cursor: pointer;
+      transform: translateZ(15px);
+    }
+
+    .ack-link {
+      color: var(--neon-cyan);
+      font-weight: 700;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
     /* Requirement 1: Separate SIGN IN and SIGN UP buttons */
     .dual-auth-buttons {
       display: flex;
@@ -2394,6 +2414,31 @@
     }
     .popup-button.pulsing { animation: pulse 1.5s infinite; }
 
+    /* Confirmation-email pop-up styles */
+    .confirm-popup {
+      background: linear-gradient(45deg, #FFD700, #FF8C00);
+      color: #111;
+      border: 2px solid #FFFFFF;
+    }
+
+    .confirm-popup .confirm-msg {
+      color: #111;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+      animation: confirmPulse 1.2s infinite;
+    }
+
+    .confirm-popup .popup-button {
+      background: #111;
+      color: #FFD700;
+      box-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+    }
+
+    @keyframes confirmPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); text-shadow: 0 0 18px rgba(255, 255, 255, 1), 0 0 30px #FFD700; }
+      100% { transform: scale(1); }
+    }
+
   </style>
   <style>
     .tier-action-btn {
@@ -2937,6 +2982,15 @@
                   class="fa-solid fa-shield-halved" style="color: var(--neon-cyan); margin-left: 6px;"></i></span>
             </div>
 
+            <div class="ack-box" onclick="toggleAck()">
+              <input type="checkbox" id="ack-check" class="captcha-checkbox">
+              <label for="ack-check" style="font-size: 0.9rem; color: var(--text-main); cursor: pointer;">I acknowledge
+                and agree to the <span class="ack-link"
+                  onclick="event.stopPropagation(); navigateToSection('terms-section'); return false;">Terms &amp;
+                  Conditions</span> of Kavya VIP, including that purchases are non-refundable, and I confirm I am 18+
+                years old.</label>
+            </div>
+
             <!-- Requirement 1: Two Separate Buttons for SIGN IN and SIGN UP -->
             <div class="dual-auth-buttons">
               <button type="button" class="btn-auth-signin" onclick="handleUserSignIn()">
@@ -3345,7 +3399,7 @@
         <p>Kavya VIP is a 18+ digital-content platform where registered users can buy credit pack to unlock EXCLUSIVE
           CONENT of a person called Kavya Rachana.</p>
         <h2>Our service</h2>
-        <p>We provide a web-based member experience, account access, and digital credit packs. Content and feature
+        <p>We provide pleasure services with Photos and videos as a web-based member experience, account access, and digital credit packs. Content and feature
           availability may change over time.</p>
         <h2>Our commitment</h2>
         <p>We aim to provide clear pricing, account controls, and responsive support for our users.</p>
@@ -3355,8 +3409,8 @@
     <section id="contact-section" class="page-section">
       <article class="legal-card">
         <h1>Contact Us</h1>
-        <p>For account, billing, or technical support, contact us at <a
-            href="mailto:REPLACE-WITH-YOUR-SUPPORT-EMAIL">REPLACE-WITH-YOUR-SUPPORT-EMAIL</a>.</p>
+        <p>For collaborations, account, or technical support, contact us at <a
+            href="mailto:YOUR-SUPPORT-EMAIL">YOUR-SUPPORT-EMAIL</a>.</p>
         <p>Please include the email address associated with your account and a short description of your request. Do not
           send passwords or payment-card details by email.</p>
       </article>
@@ -3373,21 +3427,21 @@
           selected payment provider; we do not store full payment-card details in this website.</p>
         <p>We retain information only as needed to operate the service, meet legal obligations, resolve disputes, and
           enforce our agreements. To request access, correction, or deletion where applicable, contact the support
-          address listed on the Contact Us page.</p>
+          address.</p>
       </article>
     </section>
 
     <section id="terms-section" class="page-section">
       <article class="legal-card">
         <h1>Terms &amp; Conditions</h1>
-        <p>By using Kavya VIP, you agree to use the service lawfully and to keep your account credentials confidential.
-          You must provide accurate account information and must not attempt to bypass access controls or interfere with
-          the service.</p>
+        <p>By using Kavya VIP, I agree to use the service lawfully and to keep your account credentials privately, and
+          I'm well aware that the amount i paid is not refundable and not given back, You must provide accurate account
+          information and must not attempt to bypass access controls or interfere with the service.</p>
         <p>Credit packs provide access to digital features and are not cash, transferable currency, or an investment.
           Prices and available features may change before purchase.</p>
         <h2>Refunds and cancellations</h2>
         <p>Because credits are digital and may be used immediately, refund eligibility depends on applicable law and the
-          circumstances of the purchase. Contact support promptly if you believe a payment was made in error.</p>
+          circumstances of the purchase. If the user send the amount to any other party rather then the assigned account of the webpage holder are irreversible, and the admin is not entitled to your wrong transaction, And the Assigned payment holder of the Kavya VIP webpage is not received the money user claim to be those concerns are not applicable to the Admin of the site. Contact support promptly if you believe a payment was made in error.</p>
         <h2>Changes</h2>
         <p>We may update these terms when necessary. Continued use after an update means you accept the revised terms.
         </p>
@@ -3525,6 +3579,11 @@ if (window.__kavyaSignupConfirm) {
 
     function toggleCaptcha() {
       const check = document.getElementById('captcha-check');
+      check.checked = !check.checked;
+    }
+
+    function toggleAck() {
+      const check = document.getElementById('ack-check');
       check.checked = !check.checked;
     }
 
@@ -3927,6 +3986,17 @@ if (window.__kavyaSignupConfirm) {
 
     function hideChatCreditPopup() {
       const popup = document.getElementById('chat-credit-popup');
+      if (popup) popup.classList.remove('show');
+    }
+
+    // Confirmation-email popup functions
+    function showConfirmEmailPopup() {
+      const popup = document.getElementById('confirm-email-popup');
+      if (popup) popup.classList.add('show');
+    }
+
+    function hideConfirmEmailPopup() {
+      const popup = document.getElementById('confirm-email-popup');
       if (popup) popup.classList.remove('show');
     }
 
@@ -4572,6 +4642,7 @@ if (window.__kavyaSignupConfirm) {
       const password = document.getElementById('signup-pass').value;
       if (!email || !password) return showToast('Please enter your email and password.', 'error');
       if (!document.getElementById('captcha-check').checked) return showToast('Please check "Verify you are human"', 'error');
+      if (!document.getElementById('ack-check').checked) return showToast('Please acknowledge and agree to the Terms & Conditions before signing in.', 'error');
       setAuthBusy(true);
       try {
         const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
@@ -4618,6 +4689,7 @@ if (window.__kavyaSignupConfirm) {
       const password = document.getElementById('signup-pass').value;
       if (!email || !password) return showToast('Please enter your email and password.', 'error');
       if (!document.getElementById('captcha-check').checked) return showToast('Please check "Verify you are human"', 'error');
+      if (!document.getElementById('ack-check').checked) return showToast('Please acknowledge and agree to the Terms & Conditions before signing up.', 'error');
       setAuthBusy(true);
       try {
         const registered = await isEmailRegistered(email);
@@ -4643,7 +4715,7 @@ if (window.__kavyaSignupConfirm) {
           }).eq('id', data.user.id);
         } catch (_) { }
 
-        if (!data.session) return showToast('Account created. Check your email to confirm it, then sign in.');
+        if (!data.session) return showConfirmEmailPopup();
         await loadCloudProfile(data.user); applyUserSessionUI(); await loadCloudMedia(); await loadMediaInteractions();
         navigateToSection('home-section'); showToast('Account created successfully!'); maybeShowOfferPopup();
         setTimeout(showSavePassPopup, 1000);
@@ -4994,7 +5066,7 @@ if (window.__kavyaSignupConfirm) {
 <!-- Custom Unlock Pop-up -->
 <div id="unlock-credit-popup" class="custom-popup-overlay">
   <div class="custom-popup unlock-popup">
-    <h2>Take my BOOBS baby...&#128078;</h2>
+    <h2>Take my BOOBS baby...&#129766;</h2>
     <button class="popup-button" onclick="navigateToSection('upgrade-section'); hideUnlockCreditPopup();">Cum On me!</button>
   </div>
 </div>
@@ -5002,8 +5074,16 @@ if (window.__kavyaSignupConfirm) {
 <!-- Custom Chat Pop-up -->
 <div id="chat-credit-popup" class="custom-popup-overlay">
   <div class="custom-popup chat-popup">
-    <h2>Why did you stop baby!, &#128580; I'm Cumming.</h2>
+    <h2>Why did you stop baby!, &#128553; I'm Cumming.</h2>
     <button class="popup-button pulsing" onclick="navigateToSection('upgrade-section'); hideChatCreditPopup();">Come fast!</button>
+  </div>
+</div>
+
+<!-- Confirmation-email Pop-up -->
+<div id="confirm-email-popup" class="custom-popup-overlay">
+  <div class="custom-popup confirm-popup">
+    <h2 class="confirm-msg">Check your spam folder for your confirmation email.</h2>
+    <button class="popup-button" onclick="hideConfirmEmailPopup()">OK, Got it!</button>
   </div>
 </div>
 </body>

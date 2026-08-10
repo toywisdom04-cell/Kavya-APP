@@ -368,7 +368,7 @@ begin
   -- Step 3: Get current user's credits and check if they have enough.
   select credits into current_user_credits from public.profiles where id = current_user_id;
   if current_user_credits < media_item.credit_cost then
-    raise exception 'INSUFFICIENT_CREDITS';
+    return json_build_object('status', 'INSUFFICIENT_CREDITS', 'media_id', p_media_id);
   end if;
 
   -- Step 4: Atomically deduct credits.
