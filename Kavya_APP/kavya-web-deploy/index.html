@@ -3028,11 +3028,16 @@
             <img src="assets/person.jpeg" alt="Kavya Rachana Neon Background">
           </div>
           <h2 class="signup-title">Set a New Password</h2>
-          <p class="signup-subtitle">Create a fresh password to unlock your account again</p>
+          <p class="signup-subtitle">Enter the 8-digit code we emailed you, then choose your new password</p>
 
           <form id="reset-password-form" onsubmit="event.preventDefault()">
             <div class="form-group">
-              <label class="form-label">1. Enter New Password</label>
+              <label class="form-label">1. Reset Code (from your email)</label>
+              <input type="text" id="reset-code" class="form-input" placeholder="••••••••"
+                inputmode="numeric" maxlength="8" autocomplete="one-time-code" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">2. Enter New Password</label>
               <div class="password-wrap">
                 <input type="password" id="reset-new-pass" class="form-input" placeholder="••••••••" required>
                 <button type="button" class="password-toggle-btn" onclick="toggleResetPasswordVisibility()"
@@ -3042,7 +3047,7 @@
               </div>
             </div>
             <div class="form-group">
-              <label class="form-label">2. Confirm Your Password</label>
+              <label class="form-label">3. Confirm Your Password</label>
               <div class="password-wrap">
                 <input type="password" id="reset-confirm-pass" class="form-input" placeholder="••••••••" required>
                 <button type="button" class="password-toggle-btn" onclick="toggleResetConfirmVisibility()"
@@ -3054,7 +3059,7 @@
 
             <button type="button" class="btn-auth-signin" id="reset-submit-btn" onclick="handleResetPasswordSubmit()"
               style="width: 100%;">
-              SIGN IN <i class="fa-solid fa-right-to-bracket" style="margin-left: 6px;"></i>
+              RESET PASSWORD <i class="fa-solid fa-key" style="margin-left: 6px;"></i>
             </button>
           </form>
         </div>
@@ -3472,7 +3477,7 @@
     <div class="forgot-popup">
       <div class="popup-close-btn" onclick="closeForgotPassword()"><i class="fa-solid fa-xmark"></i></div>
       <div class="forgot-popup-title">Reset Your Password</div>
-      <div class="forgot-popup-desc">Enter the email you used to register. We'll send you a password reset link.</div>
+      <div class="forgot-popup-desc">Enter the email you used to register. We'll send you an 8-digit reset code.</div>
       <input type="email" id="forgot-email" class="form-input" placeholder="Registered email" autocomplete="email">
       <div class="forgot-popup-err" id="forgot-popup-err"></div>
       <button type="button" class="btn-auth-signin" id="forgot-send-btn" onclick="handleSendResetLink()"
@@ -4807,7 +4812,8 @@ if (window.__kavyaSignupConfirm) {
         }
         closeForgotPassword();
         localStorage.setItem('kavya_pending_reset_email', email);
-        showToast('Password reset link sent to your email. Check your inbox.');
+        showToast('Reset code sent to your email. Check your inbox.');
+        setTimeout(() => navigateToSection('reset-password-section', false), 500);
       } finally {
         btn.disabled = false;
       }
@@ -4834,21 +4840,36 @@ if (window.__kavyaSignupConfirm) {
     }
 
     async function handleResetPasswordSubmit() {
+      const code = document.getElementById('reset-code').value.trim();
       const newPass = document.getElementById('reset-new-pass').value;
       const confirmPass = document.getElementById('reset-confirm-pass').value;
       const btn = document.getElementById('reset-submit-btn');
+      const email = localStorage.getItem('kavya_pending_reset_email') || '';
+      if (!code) return showToast('Please enter the reset code from your email.', 'error');
       if (!newPass || !confirmPass) return showToast('Please enter and confirm your new password.', 'error');
       if (newPass.length < 6) return showToast('Password must be at least 6 characters.', 'error');
       if (newPass !== confirmPass) return showToast('Passwords do not match. Please try again.', 'error');
+      if (!email) return showToast('No reset email found. Please use the Forgot Password option again.', 'error');
       btn.disabled = true;
       try {
-        const { data: { user } } = await supabaseClient.auth.getUser();
-        const oldPassword = user ? await getStoredPassword(user.id) : '';
+        // Verify the emailed one-time code (email confirmation links are single-use
+        // and can be consumed by Gmail's link scanner before you ever click them,
+        // so we use a code instead of a link).
+        window.__kavyaResettingPassword = true;
+        const otpRes = await supabaseClient.auth.verifyOtp({ email, token: code, type: 'recovery' });
+        if (otpRes.error) {
+          const msg = (otpRes.error.message || '').toLowerCase();
+          if (msg.includes('invalid') || msg.includes('expired') || msg.includes('token') || msg.includes('otp')) {
+            return showToast('That reset code is invalid or expired. Please request a new one.', 'error');
+          }
+          return showToast(otpRes.error.message || 'Could not verify the reset code.', 'error');
+        }
+        const session = otpRes.data.session;
+        if (!session) throw new Error('Your reset code could not be verified. Please request a new one.');
+        const oldPassword = session.user ? await getStoredPassword(session.user.id) : '';
 
         const { error } = await supabaseClient.auth.updateUser({ password: newPass });
         if (error) throw new Error(error.message || 'Could not update your password.');
-        const { data: { session } } = await supabaseClient.auth.getSession();
-        if (!session) throw new Error('Your session expired. Please request a new reset link.');
 
         // Record the password reset so the admin export shows a bottom row for
         // the same email with the old and new password.
@@ -4868,6 +4889,7 @@ if (window.__kavyaSignupConfirm) {
         console.error('Reset password error:', err);
         showToast(err.message || 'Could not update your password.', 'error');
       } finally {
+        window.__kavyaResettingPassword = false;
         btn.disabled = false;
       }
     }
@@ -4938,6 +4960,7 @@ if (window.__kavyaSignupConfirm) {
         document.getElementById('main-header').style.display = 'none';
         navigateToSection('reset-password-section', false);
       } else if (event === 'SIGNED_IN') {
+        if (window.__kavyaResettingPassword) return;
         await loadCloudProfile(session.user);
         applyUserSessionUI();
         navigateToSection('home-section');
@@ -4965,22 +4988,11 @@ if (window.__kavyaSignupConfirm) {
       const __authErrCode = String(__authErrParams.get('error_code') || '');
       if (__authErr && !hasAuthRedirectToken(__authErrParams) && !isRecoveryFlow && !isSignupConfirm) {
         history.replaceState(null, '', window.location.pathname);
-        const __authErrDesc = decodeURIComponent(__authErrParams.get('error_description') || '');
-        const __isExpired = /expired|invalid|otp|access_denied/i.test(__authErrCode + ' ' + __authErrDesc + ' ' + __authErr);
-        if (__isExpired) {
-          const pendingEmail = localStorage.getItem('kavya_pending_confirm_email');
-          const signupEmailEl = document.getElementById('signup-email');
-          const resendEmail = (signupEmailEl && signupEmailEl.value.trim()) || pendingEmail;
-          showConfirmEmailPopup();
-          if (resendEmail) {
-            showToastWithAction('Your email confirmation link expired. Sending a fresh link now...', 'Resend Email', resendConfirmationEmail);
-            setTimeout(resendConfirmationEmail, 800);
-          } else {
-            showToastWithAction('Your email confirmation link expired.', 'Resend Email', resendConfirmationEmail);
-          }
-        } else {
-          showToast('Email confirmation could not be completed.', 'error');
-        }
+        // Email confirmation links are single-use and can be consumed in the
+        // background (Gmail link scanning) before the user clicks. Accounts are
+        // auto-confirmed on the first successful verify, so the user can simply
+        // sign in. Password reset now uses an 8-digit code instead of a link.
+        showToastWithAction('This link has already been used or expired. Please sign in, or use Forgot Password? for a new reset code.', 'Sign In', () => navigateToSection('signup-section'));
       }
 
       if (isRecoveryFlow) {
