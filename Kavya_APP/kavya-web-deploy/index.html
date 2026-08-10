@@ -4695,7 +4695,10 @@ if (window.__kavyaSignupConfirm) {
         const registered = await isEmailRegistered(email);
         if (registered === true) return showToast('This email is already registered. Please sign in instead.', 'error');
         const { data, error } = await supabaseClient.auth.signUp({
-          email, password, options: { data: { username: email.split('@')[0] } }
+          email, password, options: {
+            data: { username: email.split('@')[0] },
+            emailRedirectTo: window.location.origin
+          }
         });
         if (error) {
           const msg = (error.message || '').toLowerCase();
@@ -4953,6 +4956,33 @@ if (window.__kavyaSignupConfirm) {
       const isSignupConfirm = !!window.__kavyaSignupConfirm;
       let recoverySession = null;
 
+      // Email confirmation link came back with an auth error (e.g. the one-time
+      // token was already used or expired on mobile mail apps). Surface a clear
+      // message and resend a fresh confirmation email instead of silently showing
+      // the signup page.
+      const __authErrParams = getAuthRedirectParams();
+      const __authErr = String(__authErrParams.get('error') || '');
+      const __authErrCode = String(__authErrParams.get('error_code') || '');
+      if (__authErr && !hasAuthRedirectToken(__authErrParams) && !isRecoveryFlow && !isSignupConfirm) {
+        history.replaceState(null, '', window.location.pathname);
+        const __authErrDesc = decodeURIComponent(__authErrParams.get('error_description') || '');
+        const __isExpired = /expired|invalid|otp|access_denied/i.test(__authErrCode + ' ' + __authErrDesc + ' ' + __authErr);
+        if (__isExpired) {
+          const pendingEmail = localStorage.getItem('kavya_pending_confirm_email');
+          const signupEmailEl = document.getElementById('signup-email');
+          const resendEmail = (signupEmailEl && signupEmailEl.value.trim()) || pendingEmail;
+          showConfirmEmailPopup();
+          if (resendEmail) {
+            showToastWithAction('Your email confirmation link expired. Sending a fresh link now...', 'Resend Email', resendConfirmationEmail);
+            setTimeout(resendConfirmationEmail, 800);
+          } else {
+            showToastWithAction('Your email confirmation link expired.', 'Resend Email', resendConfirmationEmail);
+          }
+        } else {
+          showToast('Email confirmation could not be completed.', 'error');
+        }
+      }
+
       if (isRecoveryFlow) {
         try {
           recoverySession = await establishSessionFromHash();
@@ -5083,7 +5113,9 @@ if (window.__kavyaSignupConfirm) {
 <div id="confirm-email-popup" class="custom-popup-overlay">
   <div class="custom-popup confirm-popup">
     <h2 class="confirm-msg">Check your spam folder for your confirmation email.</h2>
-    <button class="popup-button" onclick="hideConfirmEmailPopup()">OK, Got it!</button>
+    <p style="font-size: 1rem; color: #111; margin-top: -6px;">If the link in the email expired, tap Resend Email to get a fresh one.</p>
+    <button class="popup-button" onclick="resendConfirmationEmail()">Resend Email</button>
+    <button class="popup-button" onclick="hideConfirmEmailPopup()" style="background:#333; color:#fff; margin-left: 10px;">OK, Got it!</button>
   </div>
 </div>
 </body>
