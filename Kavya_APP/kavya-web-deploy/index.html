@@ -3569,7 +3569,7 @@
   <div class="top-banner" id="top-banner"></div>
 
   <!-- Romantic background music (loops on every page; pauses while a video plays) -->
-  <audio id="bg-music" src="assets/bg-music.mp3" loop preload="auto"></audio>
+  <audio id="bg-music" src="assets/output.opus" type="audio/ogg" loop preload="auto"></audio>
   <button type="button" id="bg-music-toggle" class="bg-music-btn muted" onclick="toggleBgMusic()"
     aria-label="Toggle background music" title="Background music on / off">
     <i class="fa-solid fa-volume-xmark" id="bg-music-icon"></i>
@@ -5249,7 +5249,7 @@ if (window.__kavyaSignupConfirm) {
 
     document.addEventListener('DOMContentLoaded', function () {
       if (!audio) return;
-      audio.volume = 0.7;
+      audio.volume = 0.5;
       window.addEventListener('pointerdown', startOnFirstInteraction);
       window.addEventListener('touchstart', startOnFirstInteraction);
       window.addEventListener('keydown', startOnFirstInteraction);
