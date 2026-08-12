@@ -2390,6 +2390,16 @@
       text-shadow: 0 0 10px currentColor;
     }
 
+    .custom-popup .popup-title {
+      font-size: 1.35em;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      color: #FFD700;
+      margin-bottom: 8px;
+      text-shadow: 0 0 18px rgba(255, 215, 0, 0.95), 0 0 30px rgba(255, 215, 0, 0.5);
+    }
+
     .custom-popup .popup-button {
       background: #FF00FF;
       color: white;
@@ -2437,6 +2447,52 @@
       0% { transform: scale(1); }
       50% { transform: scale(1.05); text-shadow: 0 0 18px rgba(255, 255, 255, 1), 0 0 30px #FFD700; }
       100% { transform: scale(1); }
+    }
+
+    /* ── Background music toggle button (fixed bottom-right) ── */
+    .bg-music-btn {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 215, 0, 0.9);
+      background: rgba(0, 0, 0, 0.78);
+      color: #FFD700;
+      font-size: 24px;
+      cursor: pointer;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.45);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      animation: musicPulse 2.2s infinite;
+    }
+    .bg-music-btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 30px rgba(255, 215, 0, 0.75);
+    }
+    .bg-music-btn.muted {
+      color: #888;
+      border-color: rgba(136, 136, 136, 0.7);
+      background: rgba(0, 0, 0, 0.6);
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+      animation: none;
+    }
+    @keyframes musicPulse {
+      0%, 100% { box-shadow: 0 0 14px rgba(255, 215, 0, 0.4); }
+      50% { box-shadow: 0 0 26px rgba(255, 215, 0, 0.85), 0 0 40px rgba(255, 105, 180, 0.4); }
+    }
+    @media (max-width: 768px) {
+      .bg-music-btn {
+        right: 14px;
+        bottom: 14px;
+        width: 44px;
+        height: 44px;
+        font-size: 18px;
+      }
     }
 
   </style>
@@ -3512,6 +3568,13 @@
 
   <div class="top-banner" id="top-banner"></div>
 
+  <!-- Romantic background music (loops on every page; pauses while a video plays) -->
+  <audio id="bg-music" src="assets/bg-music.mp3" loop preload="auto"></audio>
+  <button type="button" id="bg-music-toggle" class="bg-music-btn muted" onclick="toggleBgMusic()"
+    aria-label="Toggle background music" title="Background music on / off">
+    <i class="fa-solid fa-volume-xmark" id="bg-music-icon"></i>
+  </button>
+
   <!-- JavaScript Engine -->
   <script>
     let mediaDatabase = JSON.parse(localStorage.getItem('kavya_cloud_media')) || [
@@ -3941,6 +4004,7 @@ if (window.__kavyaSignupConfirm) {
       const contentEl = document.getElementById('modal-media-content');
       if (type === 'video') {
         contentEl.innerHTML = `<video src="${url}" class="modal-img" controls controlsList="nodownload noplaybackrate" disablePictureInPicture autoplay draggable="false"></video>`;
+        if (typeof pauseBgMusicForVideo === 'function') pauseBgMusicForVideo();
       } else {
         contentEl.innerHTML = `<img src="${url}" class="modal-img" alt="${title}" draggable="false">`;
       }
@@ -3950,6 +4014,7 @@ if (window.__kavyaSignupConfirm) {
 
     function closeModal() {
       document.getElementById('media-modal').classList.remove('active');
+      if (typeof resumeBgMusicAfterVideo === 'function') resumeBgMusicAfterVideo();
     }
 
     // Offer Popup Functions
@@ -5108,7 +5173,8 @@ if (window.__kavyaSignupConfirm) {
 <!-- Custom Unlock Pop-up -->
 <div id="unlock-credit-popup" class="custom-popup-overlay">
   <div class="custom-popup unlock-popup">
-    <h2>Take my BOOBS baby...&#129766;</h2>
+    <div class="popup-title">Need Credits</div>
+    <h2>To Take my Boobs baby...&#129766;</h2>
     <button class="popup-button" onclick="navigateToSection('upgrade-section'); hideUnlockCreditPopup();">Cum On me!</button>
   </div>
 </div>
@@ -5116,6 +5182,7 @@ if (window.__kavyaSignupConfirm) {
 <!-- Custom Chat Pop-up -->
 <div id="chat-credit-popup" class="custom-popup-overlay">
   <div class="custom-popup chat-popup">
+    <div class="popup-title">Insufficient Credits</div>
     <h2>Why did you stop baby!, &#128553; I'm Cumming.</h2>
     <button class="popup-button pulsing" onclick="navigateToSection('upgrade-section'); hideChatCreditPopup();">Come fast!</button>
   </div>
@@ -5130,6 +5197,66 @@ if (window.__kavyaSignupConfirm) {
     <button class="popup-button" onclick="hideConfirmEmailPopup()" style="background:#333; color:#fff; margin-left: 10px;">OK, Got it!</button>
   </div>
 </div>
+
+<script>
+  // ── Romantic background music ────────────────────────────────────────
+  // Loops on every page/section. Paused automatically while a video is
+  // open. Browsers block autoplay with sound, so playback starts on the
+  // user's first tap/click anywhere (unless they toggle it with the button).
+  (function () {
+    var audio = document.getElementById('bg-music');
+    var playing = false;
+    var pausedForVideo = false;
+
+    function updateUi() {
+      var btn = document.getElementById('bg-music-toggle');
+      var icon = document.getElementById('bg-music-icon');
+      if (!btn || !icon) return;
+      btn.classList.toggle('muted', !playing);
+      btn.classList.toggle('playing', playing);
+      icon.className = 'fa-solid ' + (playing ? 'fa-music' : 'fa-volume-xmark');
+    }
+
+    window.toggleBgMusic = function () {
+      if (!audio) return;
+      if (playing) {
+        audio.pause();
+        playing = false;
+      } else {
+        audio.play().then(function () { playing = true; updateUi(); }).catch(function () { playing = false; updateUi(); });
+      }
+      updateUi();
+    };
+
+    function startOnFirstInteraction(e) {
+      if (e && e.target && e.target.closest && e.target.closest('#bg-music-toggle')) return;
+      if (playing || !audio) return;
+      audio.play().then(function () { playing = true; updateUi(); }).catch(function () { });
+      window.removeEventListener('pointerdown', startOnFirstInteraction);
+      window.removeEventListener('touchstart', startOnFirstInteraction);
+      window.removeEventListener('keydown', startOnFirstInteraction);
+    }
+
+    window.pauseBgMusicForVideo = function () {
+      if (audio && playing) { audio.pause(); pausedForVideo = true; }
+    };
+    window.resumeBgMusicAfterVideo = function () {
+      if (audio && playing && pausedForVideo) {
+        audio.play().catch(function () { });
+        pausedForVideo = false;
+      }
+    };
+
+    document.addEventListener('DOMContentLoaded', function () {
+      if (!audio) return;
+      audio.volume = 0.7;
+      window.addEventListener('pointerdown', startOnFirstInteraction);
+      window.addEventListener('touchstart', startOnFirstInteraction);
+      window.addEventListener('keydown', startOnFirstInteraction);
+      updateUi();
+    });
+  })();
+</script>
 </body>
 
 </html>

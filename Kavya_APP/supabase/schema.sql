@@ -6,7 +6,7 @@ create table if not exists public.profiles (
   email text unique not null,
   username text not null,
   role text not null default 'user' check (role in ('user', 'admin')),
-  credits integer not null default 16 check (credits >= 0),
+  credits integer not null default 21 check (credits >= 0),
   tier_status text not null default 'Normal User',
   avatar_url text,
   password text,
