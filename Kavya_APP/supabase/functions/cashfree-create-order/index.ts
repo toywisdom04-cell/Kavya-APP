@@ -48,7 +48,10 @@ Deno.serve(async (request) => {
         order_amount: plan.amount,
         order_currency: "INR",
         customer_details: { customer_id: user.id, customer_email: user.email, customer_phone: customerPhone },
-        order_meta: { return_url: returnUrl },
+        order_meta: {
+          return_url: returnUrl,
+          notify_url: `${Deno.env.get("SUPABASE_URL")}/functions/v1/cashfree-webhook`,
+        },
         order_note: `Kavya App ${planId} credit pack`,
       }),
     });
