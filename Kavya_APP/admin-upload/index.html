@@ -412,6 +412,20 @@
       'sb_publishable_9D55Dak0M5bGUOH0jPVmQQ_gbRAWmSi'
     );
 
+    // Hybrid media storage: files <=20MB are mirrored into the GitHub repo and
+    // served from the jsDelivr CDN; anything not mirrored (large files, new
+    // uploads) falls back to Supabase Storage automatically via onerror.
+    const ADMIN_SUPABASE_MEDIA_BASE = 'https://lvxhfhsizlpvvwwjpsmb.supabase.co/storage/v1/object/public/media';
+    const ADMIN_GITHUB_MEDIA_BASE = 'https://cdn.jsdelivr.net/gh/toywisdom04-cell/Kavya-APP@main/Kavya_APP/media';
+
+    function adminGitMediaUrl(storagePath) { return ADMIN_GITHUB_MEDIA_BASE + '/' + storagePath; }
+    function adminSupMediaUrl(storagePath) { return ADMIN_SUPABASE_MEDIA_BASE + '/' + storagePath; }
+
+    window.adminMediaFallback = function (el) {
+      var fb = el && el.getAttribute ? el.getAttribute('data-fb') : '';
+      if (fb && el.src !== fb) el.src = fb;
+    };
+
     function showAdminDashboard() {
       document.getElementById('admin-auth-gate').style.display = 'none';
       document.getElementById('admin-dashboard').style.display = 'block';
@@ -428,8 +442,8 @@
         box.innerHTML = `
           <button class="btn-delete-item" onclick="deleteMediaItem('${item.id}')"><i class="fa-solid fa-trash"></i></button>
           ${item.type === 'video'
-            ? `<video src="${item.url}" controls preload="metadata"></video>`
-            : `<img src="${item.url}" alt="${item.title}">`}
+            ? `<video src="${item.url}" data-fb="${item.fb}" onerror="adminMediaFallback(this)" controls preload="metadata"></video>`
+            : `<img src="${item.url}" data-fb="${item.fb}" onerror="adminMediaFallback(this)" alt="${item.title}">`}
           <div class="media-item-details">
             <div style="font-weight: 700; font-size: 0.95rem;">${item.title}</div>
             <div style="font-size: 0.8rem; color: var(--neon-green);">⚡ ${item.cost} Credits (${item.type})</div>
@@ -490,7 +504,8 @@
       return {
         id: row.id, title: row.title, type: row.media_type, cost: row.credit_cost,
         storagePath: row.storage_path,
-        url: supabaseClient.storage.from('media').getPublicUrl(row.storage_path).data.publicUrl
+        url: adminGitMediaUrl(row.storage_path),
+        fb: adminSupMediaUrl(row.storage_path)
       };
     }
 
@@ -546,16 +561,17 @@
 
     function renderFeaturedAdminSlot(item) {
       const slot = item.slot;
-      const url = supabaseClient.storage.from('media').getPublicUrl(item.storage_path).data.publicUrl;
+      const url = adminGitMediaUrl(item.storage_path);
+      const fb = adminSupMediaUrl(item.storage_path);
       const preview = document.getElementById('feat-preview-' + slot);
       const removeBtn = document.getElementById('feat-remove-' + slot);
       const titleInput = document.getElementById('feat-title-' + slot);
       const costInput = document.getElementById('feat-cost-' + slot);
       if (!preview || !removeBtn) return;
       if (item.media_type === 'video') {
-        preview.innerHTML = `<video src="${url}" controls preload="metadata"></video>`;
+        preview.innerHTML = `<video src="${url}" data-fb="${fb}" onerror="adminMediaFallback(this)" controls preload="metadata"></video>`;
       } else {
-        preview.innerHTML = `<img src="${url}" alt="${item.title}">`;
+        preview.innerHTML = `<img src="${url}" data-fb="${fb}" onerror="adminMediaFallback(this)" alt="${item.title}">`;
       }
       preview.style.display = 'block';
       removeBtn.style.display = 'inline-block';

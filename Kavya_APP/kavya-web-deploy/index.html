@@ -3775,10 +3775,10 @@ if (window.__kavyaSignupConfirm) {
         const isUnlocked = state.unlockedCards.includes(item.id);
         const featHTML = `
           <div class="media-card ${isUnlocked ? 'unlocked' : ''} featured-card" id="${item.id}" data-media-id="${item.id}">
-            <div class="media-thumb" onclick="${isUnlocked ? `openModal('${item.url}', '${item.title}', '${item.type}')` : `unlockFeaturedMedia(${item.slot}, ${item.cost}, '${item.id}')`}">
+            <div class="media-thumb" onclick="${isUnlocked ? `openModal('${item.url}', '${item.title}', '${item.type}', '${item.fb}')` : `unlockFeaturedMedia(${item.slot}, ${item.cost}, '${item.id}')`}">
               ${item.type === 'video'
-            ? `<video src="${item.url}" preload="metadata" muted playsinline></video>`
-            : `<img src="${item.url}" alt="${item.title}">`}
+            ? `<video src="${item.url}" data-fb="${item.fb}" onerror="mediaFallback(this)" preload="metadata" muted playsinline></video>`
+            : `<img src="${item.url}" data-fb="${item.fb}" onerror="mediaFallback(this)" alt="${item.title}">`}
               <div class="media-overlay-lock">
                 <div class="lock-icon-neon"><i class="fa-solid ${item.type === 'video' ? 'fa-play' : 'fa-lock'}"></i></div>
                 <button class="unlock-btn">${isUnlocked ? 'Open' : (item.cost === 0 ? 'Open Free' : 'Unlock (' + item.cost + ' Credits)')}</button>
@@ -3798,10 +3798,10 @@ if (window.__kavyaSignupConfirm) {
         const isUnlocked = state.unlockedCards.includes(item.id);
         const cardHTML = `
           <div class="media-card ${isUnlocked ? 'unlocked' : ''}" id="${item.id}" data-media-id="${item.id}">
-            <div class="media-thumb" onclick="${isUnlocked ? `openModal('${item.url}', '${item.title}', '${item.type}')` : `unlockMedia('${item.id}', ${item.cost})`}">
+            <div class="media-thumb" onclick="${isUnlocked ? `openModal('${item.url}', '${item.title}', '${item.type}', '${item.fb}')` : `unlockMedia('${item.id}', ${item.cost})`}">
               ${item.type === 'video'
-            ? `<video src="${item.url}" preload="metadata" muted playsinline></video>`
-            : `<img src="${item.url}" alt="${item.title}">`}
+            ? `<video src="${item.url}" data-fb="${item.fb}" onerror="mediaFallback(this)" preload="metadata" muted playsinline></video>`
+            : `<img src="${item.url}" data-fb="${item.fb}" onerror="mediaFallback(this)" alt="${item.title}">`}
               <div class="media-overlay-lock">
                 <div class="lock-icon-neon"><i class="fa-solid ${item.type === 'video' ? 'fa-play' : 'fa-lock'}"></i></div>
                 <button class="unlock-btn">Unlock (${item.cost} Credits)</button>
@@ -3883,7 +3883,7 @@ if (window.__kavyaSignupConfirm) {
           }
 
           const item = mediaDatabase.find(i => i.id === cardId);
-          if (item) openModal(item.url, item.title, item.type);
+          if (item) openModal(item.url, item.title, item.type, item.fb);
 
         } else if (data.status === 'INSUFFICIENT_CREDITS') {
           showUnlockCreditPopup();
@@ -3916,7 +3916,7 @@ if (window.__kavyaSignupConfirm) {
             showToast(`Unlocked! Deducted ${cost} credits.`);
           }
           const item = featuredMediaDatabase.find(i => i.id === cardId);
-          if (item) openModal(item.url, item.title, item.type);
+          if (item) openModal(item.url, item.title, item.type, item.fb);
         } else if (data.status === 'INSUFFICIENT_CREDITS') {
           showUnlockCreditPopup();
         } else {
@@ -4000,13 +4000,13 @@ if (window.__kavyaSignupConfirm) {
       }
     }
 
-    function openModal(url, title, type) {
+    function openModal(url, title, type, fb) {
       const contentEl = document.getElementById('modal-media-content');
       if (type === 'video') {
-        contentEl.innerHTML = `<video src="${url}" class="modal-img" controls controlsList="nodownload noplaybackrate" disablePictureInPicture autoplay draggable="false"></video>`;
+        contentEl.innerHTML = `<video src="${url}" data-fb="${fb || ''}" onerror="mediaFallback(this)" class="modal-img" controls controlsList="nodownload noplaybackrate" disablePictureInPicture autoplay draggable="false"></video>`;
         if (typeof pauseBgMusicForVideo === 'function') pauseBgMusicForVideo();
       } else {
-        contentEl.innerHTML = `<img src="${url}" class="modal-img" alt="${title}" draggable="false">`;
+        contentEl.innerHTML = `<img src="${url}" data-fb="${fb || ''}" onerror="mediaFallback(this)" class="modal-img" alt="${title}" draggable="false">`;
       }
       document.getElementById('modal-title-element').innerText = title;
       document.getElementById('media-modal').classList.add('active');
@@ -4191,14 +4191,13 @@ if (window.__kavyaSignupConfirm) {
       if (item.type === 'video') {
         // For video, create a video element with controls
         mediaHTML = `
-          <video controls autoplay style="max-width: 90vw; max-height: 80vh; border-radius: 12px;">
-            <source src="${item.url}" type="video/mp4">
+          <video src="${item.url}" data-fb="${item.fb}" onerror="mediaFallback(this)" controls autoplay style="max-width: 90vw; max-height: 80vh; border-radius: 12px;">
             Your browser does not support the video tag.
           </video>
         `;
       } else {
         // For image, create an img element
-        mediaHTML = `<img src="${item.url}" style="max-width: 90vw; max-height: 80vh; border-radius: 12px;" alt="${item.title}">`;
+        mediaHTML = `<img src="${item.url}" data-fb="${item.fb}" onerror="mediaFallback(this)" style="max-width: 90vw; max-height: 80vh; border-radius: 12px;" alt="${item.title}">`;
       }
 
       content.innerHTML = `
@@ -4425,11 +4424,26 @@ if (window.__kavyaSignupConfirm) {
       }
     });
 
+    // Hybrid media storage: files <=20MB are mirrored into the GitHub repo and
+    // served from the jsDelivr CDN; anything not mirrored (large files, new
+    // uploads) falls back to Supabase Storage automatically via onerror.
+    const SUPABASE_MEDIA_BASE = 'https://lvxhfhsizlpvvwwjpsmb.supabase.co/storage/v1/object/public/media';
+    const GITHUB_MEDIA_BASE = 'https://cdn.jsdelivr.net/gh/toywisdom04-cell/Kavya-APP@main/Kavya_APP/media';
+
+    function gitMediaUrl(storagePath) { return GITHUB_MEDIA_BASE + '/' + storagePath; }
+    function supMediaUrl(storagePath) { return SUPABASE_MEDIA_BASE + '/' + storagePath; }
+
+    window.mediaFallback = function (el) {
+      var fb = el && el.getAttribute ? el.getAttribute('data-fb') : '';
+      if (fb && el.src !== fb) el.src = fb;
+    };
+
     function cloudMedia(row) {
       return {
         id: row.id, title: row.title, type: row.media_type, cost: row.credit_cost,
         nsfw: !!row.is_nsfw, createdAt: row.created_at,
-        url: supabaseClient.storage.from('media').getPublicUrl(row.storage_path).data.publicUrl
+        url: gitMediaUrl(row.storage_path),
+        fb: supMediaUrl(row.storage_path)
       };
     }
 
@@ -4439,7 +4453,8 @@ if (window.__kavyaSignupConfirm) {
       return {
         id: 'featured-' + row.slot, slot: row.slot, title: row.title, type: row.media_type,
         cost: row.credit_cost, nsfw: false, featured: true,
-        url: supabaseClient.storage.from('media').getPublicUrl(row.storage_path).data.publicUrl
+        url: gitMediaUrl(row.storage_path),
+        fb: supMediaUrl(row.storage_path)
       };
     }
 
