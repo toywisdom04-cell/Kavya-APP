@@ -1447,8 +1447,8 @@
       display: none;
     }
 
-    /* Images stay blurred in the user portal even after being unlocked. */
-    .media-card.is-image .media-thumb img {
+    /* Images are blurred while locked. Unlocked images become visible in the card. */
+    .media-card.is-image:not(.unlocked) .media-thumb img {
       filter: blur(16px);
       transform: scale(1.08);
     }
@@ -1469,10 +1469,6 @@
     .card-carousel-dots { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); z-index: 6; display: flex; gap: 6px; padding: 4px 8px; border-radius: 12px; background: rgba(10, 12, 18, 0.55); }
     .card-carousel-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255, 255, 255, 0.4); cursor: pointer; }
     .card-carousel-dot.active { background: var(--neon-cyan); box-shadow: 0 0 8px var(--neon-cyan-glow); }
-
-    .media-card.is-image.unlocked .media-overlay-lock {
-      display: flex;
-    }
 
     /* Videos are never blurred. Locked videos show a clear thumbnail preview
        that can only be played after the user unlocks the media. */
@@ -1512,24 +1508,21 @@
       display: flex;
     }
 
-    /* Videos marked NSFW stay blurred in the user portal even after unlocking. */
-    .media-card.is-video.is-nsfw .media-thumb video,
-    .media-card.is-video.is-nsfw .media-thumb .video-thumb-poster {
+    /* Videos marked NSFW are blurred while locked. Unlocked NSFW videos become
+       visible in the card, same as regular videos. */
+    .media-card.is-video.is-nsfw:not(.unlocked) .media-thumb video,
+    .media-card.is-video.is-nsfw:not(.unlocked) .media-thumb .video-thumb-poster {
       filter: blur(16px);
       transform: scale(1.08);
     }
 
-    .media-card.is-video.is-nsfw .media-overlay-lock {
+    .media-card.is-video.is-nsfw:not(.unlocked) .media-overlay-lock {
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       background: rgba(10, 12, 18, 0.45);
     }
 
-    .media-card.is-video.is-nsfw.unlocked .media-overlay-lock {
-      display: flex;
-    }
-
-    .media-card.is-video.is-nsfw .video-play-badge {
+    .media-card.is-video.is-nsfw:not(.unlocked) .video-play-badge {
       display: none;
     }
 
@@ -3943,8 +3936,8 @@ if (window.__kavyaSignupConfirm) {
             <div class="media-thumb" onclick="${isUnlocked ? `openMediaItem(mediaDatabase.find(m => m.id === '${item.id}'))` : `unlockMedia('${item.id}', ${item.cost})`}">
               ${item.type === 'video'
             ? (item.thumb
-              ? `<img src="${item.thumb}" data-fb="${item.thumbFb || ''}" onerror="mediaFallback(this)" alt="${item.title}" class="video-thumb-poster"${item.nsfw ? ' style="filter: blur(16px); -webkit-filter: blur(16px);"' : ''}>`
-              : `<video src="${item.url}" data-fb="${item.fb}" onerror="mediaFallback(this)" preload="metadata" muted playsinline${item.nsfw ? ' style="filter: blur(16px); -webkit-filter: blur(16px);"' : ''}></video>`)
+              ? `<img src="${item.thumb}" data-fb="${item.thumbFb || ''}" onerror="mediaFallback(this)" alt="${item.title}" class="video-thumb-poster"${item.nsfw && !isUnlocked ? ' style="filter: blur(16px); -webkit-filter: blur(16px);"' : ''}>`
+              : `<video src="${item.url}" data-fb="${item.fb}" onerror="mediaFallback(this)" preload="metadata" muted playsinline${item.nsfw && !isUnlocked ? ' style="filter: blur(16px); -webkit-filter: blur(16px);"' : ''}></video>`)
             : (item.carousel && item.carousel.length > 1
               ? carouselCardHTML(item)
               : `<img src="${item.url}" data-fb="${item.fb}" onerror="mediaFallback(this)" alt="${item.title}">`)}
