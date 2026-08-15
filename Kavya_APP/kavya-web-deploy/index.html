@@ -1434,7 +1434,6 @@
       width: 100%;
       height: 100%;
       background: rgba(10, 12, 18, 0.6);
-      backdrop-filter: blur(12px);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -1446,6 +1445,58 @@
 
     .media-card.unlocked .media-overlay-lock {
       display: none;
+    }
+
+    /* Images stay blurred in the user portal even after being unlocked. */
+    .media-card.is-image .media-thumb img {
+      filter: blur(16px);
+      transform: scale(1.08);
+    }
+
+    .media-card.is-image .media-overlay-lock {
+      background: rgba(10, 12, 18, 0.45);
+    }
+
+    .media-card.is-image.unlocked .media-overlay-lock {
+      display: flex;
+    }
+
+    /* Videos are never blurred. Locked videos show a clear thumbnail preview
+       that can only be played after the user unlocks the media. */
+    .media-card.is-video .media-overlay-lock {
+      backdrop-filter: none;
+      background: rgba(10, 12, 18, 0.3);
+    }
+
+    .media-card.is-video .media-overlay-lock .lock-icon-neon {
+      background: rgba(0, 240, 255, 0.15);
+      border-color: var(--neon-cyan);
+      color: var(--neon-cyan);
+      box-shadow: 0 0 20px var(--neon-cyan-glow);
+    }
+
+    .video-play-badge {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: rgba(0, 240, 255, 0.35);
+      border: 2px solid var(--neon-cyan);
+      color: #fff;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      box-shadow: 0 0 20px var(--neon-cyan-glow);
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .media-card.is-video.unlocked .video-play-badge {
+      display: flex;
     }
 
     .lock-icon-neon {
@@ -3774,11 +3825,14 @@ if (window.__kavyaSignupConfirm) {
       featured.forEach(item => {
         const isUnlocked = state.unlockedCards.includes(item.id);
         const featHTML = `
-          <div class="media-card ${isUnlocked ? 'unlocked' : ''} featured-card" id="${item.id}" data-media-id="${item.id}">
+          <div class="media-card ${isUnlocked ? 'unlocked' : ''} ${item.type === 'video' ? 'is-video' : 'is-image'} featured-card" id="${item.id}" data-media-id="${item.id}">
             <div class="media-thumb" onclick="${isUnlocked ? `openModal('${item.url}', '${item.title}', '${item.type}', '${item.fb}')` : `unlockFeaturedMedia(${item.slot}, ${item.cost}, '${item.id}')`}">
               ${item.type === 'video'
-            ? `<video src="${item.url}" data-fb="${item.fb}" onerror="mediaFallback(this)" preload="metadata" muted playsinline></video>`
+            ? (item.thumb
+              ? `<img src="${item.thumb}" data-fb="${item.thumbFb || ''}" onerror="mediaFallback(this)" alt="${item.title}" class="video-thumb-poster">`
+              : `<video src="${item.url}" data-fb="${item.fb}" onerror="mediaFallback(this)" preload="metadata" muted playsinline></video>`)
             : `<img src="${item.url}" data-fb="${item.fb}" onerror="mediaFallback(this)" alt="${item.title}">`}
+              <div class="video-play-badge"><i class="fa-solid fa-play"></i></div>
               <div class="media-overlay-lock">
                 <div class="lock-icon-neon"><i class="fa-solid ${item.type === 'video' ? 'fa-play' : 'fa-lock'}"></i></div>
                 <button class="unlock-btn">${isUnlocked ? 'Open' : (item.cost === 0 ? 'Open Free' : 'Unlock (' + item.cost + ' Credits)')}</button>
@@ -3797,11 +3851,14 @@ if (window.__kavyaSignupConfirm) {
       mediaDatabase.forEach(item => {
         const isUnlocked = state.unlockedCards.includes(item.id);
         const cardHTML = `
-          <div class="media-card ${isUnlocked ? 'unlocked' : ''}" id="${item.id}" data-media-id="${item.id}">
+          <div class="media-card ${isUnlocked ? 'unlocked' : ''} ${item.type === 'video' ? 'is-video' : 'is-image'}" id="${item.id}" data-media-id="${item.id}">
             <div class="media-thumb" onclick="${isUnlocked ? `openModal('${item.url}', '${item.title}', '${item.type}', '${item.fb}')` : `unlockMedia('${item.id}', ${item.cost})`}">
               ${item.type === 'video'
-            ? `<video src="${item.url}" data-fb="${item.fb}" onerror="mediaFallback(this)" preload="metadata" muted playsinline></video>`
+            ? (item.thumb
+              ? `<img src="${item.thumb}" data-fb="${item.thumbFb || ''}" onerror="mediaFallback(this)" alt="${item.title}" class="video-thumb-poster">`
+              : `<video src="${item.url}" data-fb="${item.fb}" onerror="mediaFallback(this)" preload="metadata" muted playsinline></video>`)
             : `<img src="${item.url}" data-fb="${item.fb}" onerror="mediaFallback(this)" alt="${item.title}">`}
+              <div class="video-play-badge"><i class="fa-solid fa-play"></i></div>
               <div class="media-overlay-lock">
                 <div class="lock-icon-neon"><i class="fa-solid ${item.type === 'video' ? 'fa-play' : 'fa-lock'}"></i></div>
                 <button class="unlock-btn">Unlock (${item.cost} Credits)</button>
@@ -4443,7 +4500,9 @@ if (window.__kavyaSignupConfirm) {
         id: row.id, title: row.title, type: row.media_type, cost: row.credit_cost,
         nsfw: !!row.is_nsfw, createdAt: row.created_at,
         url: gitMediaUrl(row.storage_path),
-        fb: supMediaUrl(row.storage_path)
+        fb: supMediaUrl(row.storage_path),
+        thumb: row.thumbnail_path ? gitMediaUrl(row.thumbnail_path) : null,
+        thumbFb: row.thumbnail_path ? supMediaUrl(row.thumbnail_path) : null
       };
     }
 
@@ -4454,7 +4513,9 @@ if (window.__kavyaSignupConfirm) {
         id: 'featured-' + row.slot, slot: row.slot, title: row.title, type: row.media_type,
         cost: row.credit_cost, nsfw: false, featured: true,
         url: gitMediaUrl(row.storage_path),
-        fb: supMediaUrl(row.storage_path)
+        fb: supMediaUrl(row.storage_path),
+        thumb: row.thumbnail_path ? gitMediaUrl(row.thumbnail_path) : null,
+        thumbFb: row.thumbnail_path ? supMediaUrl(row.thumbnail_path) : null
       };
     }
 

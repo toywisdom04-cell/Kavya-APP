@@ -305,6 +305,13 @@
               <input type="file" id="vid-file-input" accept="video/*" style="display: none;" onchange="previewSelectedFile(event, 'vid-preview')">
               <img id="vid-preview" class="file-preview-thumb" alt="Video Preview">
             </label>
+            <label class="media-file-dropzone" for="vid-thumb-input">
+              <i class="fa-solid fa-image dropzone-icon" style="color: var(--neon-green);"></i>
+              <div style="font-weight: 700;">Video Thumbnail (optional)</div>
+              <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">Shown to locked users as preview (JPG, PNG, WEBP)</div>
+              <input type="file" id="vid-thumb-input" accept="image/*" style="display: none;" onchange="previewSelectedFile(event, 'vid-thumb-preview')">
+              <img id="vid-thumb-preview" class="file-preview-thumb" alt="Thumbnail Preview">
+            </label>
             <div class="form-group">
               <label class="form-label">Credit Cost to Unlock</label>
               <input type="number" id="vid-cost" class="form-input" value="15" min="1" required>
@@ -337,6 +344,13 @@
               <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">Slot 1 — fixed first position</div>
               <input type="file" id="feat-file-1" accept="image/*,video/*" style="display:none;" onchange="previewFeaturedFile(1, event)">
             </label>
+            <label class="media-file-dropzone" for="feat-thumb-1" style="margin-bottom: 12px; padding: 10px;">
+              <i class="fa-solid fa-image dropzone-icon" style="color: var(--neon-green);"></i>
+              <div style="font-weight: 700; font-size: 0.85rem;">Video Thumbnail (optional)</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">Preview shown to locked users</div>
+              <input type="file" id="feat-thumb-1" accept="image/*" style="display:none;" onchange="previewSelectedFile(event, 'feat-thumb-preview-1')">
+              <img id="feat-thumb-preview-1" class="file-preview-thumb" alt="Slot 1 Thumbnail Preview">
+            </label>
             <div class="form-group">
               <label class="form-label">Title</label>
               <input type="text" id="feat-title-1" class="form-input" placeholder="e.g. Featured Pic">
@@ -359,6 +373,13 @@
               <div style="font-weight: 700;">Choose Photo / Video</div>
               <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">Slot 2 — fixed second position</div>
               <input type="file" id="feat-file-2" accept="image/*,video/*" style="display:none;" onchange="previewFeaturedFile(2, event)">
+            </label>
+            <label class="media-file-dropzone" for="feat-thumb-2" style="margin-bottom: 12px; padding: 10px;">
+              <i class="fa-solid fa-image dropzone-icon" style="color: var(--neon-green);"></i>
+              <div style="font-weight: 700; font-size: 0.85rem;">Video Thumbnail (optional)</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">Preview shown to locked users</div>
+              <input type="file" id="feat-thumb-2" accept="image/*" style="display:none;" onchange="previewSelectedFile(event, 'feat-thumb-preview-2')">
+              <img id="feat-thumb-preview-2" class="file-preview-thumb" alt="Slot 2 Thumbnail Preview">
             </label>
             <div class="form-group">
               <label class="form-label">Title</label>
@@ -442,7 +463,7 @@
         box.innerHTML = `
           <button class="btn-delete-item" onclick="deleteMediaItem('${item.id}')"><i class="fa-solid fa-trash"></i></button>
           ${item.type === 'video'
-            ? `<video src="${item.url}" data-fb="${item.fb}" onerror="adminMediaFallback(this)" controls preload="metadata"></video>`
+            ? `<video src="${item.url}" data-fb="${item.fb}" onerror="adminMediaFallback(this)" controls preload="metadata"${item.thumbPath ? ` poster="${adminGitMediaUrl(item.thumbPath)}"` : ''}></video>`
             : `<img src="${item.url}" data-fb="${item.fb}" onerror="adminMediaFallback(this)" alt="${item.title}">`}
           <div class="media-item-details">
             <div style="font-weight: 700; font-size: 0.95rem;">${item.title}</div>
@@ -504,6 +525,7 @@
       return {
         id: row.id, title: row.title, type: row.media_type, cost: row.credit_cost,
         storagePath: row.storage_path,
+        thumbPath: row.thumbnail_path || null,
         url: adminGitMediaUrl(row.storage_path),
         fb: adminSupMediaUrl(row.storage_path)
       };
@@ -569,7 +591,7 @@
       const costInput = document.getElementById('feat-cost-' + slot);
       if (!preview || !removeBtn) return;
       if (item.media_type === 'video') {
-        preview.innerHTML = `<video src="${url}" data-fb="${fb}" onerror="adminMediaFallback(this)" controls preload="metadata"></video>`;
+        preview.innerHTML = `<video src="${url}" data-fb="${fb}" onerror="adminMediaFallback(this)" controls preload="metadata"${item.thumbnail_path ? ` poster="${adminGitMediaUrl(item.thumbnail_path)}"` : ''}></video>`;
       } else {
         preview.innerHTML = `<img src="${url}" data-fb="${fb}" onerror="adminMediaFallback(this)" alt="${item.title}">`;
       }
@@ -577,6 +599,11 @@
       removeBtn.style.display = 'inline-block';
       if (titleInput) titleInput.value = item.title || '';
       if (costInput) costInput.value = item.credit_cost || 0;
+      const thumbPreview = document.getElementById('feat-thumb-preview-' + slot);
+      if (thumbPreview && item.thumbnail_path) {
+        thumbPreview.src = adminGitMediaUrl(item.thumbnail_path);
+        thumbPreview.style.display = 'inline-block';
+      }
     }
 
     function previewFeaturedFile(slot, e) {
@@ -613,20 +640,43 @@
         const { error: uploadError } = await supabaseClient.storage.from('media').upload(storagePath, file, { contentType: file.type });
         if (uploadError) throw uploadError;
 
+        let thumbnailPath = null;
+        if (mediaType === 'video') {
+          const thumbInput = document.getElementById('feat-thumb-' + slot);
+          const thumbFile = thumbInput && thumbInput.files[0];
+          if (thumbFile) {
+            if (!thumbFile.type.startsWith('image/')) throw new Error('Video thumbnail must be an image file.');
+            if (thumbFile.size > 10 * 1024 * 1024) throw new Error('Video thumbnail must be 10 MB or smaller.');
+            const thumbExt = thumbFile.name.includes('.') ? thumbFile.name.split('.').pop().toLowerCase() : 'jpg';
+            thumbnailPath = `featured/${slot}/thumbs/${crypto.randomUUID()}.${thumbExt}`;
+            const { error: thumbError } = await supabaseClient.storage.from('media').upload(thumbnailPath, thumbFile, { contentType: thumbFile.type });
+            if (thumbError) {
+              await supabaseClient.storage.from('media').remove([storagePath]);
+              throw thumbError;
+            }
+          }
+        }
+
         const { error: upsertError } = await supabaseClient.from('featured_media').upsert({
           slot,
           title,
           media_type: mediaType,
           storage_path: storagePath,
+          thumbnail_path: thumbnailPath,
           credit_cost: cost,
           updated_at: new Date().toISOString()
         }, { onConflict: 'slot' });
         if (upsertError) {
           await supabaseClient.storage.from('media').remove([storagePath]);
+          if (thumbnailPath) await supabaseClient.storage.from('media').remove([thumbnailPath]);
           throw upsertError;
         }
 
         input.value = '';
+        const thumbInputReset = document.getElementById('feat-thumb-' + slot);
+        if (thumbInputReset) thumbInputReset.value = '';
+        const thumbPreviewReset = document.getElementById('feat-thumb-preview-' + slot);
+        if (thumbPreviewReset) thumbPreviewReset.style.display = 'none';
         await loadFeaturedMedia();
         showToast(`Default media slot ${slot} published!`);
         document.getElementById('sync-status-text').innerText = 'Cloud Synced Real-time';
@@ -640,9 +690,12 @@
       if (!confirm('Remove the default media from slot ' + slot + '?')) return;
       try {
         await requireAdmin();
-        const { data: existing } = await supabaseClient.from('featured_media').select('storage_path').eq('slot', slot).maybeSingle();
+        const { data: existing } = await supabaseClient.from('featured_media').select('storage_path, thumbnail_path').eq('slot', slot).maybeSingle();
         if (existing && existing.storage_path) {
           await supabaseClient.storage.from('media').remove([existing.storage_path]);
+        }
+        if (existing && existing.thumbnail_path) {
+          await supabaseClient.storage.from('media').remove([existing.thumbnail_path]);
         }
         const { error } = await supabaseClient.from('featured_media').delete().eq('slot', slot);
         if (error) throw error;
@@ -680,16 +733,38 @@
         const { error: uploadError } = await supabaseClient.storage.from('media').upload(storagePath, file, { contentType: file.type });
         if (uploadError) throw uploadError;
 
+        let thumbnailPath = null;
+        if (!isImage) {
+          const thumbInput = document.getElementById('vid-thumb-input');
+          const thumbFile = thumbInput && thumbInput.files[0];
+          if (thumbFile) {
+            if (!thumbFile.type.startsWith('image/')) throw new Error('Video thumbnail must be an image file.');
+            if (thumbFile.size > 10 * 1024 * 1024) throw new Error('Video thumbnail must be 10 MB or smaller.');
+            const thumbExt = thumbFile.name.includes('.') ? thumbFile.name.split('.').pop().toLowerCase() : 'jpg';
+            thumbnailPath = `${user.id}/thumbs/${crypto.randomUUID()}.${thumbExt}`;
+            const { error: thumbError } = await supabaseClient.storage.from('media').upload(thumbnailPath, thumbFile, { contentType: thumbFile.type });
+            if (thumbError) {
+              await supabaseClient.storage.from('media').remove([storagePath]);
+              throw thumbError;
+            }
+          }
+        }
+
         const { error: insertError } = await supabaseClient.from('media').insert({
-          title, media_type: type, storage_path: storagePath, credit_cost: cost, is_nsfw: isNsfw, created_by: user.id
+          title, media_type: type, storage_path: storagePath, thumbnail_path: thumbnailPath, credit_cost: cost, is_nsfw: isNsfw, created_by: user.id
         });
         if (insertError) {
           await supabaseClient.storage.from('media').remove([storagePath]);
+          if (thumbnailPath) await supabaseClient.storage.from('media').remove([thumbnailPath]);
           throw insertError;
         }
 
         input.value = '';
+        const thumbInputReset = document.getElementById('vid-thumb-input');
+        if (thumbInputReset) thumbInputReset.value = '';
         document.getElementById(isImage ? 'pic-preview' : 'vid-preview').style.display = 'none';
+        const thumbPreviewReset = document.getElementById('vid-thumb-preview');
+        if (thumbPreviewReset) thumbPreviewReset.style.display = 'none';
         await loadCentralCloudData();
         showToast(`Published "${title}" to the user portal.`);
       } catch (err) {
@@ -702,9 +777,10 @@
       if (!confirm('Delete this media item from all users?')) return;
       try {
         await requireAdmin();
-        const { data: mediaItems } = await supabaseClient.from('media').select('storage_path').eq('id', itemId);
-        if (mediaItems && mediaItems.length > 0 && mediaItems[0].storage_path) {
-            await supabaseClient.storage.from('media').remove([mediaItems[0].storage_path]);
+        const { data: mediaItems } = await supabaseClient.from('media').select('storage_path, thumbnail_path').eq('id', itemId);
+        if (mediaItems && mediaItems.length > 0) {
+            if (mediaItems[0].storage_path) await supabaseClient.storage.from('media').remove([mediaItems[0].storage_path]);
+            if (mediaItems[0].thumbnail_path) await supabaseClient.storage.from('media').remove([mediaItems[0].thumbnail_path]);
         }
         const { error } = await supabaseClient.from('media').delete().eq('id', itemId);
         if (error) throw error;

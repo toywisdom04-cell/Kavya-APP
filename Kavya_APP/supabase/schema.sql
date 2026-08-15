@@ -81,6 +81,7 @@ create table if not exists public.media (
   title text not null check (char_length(title) between 1 and 160),
   media_type text not null check (media_type in ('image', 'video')),
   storage_path text not null unique,
+  thumbnail_path text,
   credit_cost integer not null check (credit_cost > 0),
   is_nsfw boolean not null default false,
   created_at timestamptz not null default now(),
@@ -88,6 +89,7 @@ create table if not exists public.media (
 );
 
 alter table public.media add column if not exists is_nsfw boolean not null default false;
+alter table public.media add column if not exists thumbnail_path text;
 
 -- Two fixed "Default Media" panels. The user portal always pins these two at
 -- the first and second positions of the Images gallery and the Trending panel.
@@ -98,10 +100,13 @@ create table if not exists public.featured_media (
   title text not null,
   media_type text not null check (media_type in ('image', 'video')),
   storage_path text not null unique,
+  thumbnail_path text,
   credit_cost integer not null default 0 check (credit_cost >= 0),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table public.featured_media add column if not exists thumbnail_path text;
 
 alter table public.featured_media enable row level security;
 
