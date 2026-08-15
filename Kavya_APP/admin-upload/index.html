@@ -705,9 +705,12 @@
           }
         }
 
-        const { error: insertError } = await supabaseClient.from('media').insert({
-          title, media_type: type, storage_path: storagePath, thumbnail_path: thumbnailPath, credit_cost: cost, is_nsfw: isNsfw, created_by: user.id
-        });
+        const insertPayload = {
+          title, media_type: type, storage_path: storagePath, credit_cost: cost, is_nsfw: isNsfw, created_by: user.id
+        };
+        if (thumbnailPath) insertPayload.thumbnail_path = thumbnailPath;
+
+        const { error: insertError } = await supabaseClient.from('media').insert(insertPayload);
         if (insertError) {
           await supabaseClient.storage.from('media').remove([storagePath]);
           if (thumbnailPath) await supabaseClient.storage.from('media').remove([thumbnailPath]);
