@@ -100,13 +100,10 @@ create table if not exists public.featured_media (
   title text not null,
   media_type text not null check (media_type in ('image', 'video')),
   storage_path text not null unique,
-  thumbnail_path text,
   credit_cost integer not null default 0 check (credit_cost >= 0),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
-
-alter table public.featured_media add column if not exists thumbnail_path text;
 
 alter table public.featured_media enable row level security;
 
