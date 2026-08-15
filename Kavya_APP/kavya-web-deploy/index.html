@@ -1457,6 +1457,19 @@
       background: rgba(10, 12, 18, 0.45);
     }
 
+    /* Carousel widget inside media cards. Images stay blurred like normal pics. */
+    .card-carousel { position: relative; width: 100%; height: 100%; }
+    .card-carousel-track { position: absolute; inset: 0; }
+    .card-carousel-slide { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; pointer-events: none; }
+    .card-carousel-slide.active { opacity: 1; }
+    .carousel-arrow { position: absolute; top: 50%; transform: translateY(-50%); z-index: 5; width: 34px; height: 34px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.7); background: rgba(10, 12, 18, 0.55); color: #fff; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .carousel-arrow:hover { background: rgba(10, 12, 18, 0.85); }
+    .card-carousel .carousel-prev { left: 8px; }
+    .card-carousel .carousel-next { right: 8px; }
+    .card-carousel-dots { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); z-index: 6; display: flex; gap: 6px; padding: 4px 8px; border-radius: 12px; background: rgba(10, 12, 18, 0.55); }
+    .card-carousel-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255, 255, 255, 0.4); cursor: pointer; }
+    .card-carousel-dot.active { background: var(--neon-cyan); box-shadow: 0 0 8px var(--neon-cyan-glow); }
+
     .media-card.is-image.unlocked .media-overlay-lock {
       display: flex;
     }
@@ -1947,6 +1960,18 @@
       max-height: 500px;
       object-fit: contain;
     }
+
+    .modal-carousel-wrap { position: relative; width: 100%; }
+    .modal-carousel-track { position: relative; width: 100%; }
+    .modal-carousel-slide { display: none; }
+    .modal-carousel-slide.active { display: block; }
+    .modal-carousel-arrow { position: absolute; top: 50%; transform: translateY(-50%); z-index: 5; width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--neon-cyan); background: rgba(10, 12, 18, 0.6); color: #fff; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px var(--neon-cyan-glow); }
+    .modal-carousel-arrow:hover { background: rgba(10, 12, 18, 0.9); }
+    .modal-carousel-arrow.prev { left: 10px; }
+    .modal-carousel-arrow.next { right: 10px; }
+    .modal-carousel-dots { display: flex; justify-content: center; gap: 8px; margin-top: 12px; }
+    .modal-carousel-dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255, 255, 255, 0.35); cursor: pointer; }
+    .modal-carousel-dot.active { background: var(--neon-cyan); box-shadow: 0 0 8px var(--neon-cyan-glow); }
 
     .modal-close-icon {
       position: absolute;
@@ -3827,6 +3852,48 @@ if (window.__kavyaSignupConfirm) {
     });
 
     /* Render Dynamic Media Galleries */
+    function carouselCardHTML(item) {
+      const slides = item.carousel.map((slide, i) =>
+        `<img src="${slide.url}" data-fb="${slide.fb}" onerror="mediaFallback(this)" alt="${item.title}" class="card-carousel-slide${i === 0 ? ' active' : ''}" data-index="${i}" draggable="false">`
+      ).join('');
+      const dots = item.carousel.map((_, i) =>
+        `<span class="card-carousel-dot${i === 0 ? ' active' : ''}" data-index="${i}" onclick="event.stopPropagation(); carouselCardSet('${item.id}', ${i});"></span>`
+      ).join('');
+      return `<div class="card-carousel" id="card-carousel-${item.id}">
+        <div class="card-carousel-track">${slides}</div>
+        <button type="button" class="carousel-arrow carousel-prev" onclick="carouselCardMove(event, '${item.id}', -1)"><i class="fa-solid fa-chevron-left"></i></button>
+        <button type="button" class="carousel-arrow carousel-next" onclick="carouselCardMove(event, '${item.id}', 1)"><i class="fa-solid fa-chevron-right"></i></button>
+        <div class="card-carousel-dots">${dots}</div>
+      </div>`;
+    }
+
+    function carouselCardSet(itemId, index) {
+      const wrap = document.getElementById('card-carousel-' + itemId);
+      if (!wrap) return;
+      const slides = Array.from(wrap.querySelectorAll('.card-carousel-slide'));
+      const dots = Array.from(wrap.querySelectorAll('.card-carousel-dot'));
+      if (slides.length === 0) return;
+      const i = ((index % slides.length) + slides.length) % slides.length;
+      slides.forEach((s, k) => s.classList.toggle('active', k === i));
+      dots.forEach((d, k) => d.classList.toggle('active', k === i));
+    }
+
+    function carouselCardMove(event, itemId, dir) {
+      event.stopPropagation();
+      const wrap = document.getElementById('card-carousel-' + itemId);
+      if (!wrap) return;
+      const slides = Array.from(wrap.querySelectorAll('.card-carousel-slide'));
+      if (slides.length === 0) return;
+      const active = slides.findIndex(s => s.classList.contains('active'));
+      carouselCardSet(itemId, active + dir);
+    }
+
+    function openMediaItem(item) {
+      if (!item) return;
+      const hasCarousel = item.carousel && item.carousel.length > 1;
+      openModal(item.url, item.title, item.type, item.fb, hasCarousel ? item.carousel : null);
+    }
+
     function renderMediaGalleries() {
       const homeGrid = document.getElementById('home-media-grid');
       const imgGrid = document.getElementById('images-media-grid');
@@ -3873,12 +3940,14 @@ if (window.__kavyaSignupConfirm) {
         const isUnlocked = state.unlockedCards.includes(item.id);
         const cardHTML = `
           <div class="media-card ${isUnlocked ? 'unlocked' : ''} ${item.type === 'video' ? 'is-video' : 'is-image'}${item.nsfw ? ' is-nsfw' : ''}" id="${item.id}" data-media-id="${item.id}">
-            <div class="media-thumb" onclick="${isUnlocked ? `openModal('${item.url}', '${item.title}', '${item.type}', '${item.fb}')` : `unlockMedia('${item.id}', ${item.cost})`}">
+            <div class="media-thumb" onclick="${isUnlocked ? `openMediaItem(mediaDatabase.find(m => m.id === '${item.id}'))` : `unlockMedia('${item.id}', ${item.cost})`}">
               ${item.type === 'video'
             ? (item.thumb
               ? `<img src="${item.thumb}" data-fb="${item.thumbFb || ''}" onerror="mediaFallback(this)" alt="${item.title}" class="video-thumb-poster"${item.nsfw ? ' style="filter: blur(16px); -webkit-filter: blur(16px);"' : ''}>`
               : `<video src="${item.url}" data-fb="${item.fb}" onerror="mediaFallback(this)" preload="metadata" muted playsinline${item.nsfw ? ' style="filter: blur(16px); -webkit-filter: blur(16px);"' : ''}></video>`)
-            : `<img src="${item.url}" data-fb="${item.fb}" onerror="mediaFallback(this)" alt="${item.title}">`}
+            : (item.carousel && item.carousel.length > 1
+              ? carouselCardHTML(item)
+              : `<img src="${item.url}" data-fb="${item.fb}" onerror="mediaFallback(this)" alt="${item.title}">`)}
               <div class="video-play-badge"><i class="fa-solid fa-play"></i></div>
               <div class="media-overlay-lock">
                 <div class="lock-icon-neon"><i class="fa-solid ${item.type === 'video' ? 'fa-play' : 'fa-lock'}"></i></div>
@@ -3961,7 +4030,7 @@ if (window.__kavyaSignupConfirm) {
           }
 
           const item = mediaDatabase.find(i => i.id === cardId);
-          if (item) openModal(item.url, item.title, item.type, item.fb);
+          if (item) openMediaItem(item);
 
         } else if (data.status === 'INSUFFICIENT_CREDITS') {
           showUnlockCreditPopup();
@@ -4078,16 +4147,53 @@ if (window.__kavyaSignupConfirm) {
       }
     }
 
-    function openModal(url, title, type, fb) {
+    function openModal(url, title, type, fb, carousel) {
       const contentEl = document.getElementById('modal-media-content');
       if (type === 'video') {
         contentEl.innerHTML = `<video src="${url}" data-fb="${fb || ''}" onerror="mediaFallback(this)" class="modal-img" controls controlsList="nodownload noplaybackrate" disablePictureInPicture autoplay draggable="false"></video>`;
         if (typeof pauseBgMusicForVideo === 'function') pauseBgMusicForVideo();
+      } else if (carousel && carousel.length > 1) {
+        const slides = carousel.map((slide, i) =>
+          `<img src="${slide.url}" data-fb="${slide.fb}" onerror="mediaFallback(this)" class="modal-img modal-carousel-slide${i === 0 ? ' active' : ''}" alt="${title}" draggable="false">`
+        ).join('');
+        const dots = carousel.map((_, i) =>
+          `<span class="modal-carousel-dot${i === 0 ? ' active' : ''}" onclick="modalCarouselJump(${i})"></span>`
+        ).join('');
+        contentEl.innerHTML = `<div class="modal-carousel-wrap" id="modal-carousel">
+          <div class="modal-carousel-track">${slides}</div>
+          <button type="button" class="modal-carousel-arrow prev" onclick="modalCarouselMove(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+          <button type="button" class="modal-carousel-arrow next" onclick="modalCarouselMove(1)"><i class="fa-solid fa-chevron-right"></i></button>
+          <div class="modal-carousel-dots">${dots}</div>
+        </div>`;
       } else {
         contentEl.innerHTML = `<img src="${url}" data-fb="${fb || ''}" onerror="mediaFallback(this)" class="modal-img" alt="${title}" draggable="false">`;
       }
       document.getElementById('modal-title-element').innerText = title;
       document.getElementById('media-modal').classList.add('active');
+    }
+
+    function modalCarouselSet(index) {
+      const wrap = document.getElementById('modal-carousel');
+      if (!wrap) return;
+      const slides = Array.from(wrap.querySelectorAll('.modal-carousel-slide'));
+      const dots = Array.from(wrap.querySelectorAll('.modal-carousel-dot'));
+      if (slides.length === 0) return;
+      const i = ((index % slides.length) + slides.length) % slides.length;
+      slides.forEach((s, k) => s.classList.toggle('active', k === i));
+      dots.forEach((d, k) => d.classList.toggle('active', k === i));
+    }
+
+    function modalCarouselMove(dir) {
+      const wrap = document.getElementById('modal-carousel');
+      if (!wrap) return;
+      const slides = Array.from(wrap.querySelectorAll('.modal-carousel-slide'));
+      if (slides.length === 0) return;
+      const active = slides.findIndex(s => s.classList.contains('active'));
+      modalCarouselSet(active + dir);
+    }
+
+    function modalCarouselJump(index) {
+      modalCarouselSet(index);
     }
 
     function closeModal() {
@@ -4517,13 +4623,15 @@ if (window.__kavyaSignupConfirm) {
     };
 
     function cloudMedia(row) {
+      const carousel = Array.isArray(row.carousel_paths) ? row.carousel_paths : [];
       return {
         id: row.id, title: row.title, type: row.media_type, cost: row.credit_cost,
         nsfw: !!row.is_nsfw, createdAt: row.created_at,
         url: gitMediaUrl(row.storage_path),
         fb: supMediaUrl(row.storage_path),
         thumb: row.thumbnail_path ? gitMediaUrl(row.thumbnail_path) : null,
-        thumbFb: row.thumbnail_path ? supMediaUrl(row.thumbnail_path) : null
+        thumbFb: row.thumbnail_path ? supMediaUrl(row.thumbnail_path) : null,
+        carousel: carousel.map(p => ({ url: gitMediaUrl(p), fb: supMediaUrl(p) }))
       };
     }
 

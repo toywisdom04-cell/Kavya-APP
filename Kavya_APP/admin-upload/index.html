@@ -107,6 +107,9 @@
     .btn-delete-item { position: absolute; top: 10px; right: 10px; background: var(--neon-red); color: #fff; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; box-shadow: 0 0 10px var(--neon-red-glow); }
     .admin-nsfw-blur { filter: blur(16px); -webkit-filter: blur(16px); }
     .nsfw-badge { position: absolute; bottom: 10px; left: 10px; background: var(--neon-red); color: #fff; font-size: 0.7rem; font-weight: 700; padding: 4px 10px; border-radius: 10px; box-shadow: 0 0 12px var(--neon-red-glow); }
+    .carousel-badge { position: absolute; bottom: 10px; right: 10px; background: var(--neon-purple); color: #fff; font-size: 0.7rem; font-weight: 700; padding: 4px 10px; border-radius: 10px; box-shadow: 0 0 12px var(--neon-purple-glow); }
+    .carousel-preview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 8px; margin-top: 12px; }
+    .carousel-preview-thumb { width: 100%; height: 90px; object-fit: cover; border-radius: 10px; border: 2px solid var(--neon-purple); }
     .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 400; display: flex; flex-direction: column; gap: 10px; }
     .toast-msg { background: rgba(12, 14, 22, 0.95); border: 1px solid var(--neon-cyan); color: #fff; padding: 14px 20px; border-radius: 14px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6); display: flex; align-items: center; gap: 12px; }
   
@@ -281,6 +284,17 @@
               <input type="file" id="pic-file-input" accept="image/*" style="display: none;" onchange="previewSelectedFile(event, 'pic-preview')">
               <img id="pic-preview" class="file-preview-thumb" alt="Pic Preview">
             </label>
+            <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+              <input type="checkbox" id="pic-carousel" style="width: 18px; height: 18px; accent-color: var(--neon-purple);" onchange="toggleCarouselInput()">
+              <label class="form-label" for="pic-carousel" style="margin: 0;">Enable Carousel (multiple images)</label>
+            </div>
+            <label class="media-file-dropzone" id="pic-carousel-dropzone" for="pic-carousel-input" style="display: none;">
+              <i class="fa-solid fa-images dropzone-icon"></i>
+              <div style="font-weight: 700;">Choose Multiple Images</div>
+              <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">Upload 2+ images for the carousel</div>
+              <input type="file" id="pic-carousel-input" accept="image/*" multiple style="display: none;" onchange="previewCarouselFiles(event)">
+            </label>
+            <div id="pic-carousel-preview" class="carousel-preview-grid" style="display: none;"></div>
             <div class="form-group">
               <label class="form-label">Credit Cost to Unlock</label>
               <input type="number" id="pic-cost" class="form-input" value="5" min="1" required>
@@ -454,6 +468,7 @@
             ? `<video src="${item.url}" data-fb="${item.fb}" onerror="adminMediaFallback(this)" controls preload="metadata"${item.thumbPath ? ` poster="${adminGitMediaUrl(item.thumbPath)}"` : ''}${item.nsfw ? ' class="admin-nsfw-blur"' : ''}></video>`
             : `<img src="${item.url}" data-fb="${item.fb}" onerror="adminMediaFallback(this)" alt="${item.title}"${item.nsfw ? ' class="admin-nsfw-blur"' : ''}>`}
           ${item.nsfw ? '<div class="nsfw-badge"><i class="fa-solid fa-circle-exclamation"></i> NSFW</div>' : ''}
+          ${item.carouselPaths.length > 1 ? '<div class="carousel-badge"><i class="fa-solid fa-images"></i> CAROUSEL</div>' : ''}
           <div class="media-item-details">
             <div style="font-weight: 700; font-size: 0.95rem;">${item.title}</div>
             <div style="font-size: 0.8rem; color: var(--neon-green);">⚡ ${item.cost} Credits (${item.type})</div>
@@ -473,6 +488,38 @@
         previewEl.style.display = 'inline-block';
       };
       reader.readAsDataURL(file);
+    }
+
+    function toggleCarouselInput() {
+      const enabled = document.getElementById('pic-carousel').checked;
+      document.getElementById('pic-carousel-dropzone').style.display = enabled ? '' : 'none';
+      document.getElementById('pic-carousel-preview').style.display = enabled ? 'grid' : 'none';
+      if (enabled) {
+        document.getElementById('pic-preview').style.display = 'none';
+        document.getElementById('pic-file-input').removeAttribute('required');
+        document.getElementById('pic-carousel-input').setAttribute('required', '');
+      } else {
+        document.getElementById('pic-carousel-input').removeAttribute('required');
+        document.getElementById('pic-file-input').setAttribute('required', '');
+        document.getElementById('pic-carousel-preview').innerHTML = '';
+      }
+    }
+
+    function previewCarouselFiles(e) {
+      const files = Array.from(e.target.files || []);
+      const grid = document.getElementById('pic-carousel-preview');
+      grid.innerHTML = '';
+      files.forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          const img = document.createElement('img');
+          img.src = evt.target.result;
+          img.className = 'carousel-preview-thumb';
+          img.alt = 'carousel preview';
+          grid.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+      });
     }
 
     function showToast(msg, type = 'success') {
@@ -515,6 +562,7 @@
         id: row.id, title: row.title, type: row.media_type, cost: row.credit_cost,
         storagePath: row.storage_path,
         thumbPath: row.thumbnail_path || null,
+        carouselPaths: Array.isArray(row.carousel_paths) ? row.carousel_paths : [],
         nsfw: !!row.is_nsfw,
         url: adminGitMediaUrl(row.storage_path),
         fb: adminSupMediaUrl(row.storage_path)
@@ -679,18 +727,30 @@
         const cost = Number(document.getElementById(isImage ? 'pic-cost' : 'vid-cost').value);
         const isNsfw = !!document.getElementById(isImage ? 'pic-nsfw' : 'vid-nsfw').checked;
         const input = document.getElementById(isImage ? 'pic-file-input' : 'vid-file-input');
+        const carouselEnabled = isImage && !!document.getElementById('pic-carousel').checked;
         const file = input.files[0];
 
-        if (!file) throw new Error(`Please choose a ${type} file.`);
-        if (!file.type.startsWith(type + '/')) throw new Error(`Please select a valid ${type} file.`);
-        if (file.size > 50 * 1024 * 1024) throw new Error('Files must be 50 MB or smaller.');
+        if (carouselEnabled) {
+          const carouselFiles = Array.from(document.getElementById('pic-carousel-input').files || []);
+          const validated = carouselFiles.filter((f) => f.type.startsWith('image/'));
+          if (validated.length < 2) throw new Error('Carousel requires at least 2 image files.');
+          if (validated.some((f) => f.size > 50 * 1024 * 1024)) throw new Error('Carousel files must be 50 MB or smaller.');
+        } else {
+          if (!file) throw new Error(`Please choose a ${type} file.`);
+          if (!file.type.startsWith(type + '/')) throw new Error(`Please select a valid ${type} file.`);
+          if (file.size > 50 * 1024 * 1024) throw new Error('Files must be 50 MB or smaller.');
+        }
 
-        const extension = file.name.includes('.') ? file.name.split('.').pop().toLowerCase() : 'bin';
-        const storagePath = `${user.id}/${crypto.randomUUID()}.${extension}`;
-        document.getElementById('sync-status-text').innerText = 'Uploading media...';
-
-        const { error: uploadError } = await supabaseClient.storage.from('media').upload(storagePath, file, { contentType: file.type });
-        if (uploadError) throw uploadError;
+        let storagePath = null;
+        const uploadedPaths = [];
+        if (file) {
+          const extension = file.name.includes('.') ? file.name.split('.').pop().toLowerCase() : 'bin';
+          storagePath = `${user.id}/${crypto.randomUUID()}.${extension}`;
+          document.getElementById('sync-status-text').innerText = 'Uploading media...';
+          const { error: uploadError } = await supabaseClient.storage.from('media').upload(storagePath, file, { contentType: file.type });
+          if (uploadError) throw uploadError;
+          uploadedPaths.push(storagePath);
+        }
 
         let thumbnailPath = null;
         if (!isImage) {
@@ -703,21 +763,41 @@
             thumbnailPath = `${user.id}/thumbs/${crypto.randomUUID()}.${thumbExt}`;
             const { error: thumbError } = await supabaseClient.storage.from('media').upload(thumbnailPath, thumbFile, { contentType: thumbFile.type });
             if (thumbError) {
-              await supabaseClient.storage.from('media').remove([storagePath]);
+              await supabaseClient.storage.from('media').remove(uploadedPaths);
               throw thumbError;
             }
+            uploadedPaths.push(thumbnailPath);
           }
+        }
+
+        let carouselPaths = null;
+        if (carouselEnabled) {
+          const carouselFiles = Array.from(document.getElementById('pic-carousel-input').files || []);
+          const validated = carouselFiles.filter((f) => f.type.startsWith('image/'));
+          carouselPaths = [];
+          for (const carouselFile of validated) {
+            const carExt = carouselFile.name.includes('.') ? carouselFile.name.split('.').pop().toLowerCase() : 'bin';
+            const carPath = `${user.id}/carousel/${crypto.randomUUID()}.${carExt}`;
+            const { error: carError } = await supabaseClient.storage.from('media').upload(carPath, carouselFile, { contentType: carouselFile.type });
+            if (carError) {
+              await supabaseClient.storage.from('media').remove(uploadedPaths);
+              throw carError;
+            }
+            uploadedPaths.push(carPath);
+            carouselPaths.push(carPath);
+          }
+          if (!storagePath) storagePath = carouselPaths[0];
         }
 
         const insertPayload = {
           title, media_type: type, storage_path: storagePath, credit_cost: cost, is_nsfw: isNsfw, created_by: user.id
         };
         if (thumbnailPath) insertPayload.thumbnail_path = thumbnailPath;
+        if (carouselPaths) insertPayload.carousel_paths = carouselPaths;
 
         const { error: insertError } = await supabaseClient.from('media').insert(insertPayload);
         if (insertError) {
-          await supabaseClient.storage.from('media').remove([storagePath]);
-          if (thumbnailPath) await supabaseClient.storage.from('media').remove([thumbnailPath]);
+          await supabaseClient.storage.from('media').remove(uploadedPaths);
           throw insertError;
         }
 
@@ -727,6 +807,16 @@
         document.getElementById(isImage ? 'pic-preview' : 'vid-preview').style.display = 'none';
         const thumbPreviewReset = document.getElementById('vid-thumb-preview');
         if (thumbPreviewReset) thumbPreviewReset.style.display = 'none';
+        if (carouselEnabled) {
+          const carouselCheckbox = document.getElementById('pic-carousel');
+          carouselCheckbox.checked = false;
+          document.getElementById('pic-carousel-input').value = '';
+          document.getElementById('pic-carousel-dropzone').style.display = 'none';
+          document.getElementById('pic-carousel-preview').style.display = 'none';
+          document.getElementById('pic-carousel-preview').innerHTML = '';
+          document.getElementById('pic-file-input').setAttribute('required', '');
+          document.getElementById('pic-carousel-input').removeAttribute('required');
+        }
         await loadCentralCloudData();
         showToast(`Published "${title}" to the user portal.`);
       } catch (err) {
@@ -739,10 +829,14 @@
       if (!confirm('Delete this media item from all users?')) return;
       try {
         await requireAdmin();
-        const { data: mediaItems } = await supabaseClient.from('media').select('storage_path, thumbnail_path').eq('id', itemId);
+        const { data: mediaItems } = await supabaseClient.from('media').select('storage_path, thumbnail_path, carousel_paths').eq('id', itemId);
         if (mediaItems && mediaItems.length > 0) {
-            if (mediaItems[0].storage_path) await supabaseClient.storage.from('media').remove([mediaItems[0].storage_path]);
-            if (mediaItems[0].thumbnail_path) await supabaseClient.storage.from('media').remove([mediaItems[0].thumbnail_path]);
+            const item = mediaItems[0];
+            const pathsToRemove = [];
+            if (item.storage_path) pathsToRemove.push(item.storage_path);
+            if (item.thumbnail_path) pathsToRemove.push(item.thumbnail_path);
+            if (Array.isArray(item.carousel_paths)) pathsToRemove.push(...item.carousel_paths);
+            if (pathsToRemove.length > 0) await supabaseClient.storage.from('media').remove(pathsToRemove);
         }
         const { error } = await supabaseClient.from('media').delete().eq('id', itemId);
         if (error) throw error;
