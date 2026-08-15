@@ -1499,6 +1499,26 @@
       display: flex;
     }
 
+    /* Videos marked NSFW stay blurred in the user portal even after unlocking. */
+    .media-card.is-video.is-nsfw .media-thumb video,
+    .media-card.is-video.is-nsfw .media-thumb .video-thumb-poster {
+      filter: blur(16px);
+      transform: scale(1.08);
+    }
+
+    .media-card.is-video.is-nsfw .media-overlay-lock {
+      backdrop-filter: blur(12px);
+      background: rgba(10, 12, 18, 0.45);
+    }
+
+    .media-card.is-video.is-nsfw.unlocked .media-overlay-lock {
+      display: flex;
+    }
+
+    .media-card.is-video.is-nsfw .video-play-badge {
+      display: none;
+    }
+
     .lock-icon-neon {
       width: 54px;
       height: 54px;
@@ -3851,7 +3871,7 @@ if (window.__kavyaSignupConfirm) {
       mediaDatabase.forEach(item => {
         const isUnlocked = state.unlockedCards.includes(item.id);
         const cardHTML = `
-          <div class="media-card ${isUnlocked ? 'unlocked' : ''} ${item.type === 'video' ? 'is-video' : 'is-image'}" id="${item.id}" data-media-id="${item.id}">
+          <div class="media-card ${isUnlocked ? 'unlocked' : ''} ${item.type === 'video' ? 'is-video' : 'is-image'}${item.nsfw ? ' is-nsfw' : ''}" id="${item.id}" data-media-id="${item.id}">
             <div class="media-thumb" onclick="${isUnlocked ? `openModal('${item.url}', '${item.title}', '${item.type}', '${item.fb}')` : `unlockMedia('${item.id}', ${item.cost})`}">
               ${item.type === 'video'
             ? (item.thumb
