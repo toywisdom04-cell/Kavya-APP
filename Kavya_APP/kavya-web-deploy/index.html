@@ -1508,6 +1508,7 @@
 
     .media-card.is-video.is-nsfw .media-overlay-lock {
       backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       background: rgba(10, 12, 18, 0.45);
     }
 
@@ -3875,8 +3876,8 @@ if (window.__kavyaSignupConfirm) {
             <div class="media-thumb" onclick="${isUnlocked ? `openModal('${item.url}', '${item.title}', '${item.type}', '${item.fb}')` : `unlockMedia('${item.id}', ${item.cost})`}">
               ${item.type === 'video'
             ? (item.thumb
-              ? `<img src="${item.thumb}" data-fb="${item.thumbFb || ''}" onerror="mediaFallback(this)" alt="${item.title}" class="video-thumb-poster">`
-              : `<video src="${item.url}" data-fb="${item.fb}" onerror="mediaFallback(this)" preload="metadata" muted playsinline></video>`)
+              ? `<img src="${item.thumb}" data-fb="${item.thumbFb || ''}" onerror="mediaFallback(this)" alt="${item.title}" class="video-thumb-poster"${item.nsfw ? ' style="filter: blur(16px); -webkit-filter: blur(16px);"' : ''}>`
+              : `<video src="${item.url}" data-fb="${item.fb}" onerror="mediaFallback(this)" preload="metadata" muted playsinline${item.nsfw ? ' style="filter: blur(16px); -webkit-filter: blur(16px);"' : ''}></video>`)
             : `<img src="${item.url}" data-fb="${item.fb}" onerror="mediaFallback(this)" alt="${item.title}">`}
               <div class="video-play-badge"><i class="fa-solid fa-play"></i></div>
               <div class="media-overlay-lock">
