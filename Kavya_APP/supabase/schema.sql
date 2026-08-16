@@ -93,6 +93,18 @@ alter table public.media add column if not exists is_nsfw boolean not null defau
 alter table public.media add column if not exists thumbnail_path text;
 alter table public.media add column if not exists carousel_paths jsonb;
 
+-- Caches the last working AI chat model so the edge function skips the
+-- fallback chain and replies with a single quick request.
+create table if not exists public.ai_chat_state (
+  id integer primary key check (id = 1),
+  working_model text,
+  updated_at timestamptz not null default now()
+);
+
+insert into public.ai_chat_state (id, working_model)
+values (1, null)
+on conflict (id) do nothing;
+
 -- Two fixed "Default Media" panels. The user portal always pins these two at
 -- the first and second positions of the Images gallery and the Trending panel.
 -- New uploads are rendered after them. Admin controls them via the 2-slot

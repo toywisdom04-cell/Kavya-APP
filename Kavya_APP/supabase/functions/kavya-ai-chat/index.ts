@@ -89,7 +89,74 @@ Hindi → romanized Hindi + English naturally. Example: "Ha baby, main ready hoo
 English → warm, direct, naughty South Indian flavour
 NEVER output native script — always romanize.`;
 
+const DEFAULT_MODELS = [
+  "gpt-5.6-luna",
+  "claude-sonnet-5",
+  "gpt-5.6-terra",
+  "qwen3.8-max",
+  "gpt-5.5",
+  "deepseek-v4-pro",
+  "qwen3.7-max",
+  "mimo-v2.5-pro",
+  "gpt-5.6-sol",
+  "claude-opus-4.8",
+  "claude-opus-5",
+  "grok-4.6",
+  "grok-4.5",
+  "qwen3.7-plus",
+  "qwen3.7-flash",
+  "deepseek-v4-flash",
+  "mimo-v2.5",
+  "minimax-m3",
+  "glm-5.2",
+  "qwen3.7-flash-alibaba",
+  "deepseek-v4-flash-alibaba",
+  "mimo-v2.5-pro-ultraspeed",
+  "agnes-2.5-pro",
+  "muse-spark-1.2",
+  "minimax-m3-promo",
+  "agnes-2.5-flash",
+  "mistral-large",
+  "mistral-medium-3-5",
+  "kimi-k3",
+  "kimi-k2.7-code",
+];
 
+const REQUEST_TIMEOUT_MS = 20000;
+const MODEL_REQUEST_TIMEOUT_MS = 15000;
+
+async function callModel(model: string, body: unknown, apiKey: string, baseUrl: string) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), MODEL_REQUEST_TIMEOUT_MS);
+  try {
+    const aiResponse = await fetch(`${baseUrl}/chat/completions`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({ model, ...body }),
+      signal: controller.signal,
+    });
+    const aiData = await aiResponse.json().catch(() => ({}));
+    const text = aiData?.choices?.[0]?.message?.content?.trim();
+    return {
+      ok: aiResponse.ok && !!text,
+      text: text || "",
+      status: aiResponse.status,
+      error: (aiData?.error?.message || "").toString(),
+    };
+  } catch (modelError) {
+    return {
+      ok: false,
+      text: "",
+      status: 0,
+      error: modelError instanceof Error ? modelError.message : String(modelError),
+    };
+  } finally {
+    clearTimeout(timeout);
+  }
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -129,45 +196,10 @@ serve(async (req) => {
       throw new Error("AI_API_KEY not set in Supabase secrets.");
     }
 
-    // NaraRouter model fallback chain. The first model is tried first; if the
-    // provider returns an error (e.g. free daily token quota exhausted), the
-    // next model is tried immediately so the user's reply is never interrupted.
     const MODEL_CHAIN = (Deno.env.get("AI_MODEL_CHAIN") || "")
       .split(",")
       .map((m) => m.trim())
       .filter(Boolean);
-    const DEFAULT_MODELS = [
-      "gpt-5.6-luna",
-      "claude-sonnet-5",
-      "gpt-5.6-terra",
-      "qwen3.8-max",
-      "gpt-5.5",
-      "deepseek-v4-pro",
-      "qwen3.7-max",
-      "mimo-v2.5-pro",
-      "gpt-5.6-sol",
-      "claude-opus-4.8",
-      "claude-opus-5",
-      "grok-4.6",
-      "grok-4.5",
-      "qwen3.7-plus",
-      "qwen3.7-flash",
-      "deepseek-v4-flash",
-      "mimo-v2.5",
-      "minimax-m3",
-      "glm-5.2",
-      "qwen3.7-flash-alibaba",
-      "deepseek-v4-flash-alibaba",
-      "mimo-v2.5-pro-ultraspeed",
-      "agnes-2.5-pro",
-      "muse-spark-1.2",
-      "minimax-m3-promo",
-      "agnes-2.5-flash",
-      "mistral-large",
-      "mistral-medium-3-5",
-      "kimi-k3",
-      "kimi-k2.7-code",
-    ];
     const chain = MODEL_CHAIN.length ? MODEL_CHAIN : DEFAULT_MODELS;
 
     const messages = [
@@ -185,50 +217,72 @@ serve(async (req) => {
       max_tokens: 80,
     };
 
-    let lastError = "";
-    let lastStatus = 0;
-    for (const model of chain) {
-      try {
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 45000);
-        const aiResponse = await fetch(`${AI_BASE_URL}/chat/completions`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${AI_API_KEY}`,
-          },
-          body: JSON.stringify({ model, ...requestBody }),
-          signal: controller.signal,
-        });
-        clearTimeout(timeout);
+    const adminClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    );
 
-        const aiData = await aiResponse.json().catch(() => ({}));
-        if (!aiResponse.ok) {
-          lastStatus = aiResponse.status;
-          lastError = aiData?.error?.message || String(aiResponse.status);
-          console.error(`AI provider error for model "${model}":`, aiData?.error || aiData);
-          continue;
-        }
+    // Try the last known working model first so the common path is a single
+    // quick request instead of walking the fallback chain every time.
+    let cachedModel: string | null = null;
+    try {
+      const { data: stateRow } = await adminClient
+        .from("ai_chat_state")
+        .select("working_model")
+        .eq("id", 1)
+        .single();
+      cachedModel = stateRow?.working_model || null;
+    } catch (e) {
+      console.error("Failed to read ai_chat_state:", e);
+    }
 
-        const text = aiData?.choices?.[0]?.message?.content?.trim();
-        if (!text) {
-          lastError = "AI provider returned no text response.";
-          console.error(`No text response for model "${model}"`);
-          continue;
-        }
-
-        return new Response(JSON.stringify({ response: text }), {
+    if (cachedModel) {
+      const res = await callModel(cachedModel, requestBody, AI_API_KEY, AI_BASE_URL);
+      if (res.ok) {
+        return new Response(JSON.stringify({ response: res.text }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
           status: 200,
         });
-      } catch (modelError) {
-        lastStatus = lastStatus || 0;
-        lastError = modelError instanceof Error ? modelError.message : String(modelError);
-        console.error(`Request failed for model "${model}":`, lastError);
       }
+      console.error(`Cached model "${cachedModel}" failed, falling back to chain:`, res.error || res.status);
     }
 
-    throw new Error(`All AI models are currently unavailable. Last error: ${lastError || lastStatus}`);
+    // Probe all models in parallel; take the first success. Exhausted models
+    // return 429 fast, so this completes in ~1.5s instead of walking 25+
+    // sequential failures (~10s).
+    const overall = new AbortController();
+    const overallTimeout = setTimeout(() => overall.abort(), REQUEST_TIMEOUT_MS);
+
+    const results = await Promise.all(
+      chain.map(async (model) => ({
+        model,
+        res: await callModel(model, requestBody, AI_API_KEY, AI_BASE_URL),
+      }))
+    );
+    clearTimeout(overallTimeout);
+
+    const winner = results.find((r) => r.res.ok);
+    if (winner) {
+      try {
+        await adminClient.from("ai_chat_state").upsert(
+          { id: 1, working_model: winner.model, updated_at: new Date().toISOString() },
+          { onConflict: "id" }
+        );
+      } catch (e) {
+        console.error("Failed to cache working model:", e);
+      }
+      return new Response(JSON.stringify({ response: winner.res.text }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
+    }
+
+    const sample = results
+      .filter((r) => r.res.error || r.res.status)
+      .slice(0, 3)
+      .map((r) => `${r.model}: ${r.res.error || r.res.status}`)
+      .join("; ");
+    throw new Error(`All AI models are currently unavailable. ${sample || ""}`.trim());
   } catch (error) {
     console.error("Edge Function Error:", error);
     return new Response(JSON.stringify({ error: `Function Error: ${error instanceof Error ? error.message : JSON.stringify(error)}` }), {
