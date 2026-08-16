@@ -4289,27 +4289,20 @@ if (window.__kavyaSignupConfirm) {
           console.error('AI Chat Error:', aiError);
           let errorMessage = 'Unknown AI error.';
           let isCreditOut = aiError.context && aiError.context.status === 402;
-          if (aiError.context && aiError.context.body instanceof ReadableStream) {
-            const reader = aiError.context.body.getReader();
-            const decoder = new TextDecoder();
-            let chunks = '';
-            await reader.read().then(function processText({ done, value }) {
-              if (done) {
-                try {
-                  const errorBody = JSON.parse(chunks);
-                  if (errorBody.error) {
-                    errorMessage = errorBody.error;
-                  }
-                } catch (e) {
-                  errorMessage = chunks; // Fallback if not JSON
-                }
-                return;
+          try {
+            if (aiError.context && typeof aiError.context.text === 'function') {
+              const bodyText = await aiError.context.text();
+              try {
+                const errorBody = JSON.parse(bodyText);
+                if (errorBody.error) errorMessage = errorBody.error;
+              } catch (e) {
+                if (bodyText) errorMessage = bodyText;
               }
-              chunks += decoder.decode(value, { stream: true });
-              return reader.read().then(processText);
-            });
-          } else if (aiError.message) {
-            errorMessage = aiError.message;
+            } else if (aiError.message) {
+              errorMessage = aiError.message;
+            }
+          } catch (e) {
+            // keep default errorMessage
           }
 
           if (isCreditOut || /insufficient/i.test(errorMessage)) {
