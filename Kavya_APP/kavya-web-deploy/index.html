@@ -3715,11 +3715,23 @@ if (window.__kavyaSignupConfirm) {
         showToast('Confirming your email...');
       } else if (state.currentUser) {
         applyUserSessionUI();
-        const initialSection = window.__kavyaSafeHash || 'home-section';
+        const savedSection = (function () {
+          try {
+            return sessionStorage.getItem('kavya_current_section') || '';
+          } catch (e) { return ''; }
+        })();
+        const initialSection = window.__kavyaSafeHash
+          || (document.getElementById(savedSection) ? savedSection : 'home-section');
         navigateToSection(initialSection, false);
       } else {
         document.getElementById('main-header').style.display = 'none';
-        const initialPublicSection = window.__kavyaSafeHash || 'signup-section';
+        const savedPublicSection = (function () {
+          try {
+            return sessionStorage.getItem('kavya_current_section') || '';
+          } catch (e) { return ''; }
+        })();
+        const initialPublicSection = window.__kavyaSafeHash
+          || (['about-section', 'contact-section', 'privacy-section', 'terms-section'].includes(savedPublicSection) ? savedPublicSection : 'signup-section');
         navigateToSection(['about-section', 'contact-section', 'privacy-section', 'terms-section'].includes(initialPublicSection) ? initialPublicSection : 'signup-section', false);
       }
 
@@ -3808,6 +3820,12 @@ if (window.__kavyaSignupConfirm) {
       if (pushHistory) {
         history.pushState({ section: sectionId }, '', '#' + sectionId);
       }
+
+      // Remember the current page so a reload (e.g. returning to the tab from
+      // another tab) restores the exact section instead of dropping to Home.
+      try {
+        sessionStorage.setItem('kavya_current_section', sectionId);
+      } catch (e) { /* ignore storage failures */ }
 
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
